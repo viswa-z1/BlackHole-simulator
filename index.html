@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>SINGULARITY — Real-Time Black Hole Simulator</title>
+<meta name="description" content="A real-time, GPU-accelerated black hole simulator: Schwarzschild geodesics, RK4-integrated million-particle accretion disk, per-pixel gravitational lensing, and a guided cinematic descent." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+
+<!-- Three.js via ES module import map (CDN) -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- WebGL canvas -->
+<canvas id="scene"></canvas>
+
+<!-- ===== Loading / intro splash ===== -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <h1>SINGULARITY</h1>
+  <p>Real-Time Schwarzschild Black Hole Engine</p>
+  <p class="loader-status" id="loader-status">Initializing WebGL2 context…</p>
+  <button id="enter-btn">Begin Descent</button>
+</div>
+
+<!-- ===== Top navigation ===== -->
+<header id="topbar">
+  <div class="brand">SINGULAR<span>•</span>ITY</div>
+  <nav class="nav-pills">
+    <button data-view="sim" class="active">Simulator</button>
+    <button data-view="features">Anatomy</button>
+    <button data-view="catalog">Catalog</button>
+    <button id="toggle-dock">Controls</button>
+  </nav>
+</header>
+
+<!-- ===== Cinematic stage caption ===== -->
+<div id="stage">
+  <div class="stage-name"></div>
+  <div class="stage-desc"></div>
+</div>
+
+<!-- ===== Telemetry HUD ===== -->
+<div id="hud">
+  <div class="row"><span>FPS</span><b id="hud-fps">—</b></div>
+  <div class="row"><span>Particles</span><b id="hud-particles">—</b></div>
+  <div class="row"><span class="k">r / Rₛ</span><b id="hud-radius">—</b></div>
+  <div class="row"><span class="k">Stage</span><b id="hud-stage">Approach</b></div>
+  <div class="row"><span>Time dilation</span><b id="hud-dilation">1.00×</b></div>
+  <div class="row"><span>Redshift z</span><b id="hud-redshift">0.00</b></div>
+  <div class="row"><span id="hud-zone" class="warn"></span></div>
+</div>
+
+<!-- ===== Control dock ===== -->
+<aside id="dock" class="collapsed">
+  <h3>Simulation Controls</h3>
+  <div class="ctrl">
+    <label>Black Hole Mass <span id="v-mass">1.0 M</span></label>
+    <input type="range" id="c-mass" min="0.4" max="3.0" step="0.05" value="1.0" />
+  </div>
+  <div class="ctrl">
+    <label>Spin (a) <span id="v-spin">0.90</span></label>
+    <input type="range" id="c-spin" min="0" max="0.998" step="0.002" value="0.90" />
+  </div>
+  <div class="ctrl">
+    <label>Disk Brightness <span id="v-bright">1.0</span></label>
+    <input type="range" id="c-bright" min="0" max="2.5" step="0.05" value="1.0" />
+  </div>
+  <div class="ctrl">
+    <label>Lensing Steps <span id="v-steps">260</span></label>
+    <input type="range" id="c-steps" min="80" max="400" step="10" value="260" />
+  </div>
+  <div class="ctrl">
+    <label>Particles <span id="v-count">262K</span></label>
+    <input type="range" id="c-count" min="0" max="4" step="1" value="3" />
+  </div>
+  <div class="ctrl toggle">
+    <label style="margin:0">Relativistic Doppler</label>
+    <span class="switch"><input type="checkbox" id="c-doppler" checked><span class="slider-sw"></span></span>
+  </div>
+  <div class="ctrl toggle">
+    <label style="margin:0">Relativistic Jets</label>
+    <span class="switch"><input type="checkbox" id="c-jets" checked><span class="slider-sw"></span></span>
+  </div>
+  <div class="ctrl toggle">
+    <label style="margin:0">Kerr Ergosphere</label>
+    <span class="switch"><input type="checkbox" id="c-ergo"><span class="slider-sw"></span></span>
+  </div>
+  <div class="ctrl toggle">
+    <label style="margin:0">Free Orbit Camera</label>
+    <span class="switch"><input type="checkbox" id="c-orbit"><span class="slider-sw"></span></span>
+  </div>
+</aside>
+
+<!-- ===== Journey scrubber ===== -->
+<div id="journey">
+  <div class="journey-track"><div class="journey-fill" id="journey-fill"></div></div>
+  <div class="journey-stops" id="journey-stops"></div>
+  <div class="journey-hint">Scroll, drag the bar, or press <b>← →</b> to fly · <b>Space</b> to auto-cruise</div>
+</div>
+
+<!-- ===== Anatomy panel ===== -->
+<section class="panel" id="panel-features">
+  <button class="panel-close" data-close>×</button>
+  <div class="panel-inner">
+    <h2>Anatomy of a <em>Black Hole</em></h2>
+    <p class="lede">Every region around a black hole obeys precise physics. Here is what the simulator is actually computing, light-ray by light-ray.</p>
+    <div class="feature-grid" id="feature-grid"></div>
+  </div>
+</section>
+
+<!-- ===== Catalog panel ===== -->
+<section class="panel" id="panel-catalog">
+  <button class="panel-close" data-close>×</button>
+  <div class="panel-inner">
+    <h2>The Cosmic <em>Catalog</em></h2>
+    <p class="lede">A field guide to the most extraordinary collapsed objects ever found — from our galaxy's quiet heart to titans 40 billion times the mass of the Sun, and the spinning lighthouses called pulsars.</p>
+    <div class="cat-tabs">
+      <button data-cat="bh" class="active">Top 20 Black Holes</button>
+      <button data-cat="ps">Top 20 Pulsars</button>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+</section>
+
+<div id="toast"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
