@@ -4,18 +4,30 @@
 
 :root {
   --bg: #02030a;
-  --fg: #eaf0ff;
+  --fg: #eef2ff;
   --muted: #8a93b2;
   --accent: #ff9d3c;       /* accretion orange */
   --accent2: #4db5ff;      /* relativistic blue */
+  --accent3: #b79cff;      /* quasar violet */
   --hot: #ffd98a;
-  --glass: rgba(12, 16, 32, 0.55);
-  --glass-brd: rgba(120, 150, 220, 0.18);
+  --glass: rgba(14, 18, 36, 0.55);
+  --glass-strong: rgba(10, 13, 28, 0.78);
+  --glass-brd: rgba(120, 150, 220, 0.16);
   --font: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+::selection { background: rgba(255,157,60,0.3); color: #fff; }
+
+/* cinematic vignette over the canvas (under the UI chrome) */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 5; pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.5) 100%),
+    radial-gradient(ellipse at 50% -10%, rgba(40,30,60,0.18), transparent 60%);
+}
 
 html, body {
   height: 100%;
@@ -105,12 +117,18 @@ a { color: var(--accent2); text-decoration: none; }
   padding: 18px 26px;
   pointer-events: none;
 }
+#topbar::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 110px;
+  background: linear-gradient(180deg, rgba(2,3,10,0.7), transparent);
+  pointer-events: none; z-index: -1;
+}
 #topbar .brand {
   font-weight: 700; letter-spacing: 0.32em; font-size: 15px;
   text-transform: uppercase;
   background: linear-gradient(90deg, #fff, var(--accent));
   -webkit-background-clip: text; background-clip: text; color: transparent;
   pointer-events: auto;
+  text-shadow: 0 0 30px rgba(255,157,60,0.15);
 }
 #topbar .brand span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
 .nav-pills { display: flex; gap: 8px; pointer-events: auto; }
@@ -270,8 +288,11 @@ a { color: var(--accent2); text-decoration: none; }
 .panel {
   position: fixed; inset: 0;
   z-index: 40;
-  background: linear-gradient(180deg, rgba(2,3,10,0.92), rgba(2,3,10,0.97));
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(60,40,90,0.22), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(40,60,110,0.18), transparent 60%),
+    linear-gradient(180deg, rgba(2,3,10,0.94), rgba(2,3,10,0.98));
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   overflow-y: auto;
   opacity: 0; pointer-events: none;
   transition: opacity .5s ease;
