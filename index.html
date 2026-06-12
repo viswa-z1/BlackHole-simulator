@@ -27,11 +27,25 @@
 
 <!-- ===== Loading / intro splash ===== -->
 <div id="loader">
-  <div class="loader-ring"></div>
-  <h1>SINGULARITY</h1>
-  <p>Real-Time Schwarzschild Black Hole Engine</p>
-  <p class="loader-status" id="loader-status">Initializing WebGL2 context…</p>
-  <button id="enter-btn">Begin Descent</button>
+  <div class="hero">
+    <div class="loader-ring"></div>
+    <div class="hero-eyebrow">REAL-TIME · GPU · GENERAL RELATIVITY</div>
+    <h1>SINGULARITY</h1>
+    <p class="hero-sub">A real-time black hole simulator — Schwarzschild geodesics, a million-particle
+      accretion disk, and per-pixel gravitational lensing. Step up to the edge, then fall in.</p>
+    <div class="hero-stats">
+      <div><b>1,000,000</b><span>GPU particles</span></div>
+      <div><b>RK4</b><span>geodesic solver</span></div>
+      <div><b>40</b><span>real objects</span></div>
+    </div>
+    <p class="loader-status" id="loader-status">Initializing WebGL2 context…</p>
+    <div class="hero-cta">
+      <button id="enter-btn">Begin Descent</button>
+      <button id="enter-catalog" class="ghost">Explore the Catalog</button>
+      <button id="enter-physics" class="ghost">Understand the Physics</button>
+    </div>
+    <div class="hero-hint">Scroll or use ← → to fly · click any object to learn more</div>
+  </div>
 </div>
 
 <!-- ===== Top navigation ===== -->

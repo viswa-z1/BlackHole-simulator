@@ -256,19 +256,39 @@ const bootMsgs = [
   "Calibrating ISCO at 3 Rₛ…",
   "Ready.",
 ];
+const ctaCatalog = document.getElementById("enter-catalog");
+const ctaPhysics = document.getElementById("enter-physics");
+
 let boot = 0;
 const bootTimer = setInterval(() => {
   loaderStatus.textContent = bootMsgs[boot];
-  if (++boot >= bootMsgs.length) { clearInterval(bootTimer); enterBtn.classList.add("ready"); }
+  if (++boot >= bootMsgs.length) {
+    clearInterval(bootTimer);
+    enterBtn.classList.add("ready");
+    ctaCatalog.classList.add("ready");
+    ctaPhysics.classList.add("ready");
+    loaderStatus.textContent = "Ready when you are.";
+  }
 }, 420);
 
 let started = false;
-enterBtn.addEventListener("click", () => {
+function startSim() {
   if (started) return;
   started = true;
   loader.classList.add("hidden");
   autoCruise = true;
+}
+enterBtn.addEventListener("click", () => {
+  startSim();
   toast("Welcome. Scroll or use ← → to fly. Space toggles auto-cruise.");
+});
+ctaCatalog.addEventListener("click", () => {
+  startSim();
+  document.querySelector('.nav-pills button[data-view="catalog"]')?.click();
+});
+ctaPhysics.addEventListener("click", () => {
+  startSim();
+  document.querySelector('.nav-pills button[data-view="features"]')?.click();
 });
 
 // ---------- resize ----------

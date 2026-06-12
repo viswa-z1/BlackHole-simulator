@@ -61,18 +61,41 @@ a { color: var(--accent2); text-decoration: none; }
   box-shadow: 0 0 60px rgba(255,157,60,0.35), inset 0 0 30px rgba(255,157,60,0.2);
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 660px; padding: 0 24px; }
+.hero-eyebrow {
+  margin-top: 30px; font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.34em; color: var(--accent2); opacity: 0.85;
+}
 #loader h1 {
-  margin-top: 34px;
+  margin-top: 12px;
   font-weight: 700;
-  font-size: clamp(28px, 5vw, 52px);
-  letter-spacing: 0.18em;
+  font-size: clamp(40px, 8vw, 84px);
+  letter-spacing: 0.16em;
+  line-height: 1;
   background: linear-gradient(90deg, var(--hot), var(--accent), var(--accent2));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  filter: drop-shadow(0 0 40px rgba(255,157,60,0.25));
 }
-#loader p { margin-top: 12px; color: var(--muted); font-family: var(--mono); font-size: 13px; letter-spacing: 0.1em; }
-.loader-status { margin-top: 6px; min-height: 18px; }
+.hero-sub { margin-top: 20px; color: var(--fg); opacity: 0.82; font-size: clamp(14px, 1.8vw, 16px); line-height: 1.65; max-width: 560px; }
+.hero-stats { display: flex; gap: 38px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
+.hero-stats div { display: flex; flex-direction: column; gap: 4px; }
+.hero-stats b { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--hot); }
+.hero-stats span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.loader-status { margin-top: 26px; min-height: 18px; color: var(--muted); font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.08em; }
+.hero-cta { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
+.hero-cta .ghost {
+  font-family: var(--font); background: var(--glass);
+  border: 1px solid var(--glass-brd); color: var(--fg);
+  padding: 14px 26px; border-radius: 999px; font-size: 13px; cursor: pointer;
+  letter-spacing: 0.04em; backdrop-filter: blur(12px);
+  opacity: 0; pointer-events: none; transition: all .3s;
+}
+.hero-cta .ghost.ready { opacity: 1; pointer-events: auto; }
+.hero-cta .ghost:hover { border-color: var(--accent2); color: var(--accent2); transform: translateY(-1px); }
+.hero-cta #enter-btn { margin-top: 0; }
+.hero-hint { margin-top: 24px; font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.05em; opacity: 0.7; }
 
 /* ---------- Top bar ---------- */
 #topbar {
