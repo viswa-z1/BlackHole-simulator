@@ -2,6 +2,7 @@
 //  UI — panels, catalog rendering, navigation, toasts
 // ===================================================================
 import { BLACK_HOLES, PULSARS, FEATURES } from "./data.js";
+import { portraitDataURL } from "./portraits.js";
 
 export function buildUI(onStageJump) {
   buildFeatures();
@@ -20,36 +21,53 @@ function buildFeatures() {
     </div>`).join("");
 }
 
-function objCard(o, i, kind) {
-  const stats = kind === "bh"
-    ? [["Type", o.type], ["Mass", o.mass], ["Distance", o.distance], ["Ø Horizon", o.diameter], ["Spin", o.spin], ["Found", o.discovered]]
-    : [["Type", o.type], ["Spin period", o.period], ["Distance", o.distance], ["Mag. field", o.field], ["Age", o.age], ["Found", o.discovered]];
+function chipLabel(o) {
+  return o.category === "quasar" ? "Quasar" : o.category === "pulsar" ? "Pulsar" : "Black Hole";
+}
+
+function objCard(o, rank) {
+  const isPulsar = o.category === "pulsar";
+  const stats = isPulsar
+    ? [["Type", o.type], ["Spin period", o.period], ["Distance", o.distance], ["Mag. field", o.field]]
+    : [["Type", o.type], ["Mass", o.mass], ["Distance", o.distance], ["Spin", o.spin]];
   return `
-    <div class="obj-card">
-      <div class="obj-rank">${String(i + 1).padStart(2, "0")}</div>
-      <span class="type-chip">${o.type}</span>
-      <h4>${o.name}</h4>
-      <div class="alias">${o.alias}</div>
-      <div class="obj-stats">
-        ${stats.map(s => `<div class="stat"><span class="lab">${s[0]}</span><span class="val">${s[1]}</span></div>`).join("")}
+    <button class="obj-card" data-name="${encodeURIComponent(o.name)}">
+      <div class="obj-thumb">
+        <img loading="lazy" src="${portraitDataURL(o, 460, 280)}" alt="Rendered portrait of ${o.name}">
+        <span class="obj-rank">${String(rank).padStart(2, "0")}</span>
+        <span class="type-chip cat-${o.category}">${chipLabel(o)}</span>
       </div>
-      <div class="fact"><b>${o.tag}</b><br>${o.fact}</div>
-    </div>`;
+      <div class="obj-body">
+        <h4>${o.name}</h4>
+        <div class="alias">${o.alias}</div>
+        <div class="obj-stats">
+          ${stats.map(s => `<div class="stat"><span class="lab">${s[0]}</span><span class="val">${s[1]}</span></div>`).join("")}
+        </div>
+        <div class="fact"><b>${o.tag}</b></div>
+        <span class="obj-more">View details →</span>
+      </div>
+    </button>`;
+}
+
+function listFor(cat) {
+  if (cat === "pulsar") return PULSARS;
+  if (cat === "quasar") return BLACK_HOLES.filter(o => o.category === "quasar");
+  if (cat === "blackhole") return BLACK_HOLES.filter(o => o.category === "blackhole");
+  return [...BLACK_HOLES, ...PULSARS];
 }
 
 function buildCatalog() {
   const grid = document.getElementById("cat-grid");
   const render = (cat) => {
-    const list = cat === "bh" ? BLACK_HOLES : PULSARS;
-    grid.innerHTML = list.map((o, i) => objCard(o, i, cat)).join("");
+    grid.innerHTML = listFor(cat).map((o, i) => objCard(o, i + 1)).join("");
   };
-  render("bh");
+  render("all");
   document.querySelectorAll(".cat-tabs button").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".cat-tabs button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       render(btn.dataset.cat);
-      grid.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector("#panel-catalog .panel-inner")?.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
 }
