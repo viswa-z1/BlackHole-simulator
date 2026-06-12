@@ -501,3 +501,40 @@ a { color: var(--accent2); text-decoration: none; }
 /* scrollbar */
 .panel::-webkit-scrollbar { width: 10px; }
 .panel::-webkit-scrollbar-thumb { background: rgba(255,157,60,0.3); border-radius: 999px; }
+
+/* ---------- accessibility & micro-interactions ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent2);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+button { -webkit-tap-highlight-color: transparent; }
+.nav-pills button:active, .cat-tabs button:active,
+#enter-btn:active, .hero-cta .ghost:active { transform: scale(0.96); }
+
+/* portrait thumbnails fade in as they decode */
+.obj-thumb img { animation: thumbIn .6s ease both; }
+@keyframes thumbIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* catalog cards stagger in when a tab renders */
+.obj-card { animation: cardIn .5s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .loader-ring { animation: none; }
+}
+
+/* finer mobile tuning */
+@media (max-width: 720px) {
+  .panel-inner { padding: 80px 16px 60px; }
+  .cat-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 26px; }
+  #journey { bottom: 24px; }
+  #stage { bottom: 150px; }
+}

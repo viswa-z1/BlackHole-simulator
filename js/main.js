@@ -322,6 +322,26 @@ function onResize() {
 window.addEventListener("resize", onResize);
 onResize();
 
+// ---------- adaptive performance (keep it smooth) ----------
+let perfTier = 2, lowTime = 0;
+function adaptPerf(dt) {
+  if (!started || perfTier === 0) return;
+  lowTime = fpsEMA < 42 ? lowTime + dt : Math.max(0, lowTime - dt * 0.6);
+  if (lowTime > 3.5) {
+    perfTier--;
+    if (perfTier === 1) {
+      const pr = Math.min(window.devicePixelRatio, 1.25);
+      renderer.setPixelRatio(pr); composer.setPixelRatio?.(pr); onResize();
+      toast("Tuning resolution for a smoother ride…");
+    } else {
+      renderer.setPixelRatio(1); composer.setPixelRatio?.(1);
+      bloomPass.strength = 0.32; onResize();
+      toast("Performance mode on");
+    }
+    lowTime = 0;
+  }
+}
+
 // ---------- render loop ----------
 const clock = new THREE.Clock();
 let fpsEMA = 60, frame = 0;
@@ -369,6 +389,7 @@ function tick() {
   const fps = 1 / Math.max(1e-4, dt);
   fpsEMA += (fps - fpsEMA) * 0.08;
   if (frame % 8 === 0) updateHUD(fpsEMA);
+  adaptPerf(dt);
 
   requestAnimationFrame(tick);
 }
