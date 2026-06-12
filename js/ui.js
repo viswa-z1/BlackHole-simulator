@@ -8,7 +8,59 @@ export function buildUI(onStageJump) {
   buildFeatures();
   buildCatalog();
   wireNav();
+  wireDetail();
   buildJourneyStops(onStageJump);
+}
+
+// name -> object registry for the detail modal
+const REGISTRY = new Map([...BLACK_HOLES, ...PULSARS].map(o => [o.name, o]));
+
+const STAT_LABELS = {
+  type: "Type", mass: "Mass", distance: "Distance", diameter: "Ø Event Horizon",
+  spin: "Spin (a)", constellation: "Constellation", discovered: "Discovered",
+  period: "Spin Period", field: "Magnetic Field", age: "Age",
+};
+
+function openDetail(o) {
+  const isPulsar = o.category === "pulsar";
+  const keys = isPulsar
+    ? ["type", "period", "distance", "field", "age", "discovered"]
+    : ["type", "mass", "distance", "diameter", "spin", "constellation", "discovered"];
+
+  const img = document.getElementById("detail-img");
+  img.src = portraitDataURL(o, 1040, 660);
+  img.alt = `Rendered portrait of ${o.name}`;
+
+  const chip = document.getElementById("detail-chip");
+  chip.textContent = chipLabel(o);
+  chip.className = "detail-chip cat-" + o.category;
+
+  document.getElementById("detail-name").textContent = o.name;
+  document.getElementById("detail-alias").textContent = o.alias;
+  document.getElementById("detail-stats").innerHTML = keys
+    .filter(k => o[k])
+    .map(k => `<div class="dstat"><span class="lab">${STAT_LABELS[k]}</span><span class="val">${o[k]}</span></div>`)
+    .join("");
+  document.getElementById("detail-desc").innerHTML = `<b>${o.tag}</b> ${o.fact}`;
+  document.getElementById("detail-source").href = o.source;
+
+  document.getElementById("detail-modal").classList.add("open");
+}
+
+function wireDetail() {
+  const modal = document.getElementById("detail-modal");
+  const close = () => modal.classList.remove("open");
+
+  document.getElementById("cat-grid").addEventListener("click", (e) => {
+    const card = e.target.closest(".obj-card");
+    if (!card) return;
+    const o = REGISTRY.get(decodeURIComponent(card.dataset.name));
+    if (o) openDetail(o);
+  });
+
+  modal.querySelector("[data-detail-close]").addEventListener("click", close);
+  modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 }
 
 function buildFeatures() {
