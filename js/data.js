@@ -532,3 +532,52 @@ export const FEATURES = [
   { id: "redshift", name: "Gravitational Redshift", icon: "〰",
     text: "Light climbing out of a deep gravity well loses energy, shifting toward red. Time itself runs slower near the horizon — from a safe distance, an infalling clock appears to freeze forever." }
 ];
+
+// ===================================================================
+//  ENRICHMENT — categories, source links, and a render "kind" used by
+//  the procedural portrait generator. Computed once at module load.
+// ===================================================================
+
+// Objects powered by a luminous quasar/blazar engine
+const QUASAR_NAMES = new Set([
+  "TON 618", "OJ 287", "3C 273", "SDSS J0100+2802", "Markarian 231", "Phoenix A"
+]);
+
+// Map a free-text type to a portrait "kind" the renderer understands
+function portraitKind(o) {
+  const t = (o.type || "").toLowerCase();
+  if (t.includes("quasar")) return "quasar";
+  if (t.includes("ultramassive")) return "ultramassive";
+  if (t.includes("supermassive")) return "supermassive";
+  if (t.includes("intermediate")) return "intermediate";
+  if (t.includes("magnetar")) return "magnetar";
+  if (t.includes("millisecond")) return "millisecond";
+  if (t.includes("pulsar")) return "pulsar";
+  if (t.includes("neutron")) return "neutron";
+  if (t.includes("binary")) return "binary";
+  if (t.includes("stellar")) return "stellar";
+  return "blackhole";
+}
+
+// A reliable "learn more" link. Special:Search always resolves (redirects
+// to the article on an exact match, otherwise shows results) — no 404s.
+function sourceLink(name) {
+  return "https://en.wikipedia.org/wiki/Special:Search?search=" +
+    encodeURIComponent(name);
+}
+
+BLACK_HOLES.forEach((o) => {
+  o.category = QUASAR_NAMES.has(o.name) ? "quasar" : "blackhole";
+  o.kind = QUASAR_NAMES.has(o.name) ? "quasar" : portraitKind(o);
+  o.source = sourceLink(o.name);
+});
+
+PULSARS.forEach((o) => {
+  o.category = "pulsar";
+  o.kind = portraitKind(o);
+  o.source = sourceLink(o.name);
+});
+
+// Convenience views
+export const QUASARS = BLACK_HOLES.filter((o) => o.category === "quasar");
+export const ALL_OBJECTS = [...BLACK_HOLES, ...PULSARS];
