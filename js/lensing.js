@@ -196,15 +196,15 @@ void main(){
     color += transmit * starfield(normalize(vel));
   }
 
-  // photon-ring glow boost (the thin bright ring) via proximity heuristic
-  // bloom-ish tone
-  color = color / (color + vec3(0.85));            // reinhard
-  color = pow(color, vec3(0.85));                  // lift midtones
+  // Output LINEAR HDR — bloom + ACES tone mapping happen downstream in the
+  // post pipeline. Bright regions (photon ring, beamed disk) exceed 1.0 so
+  // they bloom naturally instead of being clamped here.
+  color *= 1.1;
 
   // plunge whiteout as we cross the horizon
-  color = mix(color, vec3(1.0), smoothstep(0.85, 1.0, uPlunge)*uPlunge);
+  color = mix(color, vec3(4.0), smoothstep(0.85, 1.0, uPlunge)*uPlunge);
 
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(max(color, 0.0), 1.0);
 }`;
 
 export function createLensing(renderer) {
@@ -238,7 +238,8 @@ export function createLensing(renderer) {
 
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
   quad.frustumCulled = false;
+  quad.renderOrder = -1;   // always drawn first, behind the particles
   scene.add(quad);
 
-  return { scene, camera, uniforms, material };
+  return { scene, camera, uniforms, material, mesh: quad };
 }

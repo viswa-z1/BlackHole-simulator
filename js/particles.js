@@ -139,7 +139,7 @@ void main(){
   float a = exp(-7.0 * r2);                     // smooth gaussian sprite
   float t = clamp((vSpeed-0.12)/0.5, 0.0, 1.0);
   t = mix(t, clamp(uInner/vRad,0.0,1.0), 0.5);  // hotter inward
-  vec3 col = bb(t) * (0.14 + t*0.7) * uBright;
+  vec3 col = bb(t) * (0.05 + t*0.34) * uBright;
   gl_FragColor = vec4(col * a, a);
 }`;
 

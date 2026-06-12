@@ -5,6 +5,10 @@
 // ===================================================================
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { createLensing } from "./lensing.js";
 import { createParticles, PARTICLE_PRESETS } from "./particles.js";
 import { createJets, createErgosphere } from "./extras.js";
@@ -13,9 +17,10 @@ import { buildUI, STAGES, toast } from "./ui.js";
 // ---------- renderer ----------
 const canvas = document.getElementById("scene");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-renderer.autoClear = false;
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;   // filmic HDR -> LDR
+renderer.toneMappingExposure = 0.92;
 
 // ---------- camera (shared by lensing + particles) ----------
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 4000);
@@ -32,6 +37,9 @@ controls.enabled = false;
 // ---------- engine pieces ----------
 const lensing = createLensing(renderer);
 const particleScene = new THREE.Scene();
+// the full-screen lensing pass renders behind everything (renderOrder -1),
+// so it can share one scene/camera and flow through the bloom pipeline
+particleScene.add(lensing.mesh);
 let particles = createParticles(renderer, 3);    // ~262K default
 particleScene.add(particles.points);
 
@@ -39,6 +47,18 @@ const jets = createJets();
 particleScene.add(jets.group);
 const ergo = createErgosphere();
 particleScene.add(ergo.mesh);
+
+// ---------- HDR post-processing: bloom + filmic tone mapping ----------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(particleScene, camera));
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.55,   // strength
+  0.5,    // radius
+  1.05    // luminance threshold — only genuinely bright regions bloom
+);
+composer.addPass(bloomPass);
+composer.addPass(new OutputPass());
 
 // ---------- simulation parameters ----------
 const params = {
@@ -295,6 +315,7 @@ ctaPhysics.addEventListener("click", () => {
 function onResize() {
   const w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h);
+  composer.setSize(w, h);
   camera.aspect = w / h; camera.updateProjectionMatrix();
   lensing.uniforms.uResolution.value.set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio());
 }
@@ -340,10 +361,8 @@ function tick() {
   lensing.uniforms.uTime.value = time;
   lensing.uniforms.uPlunge.value = THREE.MathUtils.clamp((progress - 0.9) / 0.1, 0, 1);
 
-  // render: lensed background, then additive particles
-  renderer.clear();
-  renderer.render(lensing.scene, lensing.camera);
-  renderer.render(particleScene, camera);
+  // render through the HDR bloom + tone-mapping pipeline
+  composer.render();
 
   // HUD
   frame++;
