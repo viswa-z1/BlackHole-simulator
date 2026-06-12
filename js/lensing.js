@@ -54,29 +54,64 @@ float fbm(vec3 p){
   return v;
 }
 
-// ---- procedural starfield sampled in a 3D direction ----
+// ---- distant galaxy: a soft, tilted elliptical glow with a core ----
+vec3 galaxy(vec3 dir, vec3 center, float size, vec3 tint){
+  vec3 d = dir - center;
+  // squash along one axis to look like an inclined disk
+  d.x *= 2.4;
+  float r = length(d) / size;
+  float halo = exp(-r*r*5.0);
+  float core = exp(-r*r*48.0);
+  return tint * (halo*0.5 + core*1.4);
+}
+
+// ---- procedural deep-space backdrop sampled in a 3D direction ----
 vec3 starfield(vec3 dir){
   vec3 col = vec3(0.0);
-  // three octaves of star layers
-  for(int k=0;k<3;k++){
-    float scale = 240.0 + float(k)*420.0;
+
+  // ---- multi-temperature stars (5 density/size layers) ----
+  for(int k=0;k<5;k++){
+    float scale = 180.0 + float(k)*360.0;
     vec3 p = dir * scale;
     vec3 id = floor(p);
     float h = hash(id + float(k)*13.7);
-    if(h > 0.972){
+    float thresh = 0.978 - float(k)*0.004;     // brighter layers are rarer
+    if(h > thresh){
       vec3 f = fract(p) - 0.5;
       float d = length(f);
-      float star = smoothstep(0.18, 0.0, d);
-      float tw = 0.6 + 0.4*sin(uTime*2.0 + h*40.0);
-      vec3 tint = mix(vec3(0.7,0.8,1.0), vec3(1.0,0.85,0.6), hash(id+7.0));
-      col += star * tw * tint * (0.6 + (h-0.972)*30.0);
+      float star = smoothstep(0.16, 0.0, d);
+      float tw = 0.7 + 0.3*sin(uTime*1.6 + h*60.0);
+      float temp = hash(id+7.0);
+      // O/B blue, G white-yellow, K/M orange-red
+      vec3 tint = temp < 0.5 ? mix(vec3(0.6,0.75,1.0), vec3(1.0,0.98,0.92), temp*2.0)
+                             : mix(vec3(1.0,0.98,0.92), vec3(1.0,0.72,0.5), (temp-0.5)*2.0);
+      float mag = (h - thresh) / (1.0 - thresh);
+      col += star * tw * tint * (0.4 + mag*mag*4.0);
     }
   }
-  // faint milky-way band + nebular dust
-  float band = pow(max(0.0, 1.0 - abs(dir.y)*2.2), 3.0);
-  float neb = fbm(dir*3.0 + 11.0);
-  col += band * 0.05 * mix(vec3(0.25,0.35,0.6), vec3(0.6,0.4,0.55), neb);
-  col += neb*neb * 0.02 * vec3(0.3,0.2,0.4);
+
+  // ---- the Milky Way band: glowing lane + dark dust lanes ----
+  float lat = dir.y * 1.7 + 0.25*fbm(dir*2.0);     // wavy galactic plane
+  float band = exp(-lat*lat*5.0);
+  float dust = fbm(dir*6.0 + 4.0);
+  float clump = fbm(dir*2.5 + 20.0);
+  vec3 bandCol = mix(vec3(0.10,0.14,0.30), vec3(0.55,0.45,0.40), clump);
+  col += band * (0.10 + 0.22*clump) * bandCol;
+  col *= 1.0 - band * smoothstep(0.45, 0.75, dust) * 0.7;   // dark dust lanes
+  // dense star haze inside the band
+  col += band * pow(clump, 3.0) * 0.05 * vec3(0.9,0.85,0.8);
+
+  // ---- colored nebulae scattered across the sky ----
+  float n1 = fbm(dir*3.0 + 11.0);
+  float n2 = fbm(dir*4.5 - 7.0);
+  col += pow(n1, 3.0) * 0.06 * vec3(0.55,0.25,0.65);   // magenta emission
+  col += pow(n2, 3.0) * 0.05 * vec3(0.20,0.45,0.75);   // teal reflection
+
+  // ---- a few distant galaxies ----
+  col += galaxy(dir, normalize(vec3( 0.6, 0.35, 0.7)), 0.05, vec3(0.8,0.85,1.0));
+  col += galaxy(dir, normalize(vec3(-0.7,-0.2, 0.4)), 0.035, vec3(1.0,0.9,0.75));
+  col += galaxy(dir, normalize(vec3( 0.1,-0.6,-0.8)), 0.03, vec3(0.85,0.8,1.0));
+
   return col;
 }
 
