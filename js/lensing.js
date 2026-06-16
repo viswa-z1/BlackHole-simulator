@@ -33,6 +33,7 @@ uniform float uBright;
 uniform float uDoppler;      // 0 or 1
 uniform float uSpin;         // 0..1, visual tilt of beaming
 uniform float uPlunge;       // 0..1 how far through the horizon we are
+uniform float uPalette;      // 0..4 accretion-disk spectrum
 
 // ---- hash / noise ----
 float hash(vec3 p){
@@ -126,16 +127,20 @@ vec3 blackbody(float t){ // t in 0..1 (cool->hot)
   return c;
 }
 
-// ---- Warm cinematic accretion-disk gradient (ember -> amber -> gold -> white) ----
-vec3 diskColor(float t){
-  vec3 c0 = vec3(0.72, 0.26, 0.07);    // deep ember (outer rim)
-  vec3 c1 = vec3(1.00, 0.55, 0.20);    // amber
-  vec3 c2 = vec3(1.00, 0.81, 0.48);    // gold
-  vec3 c3 = vec3(1.00, 0.95, 0.86);    // warm white (inner)
+// ---- accretion-disk spectra: blackbody-keyed gradients you can switch ----
+vec3 grad(vec3 c0, vec3 c1, vec3 c2, vec3 c3, float t){
   vec3 c = mix(c0, c1, smoothstep(0.0, 0.35, t));
   c = mix(c, c2, smoothstep(0.35, 0.7, t));
   c = mix(c, c3, smoothstep(0.7, 1.0, t));
   return c;
+}
+vec3 diskColor(float t){
+  int p = int(uPalette + 0.5);
+  if(p == 1) return grad(vec3(0.05,0.18,0.55), vec3(0.16,0.46,0.96), vec3(0.55,0.80,1.00), vec3(0.93,0.97,1.00), t); // Cygnus Blue
+  if(p == 2) return grad(vec3(0.42,0.07,0.50), vec3(0.85,0.20,0.72), vec3(1.00,0.55,0.92), vec3(1.00,0.93,1.00), t); // Quasar Violet
+  if(p == 3) return grad(vec3(0.42,0.56,0.72), vec3(0.72,0.84,0.97), vec3(0.93,0.97,1.00), vec3(1.00,1.00,1.00), t); // Magnetar Ice
+  if(p == 4) return grad(vec3(0.40,0.04,0.04), vec3(0.86,0.13,0.10), vec3(1.00,0.42,0.20), vec3(1.00,0.86,0.62), t); // Crimson Redshift
+  return grad(vec3(0.72,0.26,0.07), vec3(1.00,0.55,0.20), vec3(1.00,0.81,0.48), vec3(1.00,0.95,0.86), t);             // Sagittarius Gold
 }
 
 // acceleration of photon (conserved h2 passed in). Rs=1 -> coeff 1.5
@@ -208,7 +213,7 @@ void main(){
 
         float tnorm = clamp(pow(uDiskInner/rd, 0.82), 0.0, 1.0);
         vec3 col = diskColor(tnorm);
-        col = mix(col, vec3(1.4,1.30,1.10), smoothstep(0.7,1.0,tnorm));  // warm white-hot inner
+        col = mix(col, vec3(1.4,1.38,1.32), smoothstep(0.7,1.0,tnorm));  // white-hot inner (neutral across spectra)
         vec3 emission = col * (1.15 + tnorm*3.0);
 
         if(uDoppler > 0.5){                                 // gentle relativistic beaming
@@ -273,6 +278,7 @@ export function createLensing(renderer) {
     uDoppler: { value: 1.0 },
     uSpin: { value: 0.9 },
     uPlunge: { value: 0.0 },
+    uPalette: { value: 0.0 },
   };
 
   const material = new THREE.ShaderMaterial({

@@ -616,3 +616,14 @@ body.flash::before {
   background: #fff; animation: capflash .24s ease forwards;
 }
 @keyframes capflash { from { opacity: 0.65; } to { opacity: 0; } }
+
+/* disk-spectrum swatches */
+.spectra { display: flex; gap: 9px; margin-top: 4px; }
+.spectra .sw {
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  background: var(--sw); border: 2px solid transparent;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sw) 60%, transparent);
+  transition: transform .18s ease, border-color .18s ease;
+}
+.spectra .sw:hover { transform: scale(1.14); }
+.spectra .sw.active { border-color: #fff; transform: scale(1.1); }

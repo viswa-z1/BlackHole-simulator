@@ -293,6 +293,17 @@ function saveFrame() {
 document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
 window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey) captureRequested = true; });
 
+// ---------- disk spectrum (color theme) ----------
+const SPECTRUM_NAMES = ["Sagittarius Gold", "Cygnus Blue", "Quasar Violet", "Magnetar Ice", "Crimson Redshift"];
+document.querySelectorAll("#c-spectrum .sw").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("#c-spectrum .sw").forEach((x) => x.classList.remove("active"));
+  b.classList.add("active");
+  const p = +b.dataset.pal;
+  lensing.uniforms.uPalette.value = p;
+  document.getElementById("v-spectrum").textContent = SPECTRUM_NAMES[p];
+  toast(`Disk spectrum: ${SPECTRUM_NAMES[p]}`);
+}));
+
 // ---------- UI build ----------
 buildUI(jumpToStage);
 
