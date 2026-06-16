@@ -641,3 +641,35 @@ body.cinematic #topbar,
 body.cinematic #journey,
 body.cinematic #dock { opacity: 0; pointer-events: none; }
 body.cinematic #toolbar .tool-btn:not(#tool-cinema) { opacity: 0; pointer-events: none; }
+
+/* ---------- help / shortcuts modal ---------- */
+.help-modal {
+  position: fixed; inset: 0; z-index: 60; display: flex;
+  align-items: center; justify-content: center; padding: 24px;
+  background: rgba(2,3,10,0.6); backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none; transition: opacity .4s ease;
+}
+.help-modal.open { opacity: 1; pointer-events: auto; }
+.help-card {
+  width: min(820px, 94vw); background: var(--glass-strong);
+  border: 1px solid var(--glass-brd); border-radius: 20px; padding: 36px 38px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+}
+.help-card h2 { font-size: 30px; font-weight: 700; margin-bottom: 6px; }
+.help-card h2 em { font-style: normal; color: var(--accent); }
+.help-lede { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+.help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 26px; }
+.help-group h4 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent2); margin-bottom: 12px;
+}
+.help-group ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.help-group li { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.help-group li span { color: var(--muted); }
+.help-group kbd, .help-group b {
+  flex: 0 0 auto; min-width: 56px; text-align: center;
+  font-family: var(--mono); font-size: 11px; color: var(--fg); font-weight: 500;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--glass-brd);
+  border-radius: 7px; padding: 5px 8px;
+}
+.help-group b { min-width: 0; color: var(--hot); white-space: nowrap; }

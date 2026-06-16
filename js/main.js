@@ -294,6 +294,20 @@ function saveFrame() {
 document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
 window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey) captureRequested = true; });
 
+// ---------- help / shortcuts overlay ----------
+const helpModal = document.getElementById("help-modal");
+function toggleHelp(force) {
+  const open = force !== undefined ? force : !helpModal.classList.contains("open");
+  helpModal.classList.toggle("open", open);
+}
+document.getElementById("tool-help").addEventListener("click", () => toggleHelp());
+helpModal.querySelector("[data-help-close]").addEventListener("click", () => toggleHelp(false));
+helpModal.addEventListener("click", (e) => { if (e.target === helpModal) toggleHelp(false); });
+window.addEventListener("keydown", (e) => {
+  if (e.key === "?") toggleHelp();
+  else if (e.key === "Escape") toggleHelp(false);
+});
+
 // ---------- procedural ambient audio (swells near the horizon) ----------
 const audio = createAudio();
 document.getElementById("tool-audio").addEventListener("click", () => {
