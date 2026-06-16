@@ -627,3 +627,17 @@ body.flash::before {
 }
 .spectra .sw:hover { transform: scale(1.14); }
 .spectra .sw.active { border-color: #fff; transform: scale(1.1); }
+
+/* ---------- cinematic mode: hide chrome + letterbox ---------- */
+.cinebar {
+  position: fixed; left: 0; right: 0; height: 0; background: #000; z-index: 90;
+  pointer-events: none; transition: height .7s cubic-bezier(.6,0,.2,1);
+}
+.cinebar.top { top: 0; } .cinebar.bottom { bottom: 0; }
+body.cinematic .cinebar { height: 7vh; }
+#hud, #dock, #topbar, #journey, #stage, #toolbar { transition: opacity .5s ease; }
+body.cinematic #hud,
+body.cinematic #topbar,
+body.cinematic #journey,
+body.cinematic #dock { opacity: 0; pointer-events: none; }
+body.cinematic #toolbar .tool-btn:not(#tool-cinema) { opacity: 0; pointer-events: none; }
