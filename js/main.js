@@ -12,6 +12,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { createLensing } from "./lensing.js";
 import { createJets, createErgosphere } from "./extras.js";
 import { createShip } from "./ship.js";
+import { createAudio } from "./audio.js";
 import { buildUI, STAGES, toast } from "./ui.js";
 
 // ---------- renderer ----------
@@ -293,6 +294,16 @@ function saveFrame() {
 document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
 window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey) captureRequested = true; });
 
+// ---------- procedural ambient audio (swells near the horizon) ----------
+const audio = createAudio();
+document.getElementById("tool-audio").addEventListener("click", () => {
+  const on = audio.toggle();
+  const btn = document.getElementById("tool-audio");
+  btn.classList.toggle("active", on);
+  btn.textContent = on ? "🔊" : "🔈";
+  toast(on ? "Ambient audio on" : "Ambient audio muted");
+});
+
 // ---------- cinematic mode (hide chrome + letterbox) ----------
 function toggleCinematic() {
   const on = document.body.classList.toggle("cinematic");
@@ -481,6 +492,9 @@ function tick() {
 
   // capture the freshly-rendered frame before the next clear
   if (captureRequested) { captureRequested = false; saveFrame(); }
+
+  // ambient audio intensifies as the camera nears the horizon
+  audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
 
   // HUD
   frame++;
