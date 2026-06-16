@@ -590,3 +590,29 @@ body.mode-explore #scene:active { cursor: grabbing; }
 #back-home { display: none; border-color: rgba(77,181,255,0.4); color: var(--accent2); }
 body.mode-journey #back-home { display: inline-block; }
 #back-home:hover { background: rgba(77,181,255,0.16); border-color: var(--accent2); color: #cfeaff; }
+
+/* ============================================================
+   Floating tools rail (capture / cinematic / audio / help)
+   ============================================================ */
+#toolbar {
+  position: fixed; right: 22px; bottom: 42px; z-index: 17;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.tool-btn {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  color: var(--fg); font-size: 19px; cursor: pointer; line-height: 1;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+.tool-btn:hover { transform: translateY(-2px) scale(1.05); border-color: var(--accent); }
+.tool-btn.active { background: rgba(255,157,60,0.18); border-color: var(--accent); }
+@media (max-width: 720px) { #toolbar { bottom: 150px; right: 12px; } }
+
+/* shutter flash when a frame is captured */
+body.flash::before {
+  content: ""; position: fixed; inset: 0; z-index: 200; pointer-events: none;
+  background: #fff; animation: capflash .24s ease forwards;
+}
+@keyframes capflash { from { opacity: 0.65; } to { opacity: 0; } }

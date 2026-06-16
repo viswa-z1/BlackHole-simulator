@@ -274,6 +274,25 @@ document.getElementById("toggle-dock").addEventListener("click", () => {
   document.getElementById("dock").classList.toggle("collapsed");
 });
 
+// ---------- frame capture (download the current view as a PNG) ----------
+let captureRequested = false;
+function saveFrame() {
+  try {
+    const url = renderer.domElement.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    document.body.classList.add("flash");
+    setTimeout(() => document.body.classList.remove("flash"), 240);
+    toast("Frame saved to your downloads.");
+  } catch (err) {
+    toast("Couldn't capture this frame.");
+  }
+}
+document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
+window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey) captureRequested = true; });
+
 // ---------- UI build ----------
 buildUI(jumpToStage);
 
@@ -437,6 +456,9 @@ function tick() {
 
   // render through the HDR bloom + tone-mapping pipeline
   composer.render();
+
+  // capture the freshly-rendered frame before the next clear
+  if (captureRequested) { captureRequested = false; saveFrame(); }
 
   // HUD
   frame++;
