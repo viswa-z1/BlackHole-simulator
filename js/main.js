@@ -79,6 +79,7 @@ const params = {
   freeOrbit: false,
   jets: false,
   ergo: false,
+  timeScale: 1.0,
 };
 
 // Bardeen prograde ISCO (in Schwarzschild-radius units; Rs = 2M)
@@ -254,6 +255,7 @@ bindRange("c-bright", "v-bright", v => v.toFixed(2), v => {
   params.bright = v; lensing.uniforms.uBright.value = v; jets.setBright(v);
 });
 bindRange("c-steps", "v-steps", v => String(v | 0), v => { params.steps = v; lensing.uniforms.uSteps.value = v; });
+bindRange("c-time", "v-time", v => v.toFixed(2) + "×", v => { params.timeScale = v; });
 
 document.getElementById("c-doppler").addEventListener("change", (e) => {
   params.doppler = e.target.checked; lensing.uniforms.uDoppler.value = e.target.checked ? 1 : 0;
@@ -462,18 +464,19 @@ function adaptPerf(dt) {
 
 // ---------- render loop ----------
 const clock = new THREE.Clock();
-let fpsEMA = 60, frame = 0;
+let fpsEMA = 60, frame = 0, simTime = 0;
 const right = new THREE.Vector3(), up = new THREE.Vector3(), fwd = new THREE.Vector3();
 
 function tick() {
   const dt = Math.min(clock.getDelta(), 0.05);
-  const time = clock.elapsedTime;
+  simTime += dt * params.timeScale;          // Time Flow scales all animation
+  const time = simTime;
 
   if (mode === "explore") {
     controls.update();                               // drag-to-look + auto-rotate
   } else {
     if (autoCruise && !params.freeOrbit) {
-      targetProgress += dt * 0.045;
+      targetProgress += dt * 0.045 * params.timeScale;
       if (targetProgress >= 1) targetProgress = 0;   // endless dive
     }
     progress += (targetProgress - progress) * Math.min(1, dt * 3.2);
