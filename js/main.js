@@ -239,6 +239,7 @@ function nudgeProgress(d) { targetProgress = THREE.MathUtils.clamp(targetProgres
 
 window.addEventListener("wheel", (e) => {
   if (document.querySelector(".panel.open")) return;
+  if (page === "cosmos") { cosmos.addZoom(e.deltaY * 0.0006); return; }
   if (params.freeOrbit) return;
   nudgeProgress(e.deltaY * 0.00035);
 }, { passive: true });

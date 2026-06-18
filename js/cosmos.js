@@ -51,21 +51,27 @@ export function createCosmos(renderer) {
   ];
 
   const target = new THREE.Vector3();
-  const look = new THREE.Vector3(0, 0, -800);
+  let zoom = 0, zoomTarget = 0;        // 0 = far out, 1 = deep dive
 
   return {
     scene, camera, layers,
     get active() { return active; },
-    enter() { active = true; camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
+    get zoom() { return zoom; },
+    enter() { active = true; zoom = 0; zoomTarget = 0; camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
     leave() { active = false; },
     resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
     setPointer(x, y) { pointer.set(x, y); },
+    addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
     update(dt) {
+      zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
       scene.rotation.y += dt * 0.003;                          // slow ambient drift
+      const z = -zoom * 1800;                                  // dive forward (-Z)
       // lateral mouse parallax: sliding the camera makes near layers shift more
-      target.set(pointer.x * 70, -pointer.y * 45, camera.position.z);
+      target.set(pointer.x * 70, -pointer.y * 45, z);
       camera.position.lerp(target, Math.min(1, dt * 2.5));
-      camera.lookAt(look);
+      camera.lookAt(camera.position.x, camera.position.y, camera.position.z - 800);
+      const fov = 60 + zoom * 10;                              // subtle warp on the dive
+      if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
     },
   };
 }
