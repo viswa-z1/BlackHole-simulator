@@ -150,10 +150,17 @@ export function createCosmos(renderer) {
     resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
     setPointer(x, y) { pointer.set(x, y); },
     addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
-    update(dt) {
+    update(dt, time = 0) {
       zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
       scene.rotation.y += dt * 0.003;                          // slow ambient drift
       dust.rotation.y += dt * 0.02; dust.rotation.x += dt * 0.012;   // churning dust
+      // anomalies breathe: cores pulse, halos shimmer + slowly spin
+      for (const a of anomalies) {
+        const p = 0.8 + 0.2 * Math.sin(time * 2.0 + a.phase);
+        a.core.scale.setScalar(16 * p);
+        a.glow.scale.setScalar(64 * (0.94 + 0.1 * Math.sin(time * 1.3 + a.phase)));
+        a.glow.material.rotation += dt * 0.15;
+      }
       const z = -zoom * 1800;                                  // dive forward (-Z)
       // lateral mouse parallax: sliding the camera makes near layers shift more
       target.set(pointer.x * 70, -pointer.y * 45, z);
