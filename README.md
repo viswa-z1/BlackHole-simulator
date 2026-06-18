@@ -5,7 +5,8 @@ geodesics ray-marched per pixel, a smooth **volumetric accretion disk** rendered
 entirely in the ray-marcher (Interstellar/Gargantua-style), an HDR bloom + filmic
 pipeline, optional relativistic jets and a Kerr ergosphere, a richly lensed
 deep-space backdrop, and a guided cinematic descent from approach to beyond the
-event horizon.
+event horizon — plus a second, separate **Cosmos** you can fly into, dive
+through, and map.
 
 ### ▶ Live: https://viswa-z1.github.io/BlackHole-simulator/
 
@@ -49,6 +50,22 @@ Best experienced in **Chrome or Safari on an Apple-Silicon Mac**, full-screen.
 - **Adaptive performance** — sustained low FPS automatically steps down
   resolution, then bloom, to keep it smooth.
 
+**The cosmos** (a second, explorable universe)
+- A separate **Cosmos** page: a deep, multi-layer **parallax** star field you
+  **scroll to dive** through, with procedural **nebulae**, drifting **cosmic
+  dust**, and ambient **shooting stars**.
+- **14 astrophysical anomalies** (black holes, quasars, pulsars, magnetars, a
+  neutron star, nebulae, a merger and a wormhole) as glowing nodes — **hover**
+  for a label, **click** for an info card, and **fall into the simulation** from
+  any card.
+- A live top-down **star map** you can click to navigate, plus a cosmos
+  telemetry HUD (dive depth / anomaly count).
+
+**Tools** (right-hand rail)
+- **📷 Capture** a frame (P), **🎬 Cinematic** mode (C, letterbox + hidden UI),
+  **🔈 Ambient audio** (a synthesized drone that swells near the horizon), and a
+  **? Help** overlay of shortcuts.
+
 **The catalog**
 - The **top 20 black holes**, **quasars**, and **top 20 pulsars**, filterable by
   category.
@@ -66,10 +83,13 @@ Best experienced in **Chrome or Safari on an Apple-Silicon Mac**, full-screen.
 ## Controls
 
 - **Scroll / ← → / drag the bar** — fly the descent · **Space** — auto-cruise
-- **Controls** dock — mass, spin, brightness, lensing quality, Doppler,
-  **relativistic jets**, **Kerr ergosphere**, free-orbit camera
-- **Anatomy** — every region of a black hole explained
+- **Controls** dock — mass, spin, brightness, lensing quality, **disk spectrum**,
+  **Time Flow** (0–3×), Doppler, **relativistic jets**, **Kerr ergosphere**, free-orbit
+- **Cosmos** — fly into the universe: drag to look, scroll to dive, click nodes
+  and the star map
+- **Anatomy** — every region of a black hole, each with an animated visualization
 - **Catalog** — browse, filter, and open any object
+- **Keys** — **P** capture · **C** cinematic · **?** help · **Esc** close
 
 ## About the "CUDA + OpenGL" request
 
@@ -109,8 +129,11 @@ js/lensing.js      per-pixel ray-marcher: RK4 geodesics + volumetric disk (HDR)
 js/ship.js         procedural exploration craft for the tracking shot
 js/extras.js       relativistic jets + Kerr ergosphere
 js/anatomy.js      animated per-region visualizations for the Anatomy section
+js/audio.js        procedural Web Audio ambient drone
+js/cosmos.js       the Cosmos page: parallax field, nebulae, dust, anomalies, streaks
+js/cosmos-data.js  the 14 astrophysical anomalies on the star map
 js/ui.js           panels, catalog, filters, detail modal, journey stages
-js/main.js         renderer, bloom pipeline, explore/journey camera, ship, HUD
+js/main.js         renderer, bloom, page routing (black hole ↔ cosmos), HUD, tools
 ```
 
 ## Performance
