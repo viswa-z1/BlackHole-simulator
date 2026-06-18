@@ -89,6 +89,20 @@ export function createCosmos(renderer) {
     scene.add(sp);
   }
 
+  // ---------- drifting cosmic dust ----------
+  function dustField(count, spread) {
+    const g = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() * 2 - 1) * spread;
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const m = new THREE.PointsMaterial({
+      color: 0x9fb6e0, size: 1.2, transparent: true, opacity: 0.45,
+      depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
+    });
+    const p = new THREE.Points(g, m); scene.add(p); return p;
+  }
+  const dust = dustField(2400, 1300);
+
   const target = new THREE.Vector3();
   let zoom = 0, zoomTarget = 0;        // 0 = far out, 1 = deep dive
 
@@ -104,6 +118,7 @@ export function createCosmos(renderer) {
     update(dt) {
       zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
       scene.rotation.y += dt * 0.003;                          // slow ambient drift
+      dust.rotation.y += dt * 0.02; dust.rotation.x += dt * 0.012;   // churning dust
       const z = -zoom * 1800;                                  // dive forward (-Z)
       // lateral mouse parallax: sliding the camera makes near layers shift more
       target.set(pointer.x * 70, -pointer.y * 45, z);
