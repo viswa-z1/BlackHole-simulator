@@ -47,6 +47,7 @@ export function createCosmos(renderer) {
   // three depth layers — near stars parallax more than far ones
   const layers = [
     starLayer(7000, 3200, 2.0),   // far
+    starLayer(5200, 1500, 2.6),   // deep-mid (density through the dive)
     starLayer(3500, 1900, 3.4),   // mid
     starLayer(1400, 1000, 5.2),   // near
   ];
@@ -120,7 +121,7 @@ export function createCosmos(renderer) {
     const group = new THREE.Group();
     const ang = (i / ANOMALIES.length) * Math.PI * 2 + 0.6;
     const rad = 200 + (i % 4) * 210 + Math.random() * 110;
-    const z = -260 - i * 175 - Math.random() * 110;
+    const z = -240 - i * 95 - Math.random() * 60;     // all within dive range (~-1500)
     group.position.set(Math.cos(ang) * rad, Math.sin(ang) * rad * 0.68, z);
 
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -161,7 +162,7 @@ export function createCosmos(renderer) {
     resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
     setPointer(x, y) { pointer.set(x, y); },
     addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
-    flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1800)); },   // dive toward a depth
+    flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); },   // dive toward a depth
     update(dt, time = 0) {
       zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
       scene.rotation.y += dt * 0.003;                          // slow ambient drift
@@ -173,7 +174,7 @@ export function createCosmos(renderer) {
         a.glow.scale.setScalar(64 * (0.94 + 0.1 * Math.sin(time * 1.3 + a.phase)));
         a.glow.material.rotation += dt * 0.15;
       }
-      const z = -zoom * 1800;                                  // dive forward (-Z)
+      const z = -zoom * 1500;                                  // dive forward (-Z), bounded to the populated region
       // lateral mouse parallax: sliding the camera makes near layers shift more
       target.set(pointer.x * 70, -pointer.y * 45, z);
       camera.position.lerp(target, Math.min(1, dt * 2.5));
