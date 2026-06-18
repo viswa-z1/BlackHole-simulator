@@ -141,8 +141,19 @@ export function createCosmos(renderer) {
   const target = new THREE.Vector3();
   let zoom = 0, zoomTarget = 0;        // 0 = far out, 1 = deep dive
 
+  // ---------- picking (hover / click) ----------
+  const raycaster = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  function pick(ndcX, ndcY) {           // NDC with y already pointing up
+    ndc.set(ndcX, ndcY);
+    raycaster.setFromCamera(ndc, camera);
+    const hits = raycaster.intersectObjects(anomalies.map(a => a.glow), false);
+    if (hits.length) return anomalies.find(a => a.glow === hits[0].object);
+    return null;
+  }
+
   return {
-    scene, camera, layers, anomalies,
+    scene, camera, layers, anomalies, pick,
     get active() { return active; },
     get zoom() { return zoom; },
     enter() { active = true; zoom = 0; zoomTarget = 0; camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },

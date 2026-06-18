@@ -303,9 +303,25 @@ document.getElementById("toggle-dock").addEventListener("click", () => {
 });
 document.getElementById("nav-cosmos").addEventListener("click", enterCosmos);
 document.querySelector('.nav-pills button[data-view="sim"]').addEventListener("click", exitCosmos);
+const cosmosLabel = document.getElementById("cosmos-label");
+let cosmosHover = null;
 window.addEventListener("pointermove", (e) => {
   if (page !== "cosmos") return;
-  cosmos.setPointer((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
+  const nx = (e.clientX / window.innerWidth) * 2 - 1;
+  const ny = (e.clientY / window.innerHeight) * 2 - 1;
+  cosmos.setPointer(nx, ny);
+  cosmosHover = cosmos.pick(nx, -ny);          // raycaster NDC has y up
+  if (cosmosHover) {
+    const d = cosmosHover.data;
+    cosmosLabel.innerHTML = `<b>${d.name}</b><span>${d.kind} · ${d.dist}</span>`;
+    cosmosLabel.style.left = e.clientX + "px";
+    cosmosLabel.style.top = e.clientY + "px";
+    cosmosLabel.classList.add("show");
+    document.body.style.cursor = "pointer";
+  } else {
+    cosmosLabel.classList.remove("show");
+    document.body.style.cursor = "";
+  }
 });
 
 // ---------- frame capture (download the current view as a PNG) ----------
