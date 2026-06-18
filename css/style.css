@@ -683,6 +683,19 @@ body.page-cosmos #back-home,
 body.page-cosmos #loader { opacity: 0 !important; pointer-events: none; }
 #nav-cosmos.active { background: rgba(77,181,255,0.16); border-color: var(--accent2); color: #cfeaff; }
 
+/* cosmos telemetry (mirrors the black-hole HUD) */
+#cosmos-hud {
+  position: fixed; left: 22px; top: 84px; z-index: 14;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  background: var(--glass); border: 1px solid var(--glass-brd); border-radius: 14px;
+  padding: 14px 16px; backdrop-filter: blur(14px); min-width: 184px; line-height: 1.9;
+  opacity: 0; pointer-events: none; transition: opacity .4s ease;
+}
+body.page-cosmos #cosmos-hud { opacity: 1; }
+#cosmos-hud .row { display: flex; justify-content: space-between; gap: 18px; }
+#cosmos-hud .row b { color: var(--fg); font-weight: 500; }
+#cosmos-hud .k { color: var(--accent2); }
+
 /* cosmos star map */
 #cosmos-map {
   position: fixed; right: 22px; bottom: 100px; z-index: 22;

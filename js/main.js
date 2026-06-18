@@ -338,6 +338,14 @@ mapCanvas.addEventListener("click", (e) => {
   cosmos.flyToZ(z);
   toast("Diving toward that region…");
 });
+const cosDepth = document.getElementById("cos-depth");
+const cosZoom = document.getElementById("cos-zoom");
+document.getElementById("cos-count").textContent = cosmos.anomalies.length;
+function updateCosmosHUD() {
+  const z = cosmos.zoom;
+  cosDepth.textContent = (z * 4.2).toFixed(2) + " Bly";
+  cosZoom.textContent = Math.round(z * 100) + "%";
+}
 function drawCosmosMap() {
   mapCtx.clearRect(0, 0, MAP_W, MAP_H);
   mapCtx.fillStyle = "rgba(8,11,24,0.55)"; mapCtx.fillRect(0, 0, MAP_W, MAP_H);
@@ -571,7 +579,7 @@ function tick() {
 
   if (page === "cosmos") {
     cosmos.update(dt, time);
-    if (frame % 3 === 0) drawCosmosMap();
+    if (frame % 3 === 0) { drawCosmosMap(); updateCosmosHUD(); }
   } else {
     if (mode === "explore") {
       controls.update();                               // drag-to-look + auto-rotate
