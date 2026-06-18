@@ -694,3 +694,23 @@ body.page-cosmos #loader { opacity: 0 !important; pointer-events: none; }
 #cosmos-label.show { opacity: 1; }
 #cosmos-label b { font-size: 13.5px; color: var(--fg); }
 #cosmos-label span { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; color: var(--accent2); text-transform: uppercase; }
+
+/* cosmos anomaly info card */
+.cosmos-card {
+  position: fixed; left: 24px; bottom: 36px; z-index: 26; width: 330px;
+  background: var(--glass-strong); border: 1px solid var(--glass-brd);
+  border-left: 3px solid var(--cc-accent, #fff); border-radius: 16px;
+  padding: 20px 22px; backdrop-filter: blur(16px);
+  opacity: 0; transform: translateY(16px); pointer-events: none; transition: all .4s ease;
+}
+.cosmos-card.open { opacity: 1; transform: none; pointer-events: auto; }
+.cc-close {
+  position: absolute; top: 12px; right: 14px; width: 28px; height: 28px; border-radius: 50%;
+  background: none; border: 1px solid var(--glass-brd); color: var(--muted); cursor: pointer; font-size: 15px;
+}
+.cc-close:hover { color: var(--fg); border-color: var(--accent); }
+.cc-kind { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--cc-accent, var(--accent2)); }
+.cosmos-card h3 { font-size: 21px; margin: 8px 0 2px; }
+.cc-dist { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.cosmos-card p { font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+@media (max-width: 720px) { .cosmos-card { left: 12px; right: 12px; width: auto; bottom: 90px; } }

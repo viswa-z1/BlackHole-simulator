@@ -83,6 +83,9 @@ function exitCosmos() {
   renderPass.scene = scene; renderPass.camera = camera;
   document.body.classList.remove("page-cosmos");
   document.getElementById("nav-cosmos").classList.remove("active");
+  document.getElementById("cosmos-card")?.classList.remove("open");
+  document.getElementById("cosmos-label")?.classList.remove("show");
+  document.body.style.cursor = "";
 }
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -304,7 +307,22 @@ document.getElementById("toggle-dock").addEventListener("click", () => {
 document.getElementById("nav-cosmos").addEventListener("click", enterCosmos);
 document.querySelector('.nav-pills button[data-view="sim"]').addEventListener("click", exitCosmos);
 const cosmosLabel = document.getElementById("cosmos-label");
+const cosmosCard = document.getElementById("cosmos-card");
 let cosmosHover = null;
+function openCosmosCard(d) {
+  cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
+  document.getElementById("cc-kind").textContent = d.kind;
+  document.getElementById("cc-name").textContent = d.name;
+  document.getElementById("cc-dist").textContent = "Distance · " + d.dist;
+  document.getElementById("cc-blurb").textContent = d.blurb;
+  cosmosCard.classList.add("open");
+}
+cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => cosmosCard.classList.remove("open"));
+canvas.addEventListener("click", (e) => {
+  if (page !== "cosmos") return;
+  const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
+  if (hit) openCosmosCard(hit.data);
+});
 window.addEventListener("pointermove", (e) => {
   if (page !== "cosmos") return;
   const nx = (e.clientX / window.innerWidth) * 2 - 1;
