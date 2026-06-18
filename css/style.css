@@ -741,4 +741,10 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 .cosmos-card h3 { font-size: 21px; margin: 8px 0 2px; }
 .cc-dist { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 12px; }
 .cosmos-card p { font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+.cc-enter {
+  margin-top: 14px; font-family: var(--font); font-size: 12.5px; cursor: pointer;
+  background: rgba(255,157,60,0.14); border: 1px solid var(--accent); color: var(--hot);
+  padding: 9px 16px; border-radius: 999px; transition: all .2s ease;
+}
+.cc-enter:hover { background: rgba(255,157,60,0.24); transform: translateY(-1px); }
 @media (max-width: 720px) { .cosmos-card { left: 12px; right: 12px; width: auto; bottom: 90px; } }

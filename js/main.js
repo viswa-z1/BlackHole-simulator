@@ -318,6 +318,12 @@ function openCosmosCard(d) {
   cosmosCard.classList.add("open");
 }
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => cosmosCard.classList.remove("open"));
+document.getElementById("cc-enter").addEventListener("click", () => {
+  cosmosCard.classList.remove("open");
+  exitCosmos();
+  document.querySelector('.nav-pills button[data-view="sim"]').classList.add("active");
+  beginJourney();                      // fall into the black-hole descent
+});
 canvas.addEventListener("click", (e) => {
   if (page !== "cosmos") return;
   const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
@@ -472,6 +478,7 @@ const bootMsgs = [
 ];
 const ctaCatalog = document.getElementById("enter-catalog");
 const ctaPhysics = document.getElementById("enter-physics");
+const ctaCosmos = document.getElementById("enter-cosmos");
 
 document.body.classList.add("mode-explore");
 
@@ -490,6 +497,7 @@ const bootTimer = setInterval(() => {
     clearInterval(bootTimer);
     enterBtn.classList.add("ready");
     ctaCatalog.classList.add("ready");
+    ctaCosmos.classList.add("ready");
     ctaPhysics.classList.add("ready");
     loaderStatus.textContent = "Drag to look around — then begin.";
     reveal();
@@ -534,6 +542,7 @@ ctaPhysics.addEventListener("click", () => {
   reveal();
   document.querySelector('.nav-pills button[data-view="features"]')?.click();
 });
+ctaCosmos.addEventListener("click", () => { reveal(); enterCosmos(); });
 
 // ---------- resize ----------
 function onResize() {
