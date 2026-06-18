@@ -331,6 +331,13 @@ const MAP_W = 220, MAP_H = 220;
 function worldToMap(x, z) {
   return [((x + 1100) / 2200) * MAP_W, ((z + 2900) / 3200) * MAP_H];
 }
+mapCanvas.addEventListener("click", (e) => {
+  const r = mapCanvas.getBoundingClientRect();
+  const my = ((e.clientY - r.top) / r.height) * MAP_H;
+  const z = (my / MAP_H) * 3200 - 2900;       // inverse of worldToMap
+  cosmos.flyToZ(z);
+  toast("Diving toward that region…");
+});
 function drawCosmosMap() {
   mapCtx.clearRect(0, 0, MAP_W, MAP_H);
   mapCtx.fillStyle = "rgba(8,11,24,0.55)"; mapCtx.fillRect(0, 0, MAP_W, MAP_H);

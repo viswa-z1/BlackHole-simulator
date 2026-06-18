@@ -161,6 +161,7 @@ export function createCosmos(renderer) {
     resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
     setPointer(x, y) { pointer.set(x, y); },
     addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
+    flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1800)); },   // dive toward a depth
     update(dt, time = 0) {
       zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
       scene.rotation.y += dt * 0.003;                          // slow ambient drift
