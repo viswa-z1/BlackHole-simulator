@@ -152,6 +152,37 @@ export function createCosmos(renderer) {
     return { data: d, group, glow, core, phase: Math.random() * 6.28 };
   });
 
+  // ---------- shooting stars ----------
+  const streaks = [];
+  for (let i = 0; i < 4; i++) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(6), 3));
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+      color: 0xcfe0ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    scene.add(line);
+    streaks.push({ line, t: -(0.5 + Math.random() * 5), dur: 0, head: new THREE.Vector3(), vel: new THREE.Vector3() });
+  }
+  function spawnStreak(s) {
+    s.head.set((Math.random() * 2 - 1) * 900, (Math.random() * 2 - 1) * 580, camera.position.z - 300 - Math.random() * 700);
+    s.vel.set(Math.random() * 2 - 1, Math.random() * 2 - 1, 0.25).normalize().multiplyScalar(800 + Math.random() * 700);
+    s.t = 0; s.dur = 0.45 + Math.random() * 0.5;
+  }
+  function updateStreaks(dt) {
+    for (const s of streaks) {
+      if (s.dur <= 0) { s.t += dt; if (s.t > 0) spawnStreak(s); continue; }
+      s.t += dt;
+      const k = s.t / s.dur;
+      if (k >= 1) { s.dur = 0; s.t = -(1 + Math.random() * 5); s.line.material.opacity = 0; continue; }
+      const hx = s.head.x + s.vel.x * s.t, hy = s.head.y + s.vel.y * s.t, hz = s.head.z + s.vel.z * s.t;
+      const a = s.line.geometry.attributes.position.array;
+      a[0] = hx; a[1] = hy; a[2] = hz;
+      a[3] = hx - s.vel.x * 0.12; a[4] = hy - s.vel.y * 0.12; a[5] = hz - s.vel.z * 0.12;
+      s.line.geometry.attributes.position.needsUpdate = true;
+      s.line.material.opacity = Math.sin(k * Math.PI) * 0.9;
+    }
+  }
+
   const target = new THREE.Vector3();
   let zoom = 0, zoomTarget = 0;        // 0 = far out, 1 = deep dive
 
@@ -180,6 +211,7 @@ export function createCosmos(renderer) {
       zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
       scene.rotation.y += dt * 0.003;                          // slow ambient drift
       dust.rotation.y += dt * 0.02; dust.rotation.x += dt * 0.012;   // churning dust
+      updateStreaks(dt);                                             // shooting stars
       // anomalies breathe: cores pulse, halos shimmer + slowly spin
       for (const a of anomalies) {
         const p = 0.8 + 0.2 * Math.sin(time * 2.0 + a.phase);
