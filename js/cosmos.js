@@ -50,6 +50,45 @@ export function createCosmos(renderer) {
     starLayer(1400, 1000, 5.2),   // near
   ];
 
+  // ---------- procedural nebulae (fluffy additive clouds) ----------
+  function nebulaTexture() {
+    const s = 256, c = document.createElement("canvas"); c.width = c.height = s;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, s, s);
+    ctx.globalCompositeOperation = "lighter";
+    // keep blobs toward the centre so the radial vignette can erase the seams
+    for (let i = 0; i < 46; i++) {
+      const x = s * 0.5 + (Math.random() * 2 - 1) * s * 0.26;
+      const y = s * 0.5 + (Math.random() * 2 - 1) * s * 0.26;
+      const r = 18 + Math.random() * 70;
+      const a = 0.04 + Math.random() * 0.10;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(255,255,255,${a})`); g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+    }
+    // multiply by a soft radial vignette → fades RGB to black at the edges
+    // (additive blending then shows nothing there, killing the square seam)
+    ctx.globalCompositeOperation = "multiply";
+    const vg = ctx.createRadialGradient(s / 2, s / 2, s * 0.08, s / 2, s / 2, s * 0.5);
+    vg.addColorStop(0, "#ffffff"); vg.addColorStop(0.7, "#9a9a9a"); vg.addColorStop(1, "#000000");
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, s, s);
+    return new THREE.CanvasTexture(c);
+  }
+  const nebTex = nebulaTexture();
+  const NEB_COLORS = [0xff5a8a, 0x4db5ff, 0xb79cff, 0xffae5a, 0x5affc4];
+  for (let i = 0; i < 9; i++) {
+    const mat = new THREE.SpriteMaterial({
+      map: nebTex, color: NEB_COLORS[i % NEB_COLORS.length],
+      transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const sp = new THREE.Sprite(mat);
+    const sc = 460 + Math.random() * 950;
+    sp.scale.set(sc, sc * (0.55 + Math.random() * 0.55), 1);
+    sp.position.set((Math.random() * 2 - 1) * 2400, (Math.random() * 2 - 1) * 1500, -150 - Math.random() * 2700);
+    sp.material.rotation = Math.random() * 6.283;
+    scene.add(sp);
+  }
+
   const target = new THREE.Vector3();
   let zoom = 0, zoomTarget = 0;        // 0 = far out, 1 = deep dive
 
