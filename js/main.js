@@ -302,6 +302,10 @@ document.getElementById("toggle-dock").addEventListener("click", () => {
 });
 document.getElementById("nav-cosmos").addEventListener("click", enterCosmos);
 document.querySelector('.nav-pills button[data-view="sim"]').addEventListener("click", exitCosmos);
+window.addEventListener("pointermove", (e) => {
+  if (page !== "cosmos") return;
+  cosmos.setPointer((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
+});
 
 // ---------- frame capture (download the current view as a PNG) ----------
 let captureRequested = false;

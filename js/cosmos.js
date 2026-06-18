@@ -43,18 +43,29 @@ export function createCosmos(renderer) {
     return p;
   }
 
-  const stars = starLayer(6000, 2600, 3.0);
+  // three depth layers — near stars parallax more than far ones
+  const layers = [
+    starLayer(7000, 3200, 2.0),   // far
+    starLayer(3500, 1900, 3.4),   // mid
+    starLayer(1400, 1000, 5.2),   // near
+  ];
+
+  const target = new THREE.Vector3();
+  const look = new THREE.Vector3(0, 0, -800);
 
   return {
-    scene, camera,
+    scene, camera, layers,
     get active() { return active; },
     enter() { active = true; camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
     leave() { active = false; },
     resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
     setPointer(x, y) { pointer.set(x, y); },
     update(dt) {
-      scene.rotation.y += dt * 0.004;          // slow ambient drift
-      scene.rotation.x = Math.sin(performance.now() * 0.00004) * 0.04;
+      scene.rotation.y += dt * 0.003;                          // slow ambient drift
+      // lateral mouse parallax: sliding the camera makes near layers shift more
+      target.set(pointer.x * 70, -pointer.y * 45, camera.position.z);
+      camera.position.lerp(target, Math.min(1, dt * 2.5));
+      camera.lookAt(look);
     },
   };
 }
