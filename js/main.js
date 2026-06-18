@@ -13,6 +13,7 @@ import { createLensing } from "./lensing.js";
 import { createJets, createErgosphere } from "./extras.js";
 import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
+import { createCosmos } from "./cosmos.js";
 import { buildUI, STAGES, toast } from "./ui.js";
 
 // ---------- renderer ----------
@@ -59,7 +60,30 @@ scene.add(ship.group);
 
 // ---------- HDR post-processing: bloom + filmic tone mapping ----------
 const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+// ---------- Cosmos page (a separate explorable universe) ----------
+const cosmos = createCosmos(renderer);
+let page = "bh";   // "bh" (black hole) | "cosmos"
+function enterCosmos() {
+  if (page === "cosmos") return;
+  page = "cosmos";
+  cosmos.enter();
+  renderPass.scene = cosmos.scene; renderPass.camera = cosmos.camera;
+  document.body.classList.add("page-cosmos");
+  document.querySelector('.nav-pills button[data-view="sim"]')?.classList.remove("active");
+  document.getElementById("nav-cosmos").classList.add("active");
+  toast("The cosmos — drag to look, scroll to dive deeper.");
+}
+function exitCosmos() {
+  if (page !== "cosmos") return;
+  page = "bh";
+  cosmos.leave();
+  renderPass.scene = scene; renderPass.camera = camera;
+  document.body.classList.remove("page-cosmos");
+  document.getElementById("nav-cosmos").classList.remove("active");
+}
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
   0.7,    // strength — lush Interstellar glow
@@ -276,6 +300,8 @@ document.getElementById("c-orbit").addEventListener("change", (e) => {
 document.getElementById("toggle-dock").addEventListener("click", () => {
   document.getElementById("dock").classList.toggle("collapsed");
 });
+document.getElementById("nav-cosmos").addEventListener("click", enterCosmos);
+document.querySelector('.nav-pills button[data-view="sim"]').addEventListener("click", exitCosmos);
 
 // ---------- frame capture (download the current view as a PNG) ----------
 let captureRequested = false;
@@ -438,6 +464,7 @@ function onResize() {
   composer.setSize(w, h);
   camera.aspect = w / h; camera.updateProjectionMatrix();
   lensing.uniforms.uResolution.value.set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio());
+  cosmos.resize(w, h);
 }
 window.addEventListener("resize", onResize);
 onResize();
@@ -472,37 +499,41 @@ function tick() {
   simTime += dt * params.timeScale;          // Time Flow scales all animation
   const time = simTime;
 
-  if (mode === "explore") {
-    controls.update();                               // drag-to-look + auto-rotate
+  if (page === "cosmos") {
+    cosmos.update(dt, time);
   } else {
-    if (autoCruise && !params.freeOrbit) {
-      targetProgress += dt * 0.045 * params.timeScale;
-      if (targetProgress >= 1) targetProgress = 0;   // endless dive
+    if (mode === "explore") {
+      controls.update();                               // drag-to-look + auto-rotate
+    } else {
+      if (autoCruise && !params.freeOrbit) {
+        targetProgress += dt * 0.045 * params.timeScale;
+        if (targetProgress >= 1) targetProgress = 0;   // endless dive
+      }
+      progress += (targetProgress - progress) * Math.min(1, dt * 3.2);
+      journeyFill.style.width = (progress * 100).toFixed(1) + "%";
+      refreshStage();
+      updateJourneyCamera(dt, time);
     }
-    progress += (targetProgress - progress) * Math.min(1, dt * 3.2);
-    journeyFill.style.width = (progress * 100).toFixed(1) + "%";
-    refreshStage();
-    updateJourneyCamera(dt, time);
+
+    // animated elements
+    updateShip(dt, time);
+    jets.update(time, params.spin);
+    ergo.update(time, params.spin);
+
+    // feed camera basis into the lensing shader
+    camera.updateMatrixWorld();
+    const m = camera.matrixWorld.elements;
+    right.set(m[0], m[1], m[2]);
+    up.set(m[4], m[5], m[6]);
+    fwd.set(-m[8], -m[9], -m[10]);
+    lensing.uniforms.uCamPos.value.copy(camera.position);
+    lensing.uniforms.uCamRight.value.copy(right);
+    lensing.uniforms.uCamUp.value.copy(up);
+    lensing.uniforms.uCamFwd.value.copy(fwd);
+    lensing.uniforms.uTanFov.value = Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5);
+    lensing.uniforms.uTime.value = time;
+    lensing.uniforms.uPlunge.value = THREE.MathUtils.clamp((progress - 0.9) / 0.1, 0, 1);
   }
-
-  // animated elements
-  updateShip(dt, time);
-  jets.update(time, params.spin);
-  ergo.update(time, params.spin);
-
-  // feed camera basis into the lensing shader
-  camera.updateMatrixWorld();
-  const m = camera.matrixWorld.elements;
-  right.set(m[0], m[1], m[2]);
-  up.set(m[4], m[5], m[6]);
-  fwd.set(-m[8], -m[9], -m[10]);
-  lensing.uniforms.uCamPos.value.copy(camera.position);
-  lensing.uniforms.uCamRight.value.copy(right);
-  lensing.uniforms.uCamUp.value.copy(up);
-  lensing.uniforms.uCamFwd.value.copy(fwd);
-  lensing.uniforms.uTanFov.value = Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5);
-  lensing.uniforms.uTime.value = time;
-  lensing.uniforms.uPlunge.value = THREE.MathUtils.clamp((progress - 0.9) / 0.1, 0, 1);
 
   // render through the HDR bloom + tone-mapping pipeline
   composer.render();
@@ -511,7 +542,7 @@ function tick() {
   if (captureRequested) { captureRequested = false; saveFrame(); }
 
   // ambient audio intensifies as the camera nears the horizon
-  audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
+  if (page !== "cosmos") audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
 
   // HUD
   frame++;

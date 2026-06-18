@@ -673,3 +673,12 @@ body.cinematic #toolbar .tool-btn:not(#tool-cinema) { opacity: 0; pointer-events
   border-radius: 7px; padding: 5px 8px;
 }
 .help-group b { min-width: 0; color: var(--hot); white-space: nowrap; }
+
+/* ---------- Cosmos page: hide black-hole-only chrome ---------- */
+body.page-cosmos #hud,
+body.page-cosmos #journey,
+body.page-cosmos #stage,
+body.page-cosmos #dock,
+body.page-cosmos #back-home,
+body.page-cosmos #loader { opacity: 0 !important; pointer-events: none; }
+#nav-cosmos.active { background: rgba(77,181,255,0.16); border-color: var(--accent2); color: #cfeaff; }
