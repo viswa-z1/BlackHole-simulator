@@ -5,6 +5,7 @@
 //  Rendered by the shared renderer/composer via a swapped RenderPass.
 // ===================================================================
 import * as THREE from "three";
+import { ANOMALIES } from "./cosmos-data.js";
 
 export function createCosmos(renderer) {
   const scene = new THREE.Scene();
@@ -103,11 +104,45 @@ export function createCosmos(renderer) {
   }
   const dust = dustField(2400, 1300);
 
+  // ---------- astrophysical anomaly nodes ----------
+  function glowTexture() {
+    const s = 128, c = document.createElement("canvas"); c.width = c.height = s;
+    const ctx = c.getContext("2d");
+    const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.22, "rgba(255,255,255,0.55)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, s, s);
+    return new THREE.CanvasTexture(c);
+  }
+  const glowTex = glowTexture();
+  const anomalies = ANOMALIES.map((d, i) => {
+    const group = new THREE.Group();
+    const ang = (i / ANOMALIES.length) * Math.PI * 2 + 0.6;
+    const rad = 200 + (i % 4) * 210 + Math.random() * 110;
+    const z = -260 - i * 175 - Math.random() * 110;
+    group.position.set(Math.cos(ang) * rad, Math.sin(ang) * rad * 0.68, z);
+
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: glowTex, color: d.color, transparent: true, opacity: 0.9,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    glow.scale.set(64, 64, 1);
+    const core = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: glowTex, color: 0xffffff, transparent: true, opacity: 1,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    core.scale.set(16, 16, 1);
+    group.add(glow, core);
+    scene.add(group);
+    return { data: d, group, glow, core, phase: Math.random() * 6.28 };
+  });
+
   const target = new THREE.Vector3();
   let zoom = 0, zoomTarget = 0;        // 0 = far out, 1 = deep dive
 
   return {
-    scene, camera, layers,
+    scene, camera, layers, anomalies,
     get active() { return active; },
     get zoom() { return zoom; },
     enter() { active = true; zoom = 0; zoomTarget = 0; camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
