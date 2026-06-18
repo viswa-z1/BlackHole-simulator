@@ -16,6 +16,19 @@ export function createCosmos(renderer) {
   let active = false;
   const pointer = new THREE.Vector2(0, 0);   // -1..1, for parallax (later)
 
+  // soft round sprite for stars/dust (so points aren't hard squares)
+  function circleTexture() {
+    const s = 64, c = document.createElement("canvas"); c.width = c.height = s;
+    const ctx = c.getContext("2d");
+    const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.4, "rgba(255,255,255,0.55)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, s, s);
+    return new THREE.CanvasTexture(c);
+  }
+  const pointTex = circleTexture();
+
   // ---------- deep starfield ----------
   function starLayer(count, spread, size) {
     const g = new THREE.BufferGeometry();
@@ -36,7 +49,7 @@ export function createCosmos(renderer) {
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     const m = new THREE.PointsMaterial({
-      size, vertexColors: true, transparent: true, depthWrite: false,
+      size, map: pointTex, vertexColors: true, transparent: true, depthWrite: false,
       blending: THREE.AdditiveBlending, sizeAttenuation: true,
     });
     const p = new THREE.Points(g, m);
@@ -98,7 +111,7 @@ export function createCosmos(renderer) {
     for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() * 2 - 1) * spread;
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     const m = new THREE.PointsMaterial({
-      color: 0x9fb6e0, size: 1.2, transparent: true, opacity: 0.45,
+      color: 0x9fb6e0, size: 1.4, map: pointTex, transparent: true, opacity: 0.45,
       depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
     });
     const p = new THREE.Points(g, m); scene.add(p); return p;
