@@ -748,3 +748,23 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 }
 .cc-enter:hover { background: rgba(255,157,60,0.24); transform: translateY(-1px); }
 @media (max-width: 720px) { .cosmos-card { left: 12px; right: 12px; width: auto; bottom: 90px; } }
+
+/* ============================================================
+   Quality floor: mobile responsiveness + reduced motion
+   ============================================================ */
+@media (max-width: 720px) {
+  #topbar { padding: 12px 14px; }
+  .nav-pills { overflow-x: auto; max-width: 64vw; scrollbar-width: none; }
+  .nav-pills::-webkit-scrollbar { display: none; }
+  .nav-pills button { flex: 0 0 auto; }
+  #cosmos-hud { top: 70px; font-size: 10.5px; min-width: 148px; padding: 10px 12px; }
+  .hero-stats { gap: 22px; }
+  .hero-cta { gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loader-ring { animation: none; }
+  .feature-badge::before { animation: none; }
+  body.flash::before { animation: none; opacity: 0; }
+  #stage .stage-name, #stage .stage-desc { transition: none; }
+  * { scroll-behavior: auto; }
+}

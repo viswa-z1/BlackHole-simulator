@@ -24,6 +24,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;   // filmic HDR -> LDR
 renderer.toneMappingExposure = 1.0;
 
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 // ---------- camera (drives the lensing ray-marcher + scene) ----------
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 4000);
 camera.position.set(0, 6, 40);
@@ -138,7 +140,7 @@ let currentStage = -1;
 camera.position.set(0, 11, 36);
 camera.lookAt(0, 0, 0);
 controls.target.set(0, 0, 0);
-controls.autoRotate = true;
+controls.autoRotate = !reduceMotion;
 controls.autoRotateSpeed = 0.45;
 
 // camera radius as a function of progress (dive curve)
@@ -456,7 +458,7 @@ document.querySelectorAll("#c-spectrum .sw").forEach((b) => b.addEventListener("
 buildUI(jumpToStage);
 
 // ---------- anime.js: buttery hero entrance ----------
-if (window.anime) {
+if (window.anime && !reduceMotion) {
   window.anime.timeline({ easing: "easeOutExpo" })
     .add({ targets: ".hero-eyebrow", opacity: [0, 0.85], translateY: [16, 0], duration: 700 })
     .add({ targets: "#loader h1", opacity: [0, 1], translateY: [22, 0], duration: 1000 }, "-=520")
@@ -524,7 +526,7 @@ function returnToExplore() {              // go back to the draggable home scene
   autoCruise = false;
   ship.visible = false;
   controls.enabled = true;
-  controls.autoRotate = true;
+  controls.autoRotate = !reduceMotion;
   camera.position.set(0, 11, 36);
   controls.target.set(0, 0, 0);
   controls.update();
