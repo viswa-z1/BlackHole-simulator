@@ -683,6 +683,21 @@ body.page-cosmos #back-home,
 body.page-cosmos #loader { opacity: 0 !important; pointer-events: none; }
 #nav-cosmos.active { background: rgba(77,181,255,0.16); border-color: var(--accent2); color: #cfeaff; }
 
+/* cosmos star map */
+#cosmos-map {
+  position: fixed; right: 22px; bottom: 100px; z-index: 22;
+  width: 220px; padding: 10px; border-radius: 16px;
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  backdrop-filter: blur(14px); opacity: 0; pointer-events: none; transition: opacity .4s ease;
+}
+body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
+#cosmos-map .map-title {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px;
+}
+#cosmos-map canvas { width: 100%; height: auto; display: block; cursor: crosshair; border-radius: 8px; }
+@media (max-width: 720px) { #cosmos-map { display: none; } }
+
 /* cosmos hover label */
 #cosmos-label {
   position: fixed; z-index: 25; pointer-events: none;

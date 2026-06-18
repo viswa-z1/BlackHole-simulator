@@ -323,6 +323,30 @@ canvas.addEventListener("click", (e) => {
   const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
   if (hit) openCosmosCard(hit.data);
 });
+
+// ---------- star map (top-down minimap of the cosmos) ----------
+const mapCanvas = document.getElementById("cosmos-map-canvas");
+const mapCtx = mapCanvas.getContext("2d");
+const MAP_W = 220, MAP_H = 220;
+function worldToMap(x, z) {
+  return [((x + 1100) / 2200) * MAP_W, ((z + 2900) / 3200) * MAP_H];
+}
+function drawCosmosMap() {
+  mapCtx.clearRect(0, 0, MAP_W, MAP_H);
+  mapCtx.fillStyle = "rgba(8,11,24,0.55)"; mapCtx.fillRect(0, 0, MAP_W, MAP_H);
+  mapCtx.strokeStyle = "rgba(120,150,220,0.12)"; mapCtx.lineWidth = 1;
+  for (let i = 1; i < 4; i++) { const g = (i / 4) * MAP_H; mapCtx.beginPath(); mapCtx.moveTo(0, g); mapCtx.lineTo(MAP_W, g); mapCtx.stroke(); }
+  for (const a of cosmos.anomalies) {
+    const [mx, my] = worldToMap(a.group.position.x, a.group.position.z);
+    mapCtx.fillStyle = "#" + a.data.color.toString(16).padStart(6, "0");
+    mapCtx.beginPath(); mapCtx.arc(mx, my, 3, 0, 7); mapCtx.fill();
+  }
+  const [cx, cy] = worldToMap(cosmos.camera.position.x, cosmos.camera.position.z);
+  mapCtx.strokeStyle = "#fff"; mapCtx.lineWidth = 1.5;
+  mapCtx.beginPath(); mapCtx.arc(cx, cy, 4, 0, 7); mapCtx.stroke();
+  mapCtx.strokeStyle = "rgba(255,255,255,0.35)";
+  mapCtx.beginPath(); mapCtx.moveTo(cx, cy); mapCtx.lineTo(cx - 9, cy - 16); mapCtx.moveTo(cx, cy); mapCtx.lineTo(cx + 9, cy - 16); mapCtx.stroke();
+}
 window.addEventListener("pointermove", (e) => {
   if (page !== "cosmos") return;
   const nx = (e.clientX / window.innerWidth) * 2 - 1;
@@ -540,6 +564,7 @@ function tick() {
 
   if (page === "cosmos") {
     cosmos.update(dt, time);
+    if (frame % 3 === 0) drawCosmosMap();
   } else {
     if (mode === "explore") {
       controls.update();                               // drag-to-look + auto-rotate
@@ -595,4 +620,4 @@ function tick() {
 tick();
 
 // expose for debugging
-window.__sing = { params, lensing, camera, ship, get mode() { return mode; }, begin: beginJourney };
+window.__sing = { params, lensing, camera, ship, cosmos, get mode() { return mode; }, get page() { return page; }, begin: beginJourney };
