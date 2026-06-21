@@ -105,6 +105,7 @@ function diskColor(t) { // t 0(outer/cool) -> 1(inner/hot)
 }
 
 // the signature lensed accretion disk + black hole silhouette
+// silhouette will reflect light
 function accretionDisk(ctx, cx, cy, R, opts = {}) {
   const ky = opts.tilt ?? 0.34;          // vertical squash (viewing angle)
   const inner = opts.inner ?? 1.7;
