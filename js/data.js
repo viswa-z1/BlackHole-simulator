@@ -510,6 +510,7 @@ export const PULSARS = [
 ];
 
 // Glossary of black hole features explained in the simulator
+// Features Description
 export const FEATURES = [
   { id: "singularity", name: "Singularity", icon: "✦",
     text: "The infinitely dense core where mass collapses to a point of zero volume. General relativity breaks down here — physics as we know it ends. Quantum gravity may one day describe it." },
