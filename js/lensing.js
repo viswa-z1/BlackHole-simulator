@@ -4,7 +4,8 @@
 //  Each fragment integrates a null geodesic with RK4 and samples:
 //    - a procedural lensed starfield (background)
 //    - the accretion disk in the equatorial plane (with Doppler + redshift)
-//  This is the "shader that runs on every pixel and bends light."
+//  This is the "shader that runs on every pixel and bends light." 
+//  Scwarzchild equations
 // ===================================================================
 import * as THREE from "three";
 
