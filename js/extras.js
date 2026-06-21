@@ -1,6 +1,7 @@
 // ===================================================================
 //  EXTRAS — relativistic polar jets + Kerr ergosphere
 //  Units match the rest of the engine: Rs = 1, M = 0.5.
+// Gravitating lensing
 // ===================================================================
 import * as THREE from "three";
 
