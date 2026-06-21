@@ -72,6 +72,7 @@ export function createJets() {
 
 // ---------------- Kerr ergosphere ----------------
 // Outer ergosurface r_E(θ)/Rs = (1 + sqrt(1 - a² cos²θ)) / 2
+// which will fix the ergosurface outer surface
 const ERGO_VERT = /* glsl */`
 uniform float uA;          // dimensionless spin 0..1
 varying vec3 vN;
