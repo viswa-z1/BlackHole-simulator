@@ -761,6 +761,17 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
   .hero-stats { gap: 22px; }
   .hero-cta { gap: 8px; }
 }
+/* catalog search */
+.cat-search {
+  width: 100%; max-width: 360px; margin: 0 0 24px; display: block;
+  background: var(--glass); border: 1px solid var(--glass-brd); border-radius: 999px;
+  color: var(--fg); font-family: var(--font); font-size: 14px; padding: 11px 18px;
+  outline: none; transition: border-color .2s;
+}
+.cat-search:focus { border-color: var(--accent); }
+.cat-search::placeholder { color: var(--muted); }
+.cat-empty { color: var(--muted); font-size: 15px; padding: 20px 2px; }
+
 @media (prefers-reduced-motion: reduce) {
   .loader-ring { animation: none; }
   .feature-badge::before { animation: none; }

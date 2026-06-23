@@ -96,18 +96,26 @@ function listFor(cat) {
 }
 function buildCatalog() {
     const grid = document.getElementById("cat-grid");
-    const render = (cat) => {
-        grid.innerHTML = listFor(cat).map((o, i) => objCard(o, i + 1)).join("");
+    const search = document.getElementById("cat-search");
+    let cat = "all";
+    const render = () => {
+        const q = (search?.value || "").trim().toLowerCase();
+        const list = listFor(cat).filter(o => !q || o.name.toLowerCase().includes(q) || (o.alias || "").toLowerCase().includes(q));
+        grid.innerHTML = list.length
+            ? list.map((o, i) => objCard(o, i + 1)).join("")
+            : `<p class="cat-empty">No objects match “${q}”.</p>`;
     };
-    render("all");
+    render();
     document.querySelectorAll(".cat-tabs button").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".cat-tabs button").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
-            render(btn.dataset.cat);
+            cat = btn.dataset.cat;
+            render();
             document.querySelector("#panel-catalog .panel-inner")?.scrollTo({ top: 0, behavior: "smooth" });
         });
     });
+    search?.addEventListener("input", render);
 }
 function wireNav() {
     const pills = document.querySelectorAll(".nav-pills button[data-view]");
