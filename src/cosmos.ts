@@ -152,6 +152,21 @@ export function createCosmos(renderer) {
     return { data: d, group, glow, core, phase: Math.random() * 6.28 };
   });
 
+  // ---------- constellation lines (link anomalies of the same kind) ----------
+  const byKind: Record<string, any[]> = {};
+  for (const a of anomalies) (byKind[a.data.kind] ||= []).push(a);
+  for (const kind in byKind) {
+    const group = byKind[kind];
+    if (group.length < 2) continue;
+    const pts = group.map(a => a.group.position.clone());
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+      color: group[0].data.color, transparent: true, opacity: 0.16,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    scene.add(line);
+  }
+
   // ---------- shooting stars ----------
   const streaks = [];
   for (let i = 0; i < 4; i++) {
