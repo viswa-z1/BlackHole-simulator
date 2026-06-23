@@ -262,6 +262,17 @@ window.addEventListener("wheel", (e) => {
 }, { passive: true });
 
 window.addEventListener("keydown", (e) => {
+  if (document.querySelector(".panel.open")) return;
+  if (page === "cosmos") {                 // WASD / arrows fly the cosmos
+    const k = e.key.toLowerCase();
+    if (k === "arrowleft" || k === "a") cosmos.panBy(-0.14, 0);
+    else if (k === "arrowright" || k === "d") cosmos.panBy(0.14, 0);
+    else if (k === "arrowup" || k === "w") cosmos.addZoom(0.06);
+    else if (k === "arrowdown" || k === "s") cosmos.addZoom(-0.06);
+    else if (k === "q") cosmos.panBy(0, 0.14);
+    else if (k === "e") cosmos.panBy(0, -0.14);
+    return;
+  }
   if (e.key === "ArrowRight") nudgeProgress(0.04);
   else if (e.key === "ArrowLeft") nudgeProgress(-0.04);
   else if (e.code === "Space") {

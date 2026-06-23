@@ -184,6 +184,7 @@ export function createCosmos(renderer) {
   }
 
   const target = new THREE.Vector3();
+  const pan = new THREE.Vector2(0, 0);  // keyboard strafe offset
   let zoom = 0, zoomTarget = 0;        // 0 = far out, 1 = deep dive
 
   // ---------- picking (hover / click) ----------
@@ -201,10 +202,11 @@ export function createCosmos(renderer) {
     scene, camera, layers, anomalies, pick,
     get active() { return active; },
     get zoom() { return zoom; },
-    enter() { active = true; zoom = 0; zoomTarget = 0; camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
+    enter() { active = true; zoom = 0; zoomTarget = 0; pan.set(0, 0); camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
     leave() { active = false; },
     resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
     setPointer(x, y) { pointer.set(x, y); },
+    panBy(dx, dy) { pan.x = Math.max(-1.6, Math.min(1.6, pan.x + dx)); pan.y = Math.max(-1.6, Math.min(1.6, pan.y + dy)); },
     addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
     flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); },   // dive toward a depth
     update(dt, time = 0) {
@@ -221,7 +223,7 @@ export function createCosmos(renderer) {
       }
       const z = -zoom * 1500;                                  // dive forward (-Z), bounded to the populated region
       // lateral mouse parallax: sliding the camera makes near layers shift more
-      target.set(pointer.x * 70, -pointer.y * 45, z);
+      target.set((pointer.x + pan.x) * 70, -(pointer.y + pan.y) * 45, z);
       camera.position.lerp(target, Math.min(1, dt * 2.5));
       camera.lookAt(camera.position.x, camera.position.y, camera.position.z - 800);
       const fov = 60 + zoom * 10;                              // subtle warp on the dive
