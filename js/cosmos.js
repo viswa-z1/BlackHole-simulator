@@ -247,6 +247,13 @@ export function createCosmos(renderer) {
         resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
         setPointer(x, y) { pointer.set(x, y); },
         panBy(dx, dy) { pan.x = Math.max(-1.6, Math.min(1.6, pan.x + dx)); pan.y = Math.max(-1.6, Math.min(1.6, pan.y + dy)); },
+        focus(i) {
+            const a = anomalies[((i % anomalies.length) + anomalies.length) % anomalies.length];
+            const p = a.group.position;
+            zoomTarget = Math.max(0, Math.min(1, -p.z / 1500));
+            pan.set(Math.max(-1.6, Math.min(1.6, p.x / 70)), Math.max(-1.6, Math.min(1.6, -p.y / 45)));
+            return a.data;
+        },
         addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
         flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); }, // dive toward a depth
         update(dt, time = 0) {

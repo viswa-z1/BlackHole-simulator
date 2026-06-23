@@ -89,6 +89,7 @@ function exitCosmos() {
   document.getElementById("cosmos-card")?.classList.remove("open");
   document.getElementById("cosmos-label")?.classList.remove("show");
   document.body.style.cursor = "";
+  tour = false; document.getElementById("cos-tour")?.classList.remove("active");
   setHash("");
 }
 
@@ -383,6 +384,15 @@ document.getElementById("cc-enter").addEventListener("click", () => {
   exitCosmos();
   document.querySelector('.nav-pills button[data-view="sim"]').classList.add("active");
   beginJourney();                      // fall into the black-hole descent
+});
+
+// ---------- cosmos auto-tour ----------
+let tour = false, tourI = 0, tourT = 0;
+document.getElementById("cos-tour")?.addEventListener("click", () => {
+  tour = !tour; tourT = 0; tourI = 0;
+  document.getElementById("cos-tour")?.classList.toggle("active", tour);
+  if (tour) openCosmosCard(cosmos.focus(0)); else cosmosCard.classList.remove("open");
+  toast(tour ? "Auto-tour started — sit back and drift." : "Auto-tour stopped");
 });
 canvas.addEventListener("click", (e) => {
   if (page !== "cosmos") return;
@@ -698,6 +708,7 @@ function tick() {
 
   if (page === "cosmos") {
     cosmos.update(dt, time);
+    if (tour) { tourT += dt; if (tourT > 5) { tourT = 0; tourI = (tourI + 1) % cosmos.anomalies.length; openCosmosCard(cosmos.focus(tourI)); } }
     if (frame % 3 === 0) { drawCosmosMap(); updateCosmosHUD(); }
   } else {
     if (mode === "explore") {
