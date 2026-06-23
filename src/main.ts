@@ -731,6 +731,8 @@ function tick() {
     lensing.uniforms.uTanFov.value = Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5);
     lensing.uniforms.uTime.value = time;
     lensing.uniforms.uPlunge.value = THREE.MathUtils.clamp((progress - 0.9) / 0.1, 0, 1);
+    // gravitational-wave ripple swells through the ISCO→horizon stretch
+    lensing.uniforms.uRipple.value = THREE.MathUtils.clamp((progress - 0.72) / 0.16, 0, 1) * (1 - lensing.uniforms.uPlunge.value);
   }
 
   // render through the HDR bloom + tone-mapping pipeline

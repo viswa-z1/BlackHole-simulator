@@ -33,6 +33,7 @@ uniform float uDoppler;      // 0 or 1
 uniform float uSpin;         // 0..1, visual tilt of beaming
 uniform float uPlunge;       // 0..1 how far through the horizon we are
 uniform float uPalette;      // 0..4 accretion-disk spectrum
+uniform float uRipple;       // 0..1 gravitational-wave ripple near the horizon
 
 // ---- hash / noise ----
 float hash(vec3 p){
@@ -252,6 +253,13 @@ void main(){
   // Output LINEAR HDR — bloom + ACES tone mapping happen downstream.
   color *= 1.1;
 
+  // gravitational-wave ripple: concentric waves of spacetime as you near the horizon
+  if(uRipple > 0.001){
+    float rr = length(vUv * 2.0 - 1.0);
+    float wave = sin(rr * 42.0 - uTime * 18.0) * exp(-rr * 2.0);
+    color += vec3(0.55, 0.72, 1.0) * wave * uRipple * 0.35;
+  }
+
   // plunge whiteout as we cross the horizon
   color = mix(color, vec3(4.0), smoothstep(0.85, 1.0, uPlunge)*uPlunge);
 
@@ -276,6 +284,7 @@ export function createLensing(renderer) {
         uSpin: { value: 0.9 },
         uPlunge: { value: 0.0 },
         uPalette: { value: 0.0 },
+        uRipple: { value: 0.0 },
     };
     const material = new THREE.ShaderMaterial({
         vertexShader: vert,
