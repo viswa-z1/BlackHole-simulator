@@ -4,3 +4,4 @@ node_modules/
 .vscode/
 # Local Claude Code harness config — never commit
 .claude/
+node_modules/

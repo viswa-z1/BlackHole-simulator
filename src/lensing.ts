@@ -8,13 +8,15 @@
 //  Scwarzchild equations
 // ===================================================================
 import * as THREE from "three";
-const vert = /* glsl */ `
+
+const vert = /* glsl */`
 varying vec2 vUv;
 void main(){
   vUv = uv;
   gl_Position = vec4(position.xy, 0.0, 1.0);
 }`;
-const frag = /* glsl */ `
+
+const frag = /* glsl */`
 precision highp float;
 varying vec2 vUv;
 
@@ -257,36 +259,41 @@ void main(){
 
   gl_FragColor = vec4(max(color, 0.0), 1.0);
 }`;
+
 export function createLensing(renderer) {
-    const scene = new THREE.Scene();
-    const camera = new THREE.Camera();
-    const uniforms = {
-        uResolution: { value: new THREE.Vector2(1, 1) },
-        uCamPos: { value: new THREE.Vector3() },
-        uCamRight: { value: new THREE.Vector3() },
-        uCamUp: { value: new THREE.Vector3() },
-        uCamFwd: { value: new THREE.Vector3() },
-        uTanFov: { value: Math.tan(THREE.MathUtils.degToRad(55) * 0.5) },
-        uTime: { value: 0 },
-        uDiskInner: { value: 3.0 },
-        uDiskOuter: { value: 14.0 },
-        uSteps: { value: 150 },
-        uBright: { value: 1.0 },
-        uDoppler: { value: 1.0 },
-        uSpin: { value: 0.9 },
-        uPlunge: { value: 0.0 },
-        uPalette: { value: 0.0 },
-    };
-    const material = new THREE.ShaderMaterial({
-        vertexShader: vert,
-        fragmentShader: frag,
-        uniforms,
-        depthWrite: false,
-        depthTest: false,
-    });
-    const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
-    quad.frustumCulled = false;
-    quad.renderOrder = -1; // always drawn first, behind the particles
-    scene.add(quad);
-    return { scene, camera, uniforms, material, mesh: quad };
+  const scene = new THREE.Scene();
+  const camera = new THREE.Camera();
+
+  const uniforms = {
+    uResolution: { value: new THREE.Vector2(1, 1) },
+    uCamPos: { value: new THREE.Vector3() },
+    uCamRight: { value: new THREE.Vector3() },
+    uCamUp: { value: new THREE.Vector3() },
+    uCamFwd: { value: new THREE.Vector3() },
+    uTanFov: { value: Math.tan(THREE.MathUtils.degToRad(55) * 0.5) },
+    uTime: { value: 0 },
+    uDiskInner: { value: 3.0 },
+    uDiskOuter: { value: 14.0 },
+    uSteps: { value: 150 },
+    uBright: { value: 1.0 },
+    uDoppler: { value: 1.0 },
+    uSpin: { value: 0.9 },
+    uPlunge: { value: 0.0 },
+    uPalette: { value: 0.0 },
+  };
+
+  const material = new THREE.ShaderMaterial({
+    vertexShader: vert,
+    fragmentShader: frag,
+    uniforms,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+  quad.frustumCulled = false;
+  quad.renderOrder = -1;   // always drawn first, behind the particles
+  scene.add(quad);
+
+  return { scene, camera, uniforms, material, mesh: quad };
 }

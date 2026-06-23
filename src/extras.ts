@@ -4,15 +4,17 @@
 // Gravitating lensing
 // ===================================================================
 import * as THREE from "three";
-const NOISE = /* glsl */ `
+
+const NOISE = /* glsl */`
 float h31(vec3 p){ p=fract(p*0.3183+0.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
 float n3(vec3 x){ vec3 i=floor(x),f=fract(x); f=f*f*(3.0-2.0*f);
   return mix(mix(mix(h31(i+vec3(0,0,0)),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),
              mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z); }
 float fbm3(vec3 p){ float v=0.0,a=0.5; for(int i=0;i<4;i++){ v+=a*n3(p); p*=2.03; a*=0.5; } return v; }
 `;
+
 // ---------------- Relativistic jets ----------------
-const JET_VERT = /* glsl */ `
+const JET_VERT = /* glsl */`
 varying vec2 vUv;
 varying float vY;
 void main(){
@@ -20,7 +22,8 @@ void main(){
   vY = position.y;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }`;
-const JET_FRAG = /* glsl */ `
+
+const JET_FRAG = /* glsl */`
 precision highp float;
 varying vec2 vUv;
 varying float vY;
@@ -42,35 +45,36 @@ void main(){
   a *= 0.5;
   gl_FragColor = vec4(col * a, a);          // additive
 }`;
+
 export function createJets() {
-    const geo = new THREE.CylinderGeometry(3.6, 0.22, 34, 80, 1, true);
-    const uniforms = {
-        uTime: { value: 0 }, uSpin: { value: 0.9 }, uBright: { value: 1.0 },
-    };
-    const mat = new THREE.ShaderMaterial({
-        vertexShader: JET_VERT, fragmentShader: JET_FRAG, uniforms,
-        transparent: true, depthWrite: false, side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-    });
-    const group = new THREE.Group();
-    const up = new THREE.Mesh(geo, mat);
-    up.position.y = 17;
-    const down = new THREE.Mesh(geo, mat);
-    down.position.y = -17;
-    down.rotation.x = Math.PI;
-    group.add(up, down);
-    return {
-        group, uniforms,
-        update(time, spin) { uniforms.uTime.value = time; uniforms.uSpin.value = spin; },
-        setBright(b) { uniforms.uBright.value = b; },
-        set visible(v) { group.visible = v; },
-        get visible() { return group.visible; },
-    };
+  const geo = new THREE.CylinderGeometry(3.6, 0.22, 34, 80, 1, true);
+  const uniforms = {
+    uTime: { value: 0 }, uSpin: { value: 0.9 }, uBright: { value: 1.0 },
+  };
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: JET_VERT, fragmentShader: JET_FRAG, uniforms,
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const group = new THREE.Group();
+  const up = new THREE.Mesh(geo, mat); up.position.y = 17;
+  const down = new THREE.Mesh(geo, mat); down.position.y = -17; down.rotation.x = Math.PI;
+  group.add(up, down);
+
+  return {
+    group, uniforms,
+    update(time, spin) { uniforms.uTime.value = time; uniforms.uSpin.value = spin; },
+    setBright(b) { uniforms.uBright.value = b; },
+    set visible(v) { group.visible = v; },
+    get visible() { return group.visible; },
+  };
 }
+
 // ---------------- Kerr ergosphere ----------------
 // Outer ergosurface r_E(θ)/Rs = (1 + sqrt(1 - a² cos²θ)) / 2
 // which will fix the ergosurface outer surface
-const ERGO_VERT = /* glsl */ `
+const ERGO_VERT = /* glsl */`
 uniform float uA;          // dimensionless spin 0..1
 varying vec3 vN;
 varying vec3 vPos;
@@ -83,7 +87,8 @@ void main(){
   vN = normalize(normalMatrix * dir);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
 }`;
-const ERGO_FRAG = /* glsl */ `
+
+const ERGO_FRAG = /* glsl */`
 precision highp float;
 uniform float uTime;
 varying vec3 vN;
@@ -98,20 +103,21 @@ void main(){
   float a = (0.06 + 0.5*fres) * (0.55 + 0.45*swirl);
   gl_FragColor = vec4(col, a);
 }`;
+
 export function createErgosphere() {
-    const geo = new THREE.SphereGeometry(1, 96, 64);
-    const uniforms = { uA: { value: 0.9 }, uTime: { value: 0 } };
-    const mat = new THREE.ShaderMaterial({
-        vertexShader: ERGO_VERT, fragmentShader: ERGO_FRAG, uniforms,
-        transparent: true, depthWrite: false, side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.visible = false; // off by default — it's a study aid
-    return {
-        mesh, uniforms,
-        update(time, spin) { uniforms.uTime.value = time; uniforms.uA.value = spin; },
-        set visible(v) { mesh.visible = v; },
-        get visible() { return mesh.visible; },
-    };
+  const geo = new THREE.SphereGeometry(1, 96, 64);
+  const uniforms = { uA: { value: 0.9 }, uTime: { value: 0 } };
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: ERGO_VERT, fragmentShader: ERGO_FRAG, uniforms,
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.visible = false;   // off by default — it's a study aid
+  return {
+    mesh, uniforms,
+    update(time, spin) { uniforms.uTime.value = time; uniforms.uA.value = spin; },
+    set visible(v) { mesh.visible = v; },
+    get visible() { return mesh.visible; },
+  };
 }

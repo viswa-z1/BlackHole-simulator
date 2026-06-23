@@ -15,42 +15,35 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { createCosmos } from "./cosmos.js";
 import { buildUI, STAGES, toast } from "./ui.js";
-
 // ---------- renderer ----------
 const canvas = document.getElementById("scene");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));   // heavy per-pixel ray-marcher
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // heavy per-pixel ray-marcher
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;   // filmic HDR -> LDR
+renderer.toneMapping = THREE.ACESFilmicToneMapping; // filmic HDR -> LDR
 renderer.toneMappingExposure = 1.0;
-
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 // ---------- camera (drives the lensing ray-marcher + scene) ----------
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 4000);
 camera.position.set(0, 6, 40);
 camera.lookAt(0, 0, 0);
-
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.minDistance = 1.2;
 controls.maxDistance = 120;
 controls.enabled = false;
-
 // ---------- engine pieces ----------
 const lensing = createLensing(renderer);
 const scene = new THREE.Scene();
 // the full-screen lensing pass renders behind everything (renderOrder -1),
 // so it can share one scene/camera and flow through the bloom pipeline
 scene.add(lensing.mesh);
-
 const jets = createJets();
-jets.visible = false;            // off by default — match the clean Gargantua look
+jets.visible = false; // off by default — match the clean Gargantua look
 scene.add(jets.group);
 const ergo = createErgosphere();
 scene.add(ergo.mesh);
-
 // ---------- lighting + exploration craft ----------
 // the disk is the light source: a warm point light at the hole rim-lights the
 // ship's inner face and leaves the far side dark → natural silhouette.
@@ -59,252 +52,268 @@ const diskLight = new THREE.PointLight(0xffb060, 3.0, 140, 1.2);
 scene.add(diskLight);
 const ship = createShip();
 scene.add(ship.group);
-
 // ---------- HDR post-processing: bloom + filmic tone mapping ----------
 const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
-
 // ---------- Cosmos page (a separate explorable universe) ----------
 const cosmos = createCosmos(renderer);
-let page = "bh";   // "bh" (black hole) | "cosmos"
+let page = "bh"; // "bh" (black hole) | "cosmos"
 function enterCosmos() {
-  if (page === "cosmos") return;
-  page = "cosmos";
-  cosmos.enter();
-  renderPass.scene = cosmos.scene; renderPass.camera = cosmos.camera;
-  document.body.classList.add("page-cosmos");
-  document.querySelector('.nav-pills button[data-view="sim"]')?.classList.remove("active");
-  document.getElementById("nav-cosmos").classList.add("active");
-  toast("The cosmos — drag to look, scroll to dive deeper.");
+    if (page === "cosmos")
+        return;
+    page = "cosmos";
+    cosmos.enter();
+    renderPass.scene = cosmos.scene;
+    renderPass.camera = cosmos.camera;
+    document.body.classList.add("page-cosmos");
+    document.querySelector('.nav-pills button[data-view="sim"]')?.classList.remove("active");
+    document.getElementById("nav-cosmos").classList.add("active");
+    toast("The cosmos — drag to look, scroll to dive deeper.");
 }
 function exitCosmos() {
-  if (page !== "cosmos") return;
-  page = "bh";
-  cosmos.leave();
-  renderPass.scene = scene; renderPass.camera = camera;
-  document.body.classList.remove("page-cosmos");
-  document.getElementById("nav-cosmos").classList.remove("active");
-  document.getElementById("cosmos-card")?.classList.remove("open");
-  document.getElementById("cosmos-label")?.classList.remove("show");
-  document.body.style.cursor = "";
+    if (page !== "cosmos")
+        return;
+    page = "bh";
+    cosmos.leave();
+    renderPass.scene = scene;
+    renderPass.camera = camera;
+    document.body.classList.remove("page-cosmos");
+    document.getElementById("nav-cosmos").classList.remove("active");
+    document.getElementById("cosmos-card")?.classList.remove("open");
+    document.getElementById("cosmos-label")?.classList.remove("show");
+    document.body.style.cursor = "";
 }
-const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.7,    // strength — lush Interstellar glow
-  0.6,    // radius
-  0.9     // luminance threshold — the gold disk + photon ring bloom
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.7, // strength — lush Interstellar glow
+0.6, // radius
+0.9 // luminance threshold — the gold disk + photon ring bloom
 );
 composer.addPass(bloomPass);
 composer.addPass(new OutputPass());
-
 // ---------- simulation parameters ----------
 const params = {
-  mass: 1.0,
-  spin: 0.90,
-  bright: 1.0,
-  steps: 150,
-  doppler: true,
-  freeOrbit: false,
-  jets: false,
-  ergo: false,
-  timeScale: 1.0,
+    mass: 1.0,
+    spin: 0.90,
+    bright: 1.0,
+    steps: 150,
+    doppler: true,
+    freeOrbit: false,
+    jets: false,
+    ergo: false,
+    timeScale: 1.0,
 };
-
 // Bardeen prograde ISCO (in Schwarzschild-radius units; Rs = 2M)
 function iscoRs(a) {
-  a = Math.min(a, 0.9985);
-  const Z1 = 1 + Math.cbrt(1 - a * a) * (Math.cbrt(1 + a) + Math.cbrt(1 - a));
-  const Z2 = Math.sqrt(3 * a * a + Z1 * Z1);
-  const rM = 3 + Z2 - Math.sqrt((3 - Z1) * (3 + Z1 + 2 * Z2)); // in units of M
-  return rM / 2; // -> Rs units
+    a = Math.min(a, 0.9985);
+    const Z1 = 1 + Math.cbrt(1 - a * a) * (Math.cbrt(1 + a) + Math.cbrt(1 - a));
+    const Z2 = Math.sqrt(3 * a * a + Z1 * Z1);
+    const rM = 3 + Z2 - Math.sqrt((3 - Z1) * (3 + Z1 + 2 * Z2)); // in units of M
+    return rM / 2; // -> Rs units
 }
-
 function applyDisk() {
-  const inner = iscoRs(params.spin);
-  const outer = 9 + params.mass * 4.5;
-  lensing.uniforms.uDiskInner.value = inner;
-  lensing.uniforms.uDiskOuter.value = outer;
-  lensing.uniforms.uSpin.value = params.spin;
+    const inner = iscoRs(params.spin);
+    const outer = 9 + params.mass * 4.5;
+    lensing.uniforms.uDiskInner.value = inner;
+    lensing.uniforms.uDiskOuter.value = outer;
+    lensing.uniforms.uSpin.value = params.spin;
 }
 applyDisk();
-
 // ---------- mode: "explore" (drag the home scene) | "journey" (cinematic) ----------
 let mode = "explore";
-let progress = 0;        // 0..1
+let progress = 0; // 0..1
 let targetProgress = 0;
 let autoCruise = false;
 let currentStage = -1;
-
 // explore vantage — set up OrbitControls for a free, drag-to-look home scene
 camera.position.set(0, 11, 36);
 camera.lookAt(0, 0, 0);
 controls.target.set(0, 0, 0);
 controls.autoRotate = !reduceMotion;
 controls.autoRotateSpeed = 0.45;
-
 // camera radius as a function of progress (dive curve)
 function radiusForProgress(p) {
-  return 0.7 + 39.3 * Math.pow(1 - p, 2.2);   // 40 Rs -> 0.7 Rs
+    return 0.7 + 39.3 * Math.pow(1 - p, 2.2); // 40 Rs -> 0.7 Rs
 }
-
 const _camTarget = new THREE.Vector3();
 function updateJourneyCamera(dt, time) {
-  if (params.freeOrbit) { controls.update(); return; }
-  const R = radiusForProgress(progress);
-  const az = time * 0.06 + progress * 1.4;
-  const elev = THREE.MathUtils.degToRad(THREE.MathUtils.lerp(7, 4.5, progress));
-  const ce = Math.cos(elev);
-  _camTarget.set(R * ce * Math.cos(az), R * Math.sin(elev), R * ce * Math.sin(az));
-  // smooth follow → eases the hand-off from explore mode and softens the dive
-  camera.position.lerp(_camTarget, 1 - Math.pow(0.0015, dt));
-  camera.lookAt(0, 0, 0);
+    if (params.freeOrbit) {
+        controls.update();
+        return;
+    }
+    const R = radiusForProgress(progress);
+    const az = time * 0.06 + progress * 1.4;
+    const elev = THREE.MathUtils.degToRad(THREE.MathUtils.lerp(7, 4.5, progress));
+    const ce = Math.cos(elev);
+    _camTarget.set(R * ce * Math.cos(az), R * Math.sin(elev), R * ce * Math.sin(az));
+    // smooth follow → eases the hand-off from explore mode and softens the dive
+    camera.position.lerp(_camTarget, 1 - Math.pow(0.0015, dt));
+    camera.lookAt(0, 0, 0);
 }
-
 // ---------- ship choreography (leads the camera toward the hole) ----------
 const _shipPos = new THREE.Vector3();
 function updateShip(dt, time) {
-  if (mode !== "journey") { ship.visible = false; return; }
-  ship.visible = true;
-  const R = radiusForProgress(progress) * 0.62;          // leads the camera toward the hole
-  const az = time * 0.06 + progress * 1.4 + 0.22;        // off to one side of frame
-  const elev = THREE.MathUtils.degToRad(THREE.MathUtils.lerp(9, 5, progress));
-  const ce = Math.cos(elev);
-  _shipPos.set(R * ce * Math.cos(az), R * Math.sin(elev) - 0.5, R * ce * Math.sin(az));
-  ship.group.position.copy(_shipPos);
-  // nose (−z) toward the hole: point +z radially outward
-  ship.group.lookAt(_shipPos.x * 2, _shipPos.y * 2, _shipPos.z * 2);
-  ship.group.rotation.z += Math.sin(time * 0.7) * 0.12;  // gentle bank
-  // swallowed by the horizon near the end
-  const fade = 1 - THREE.MathUtils.clamp((progress - 0.82) / 0.12, 0, 1);
-  ship.group.scale.setScalar(0.5 + fade * 0.32);
-  ship.group.visible = fade > 0.02;
-  ship.update(time);
+    if (mode !== "journey") {
+        ship.visible = false;
+        return;
+    }
+    ship.visible = true;
+    const R = radiusForProgress(progress) * 0.62; // leads the camera toward the hole
+    const az = time * 0.06 + progress * 1.4 + 0.22; // off to one side of frame
+    const elev = THREE.MathUtils.degToRad(THREE.MathUtils.lerp(9, 5, progress));
+    const ce = Math.cos(elev);
+    _shipPos.set(R * ce * Math.cos(az), R * Math.sin(elev) - 0.5, R * ce * Math.sin(az));
+    ship.group.position.copy(_shipPos);
+    // nose (−z) toward the hole: point +z radially outward
+    ship.group.lookAt(_shipPos.x * 2, _shipPos.y * 2, _shipPos.z * 2);
+    ship.group.rotation.z += Math.sin(time * 0.7) * 0.12; // gentle bank
+    // swallowed by the horizon near the end
+    const fade = 1 - THREE.MathUtils.clamp((progress - 0.82) / 0.12, 0, 1);
+    ship.group.scale.setScalar(0.5 + fade * 0.32);
+    ship.group.visible = fade > 0.02;
+    ship.update(time);
 }
-
 // ---------- HUD ----------
 const hud = {
-  fps: document.getElementById("hud-fps"),
-  particles: document.getElementById("hud-particles"),
-  radius: document.getElementById("hud-radius"),
-  stage: document.getElementById("hud-stage"),
-  dilation: document.getElementById("hud-dilation"),
-  redshift: document.getElementById("hud-redshift"),
-  zone: document.getElementById("hud-zone"),
+    fps: document.getElementById("hud-fps"),
+    particles: document.getElementById("hud-particles"),
+    radius: document.getElementById("hud-radius"),
+    stage: document.getElementById("hud-stage"),
+    dilation: document.getElementById("hud-dilation"),
+    redshift: document.getElementById("hud-redshift"),
+    zone: document.getElementById("hud-zone"),
 };
-if (hud.particles) hud.particles.textContent = "volumetric";
-
+if (hud.particles)
+    hud.particles.textContent = "volumetric";
 function updateHUD(fps) {
-  hud.fps.textContent = fps.toFixed(0);
-  const r = camera.position.length();
-  hud.radius.textContent = r.toFixed(2);
-  hud.stage.textContent = mode === "explore" ? "Explore" : (STAGES[currentStage] || STAGES[0]).label;
-  if (r > 1.0001) {
-    const fac = 1 / Math.sqrt(1 - 1 / r);
-    hud.dilation.textContent = fac > 50 ? "∞" : fac.toFixed(2) + "×";
-    hud.redshift.textContent = (fac - 1) > 50 ? "∞" : (fac - 1).toFixed(2);
-  } else {
-    hud.dilation.textContent = "∞";
-    hud.redshift.textContent = "∞";
-  }
-  let zone = "";
-  if (r < 1.0) zone = "⚠ BEYOND THE HORIZON";
-  else if (r < 1.5) zone = "⚠ INSIDE PHOTON SPHERE";
-  else if (r < iscoRs(params.spin)) zone = "⚠ INSIDE ISCO — NO STABLE ORBIT";
-  hud.zone.textContent = zone;
+    hud.fps.textContent = fps.toFixed(0);
+    const r = camera.position.length();
+    hud.radius.textContent = r.toFixed(2);
+    hud.stage.textContent = mode === "explore" ? "Explore" : (STAGES[currentStage] || STAGES[0]).label;
+    if (r > 1.0001) {
+        const fac = 1 / Math.sqrt(1 - 1 / r);
+        hud.dilation.textContent = fac > 50 ? "∞" : fac.toFixed(2) + "×";
+        hud.redshift.textContent = (fac - 1) > 50 ? "∞" : (fac - 1).toFixed(2);
+    }
+    else {
+        hud.dilation.textContent = "∞";
+        hud.redshift.textContent = "∞";
+    }
+    let zone = "";
+    if (r < 1.0)
+        zone = "⚠ BEYOND THE HORIZON";
+    else if (r < 1.5)
+        zone = "⚠ INSIDE PHOTON SPHERE";
+    else if (r < iscoRs(params.spin))
+        zone = "⚠ INSIDE ISCO — NO STABLE ORBIT";
+    hud.zone.textContent = zone;
 }
-
 // ---------- stage captions ----------
 const stageEl = document.getElementById("stage");
 const stageName = stageEl.querySelector(".stage-name");
 const stageDesc = stageEl.querySelector(".stage-desc");
-
 function stageForProgress(p) {
-  let idx = 0;
-  for (let i = 0; i < STAGES.length; i++) if (p >= STAGES[i].t - 0.001) idx = i;
-  return idx;
+    let idx = 0;
+    for (let i = 0; i < STAGES.length; i++)
+        if (p >= STAGES[i].t - 0.001)
+            idx = i;
+    return idx;
 }
 function refreshStage() {
-  const idx = stageForProgress(progress);
-  if (idx !== currentStage) {
-    currentStage = idx;
-    const s = STAGES[idx];
-    stageEl.classList.remove("show");
-    void stageEl.offsetWidth;
-    stageName.textContent = s.name;
-    stageDesc.textContent = s.desc;
-    requestAnimationFrame(() => stageEl.classList.add("show"));
-  }
+    const idx = stageForProgress(progress);
+    if (idx !== currentStage) {
+        currentStage = idx;
+        const s = STAGES[idx];
+        stageEl.classList.remove("show");
+        void stageEl.offsetWidth;
+        stageName.textContent = s.name;
+        stageDesc.textContent = s.desc;
+        requestAnimationFrame(() => stageEl.classList.add("show"));
+    }
 }
-
 const journeyFill = document.getElementById("journey-fill");
-
 // ---------- input ----------
 function nudgeProgress(d) { targetProgress = THREE.MathUtils.clamp(targetProgress + d, 0, 1); }
-
 window.addEventListener("wheel", (e) => {
-  if (document.querySelector(".panel.open")) return;
-  if (page === "cosmos") { cosmos.addZoom(e.deltaY * 0.0006); return; }
-  if (params.freeOrbit) return;
-  nudgeProgress(e.deltaY * 0.00035);
+    if (document.querySelector(".panel.open"))
+        return;
+    if (page === "cosmos") {
+        cosmos.addZoom(e.deltaY * 0.0006);
+        return;
+    }
+    if (params.freeOrbit)
+        return;
+    nudgeProgress(e.deltaY * 0.00035);
 }, { passive: true });
-
 window.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowRight") nudgeProgress(0.04);
-  else if (e.key === "ArrowLeft") nudgeProgress(-0.04);
-  else if (e.code === "Space") {
-    e.preventDefault();
-    autoCruise = !autoCruise;
-    toast(autoCruise ? "Auto-cruise engaged" : "Auto-cruise paused");
-  }
+    if (e.key === "ArrowRight")
+        nudgeProgress(0.04);
+    else if (e.key === "ArrowLeft")
+        nudgeProgress(-0.04);
+    else if (e.code === "Space") {
+        e.preventDefault();
+        autoCruise = !autoCruise;
+        toast(autoCruise ? "Auto-cruise engaged" : "Auto-cruise paused");
+    }
 });
-
 // drag the journey bar
 const track = document.querySelector(".journey-track");
 let dragging = false;
 function setFromBar(clientX) {
-  const rect = track.getBoundingClientRect();
-  targetProgress = THREE.MathUtils.clamp((clientX - rect.left) / rect.width, 0, 1);
+    const rect = track.getBoundingClientRect();
+    targetProgress = THREE.MathUtils.clamp((clientX - rect.left) / rect.width, 0, 1);
 }
 track.addEventListener("pointerdown", (e) => { dragging = true; setFromBar(e.clientX); });
-window.addEventListener("pointermove", (e) => { if (dragging) setFromBar(e.clientX); });
+window.addEventListener("pointermove", (e) => { if (dragging)
+    setFromBar(e.clientX); });
 window.addEventListener("pointerup", () => { dragging = false; });
-
 function jumpToStage(t) { autoCruise = false; targetProgress = t; }
-
 // ---------- controls dock ----------
 function bindRange(id, valId, fmt, set) {
-  const el = document.getElementById(id);
-  const lbl = document.getElementById(valId);
-  el.addEventListener("input", () => { const v = parseFloat(el.value); lbl.textContent = fmt(v); set(v); });
-  lbl.textContent = fmt(parseFloat(el.value));
+    const el = document.getElementById(id);
+    const lbl = document.getElementById(valId);
+    el.addEventListener("input", () => { const v = parseFloat(el.value); lbl.textContent = fmt(v); set(v); });
+    lbl.textContent = fmt(parseFloat(el.value));
 }
 bindRange("c-mass", "v-mass", v => v.toFixed(2) + " M", v => { params.mass = v; applyDisk(); });
 bindRange("c-spin", "v-spin", v => v.toFixed(3), v => { params.spin = v; applyDisk(); });
 bindRange("c-bright", "v-bright", v => v.toFixed(2), v => {
-  params.bright = v; lensing.uniforms.uBright.value = v; jets.setBright(v);
+    params.bright = v;
+    lensing.uniforms.uBright.value = v;
+    jets.setBright(v);
 });
 bindRange("c-steps", "v-steps", v => String(v | 0), v => { params.steps = v; lensing.uniforms.uSteps.value = v; });
 bindRange("c-time", "v-time", v => v.toFixed(2) + "×", v => { params.timeScale = v; });
-
 document.getElementById("c-doppler").addEventListener("change", (e) => {
-  params.doppler = e.target.checked; lensing.uniforms.uDoppler.value = e.target.checked ? 1 : 0;
+    const on = e.target.checked;
+    params.doppler = on;
+    lensing.uniforms.uDoppler.value = on ? 1 : 0;
 });
 document.getElementById("c-jets").addEventListener("change", (e) => {
-  params.jets = e.target.checked; jets.visible = e.target.checked;
+    const on = e.target.checked;
+    params.jets = on;
+    jets.visible = on;
 });
 document.getElementById("c-ergo").addEventListener("change", (e) => {
-  params.ergo = e.target.checked; ergo.visible = e.target.checked;
-  if (e.target.checked) toast("Ergosphere: region where space itself is dragged");
+    const on = e.target.checked;
+    params.ergo = on;
+    ergo.visible = on;
+    if (on)
+        toast("Ergosphere: region where space itself is dragged");
 });
 document.getElementById("c-orbit").addEventListener("change", (e) => {
-  params.freeOrbit = e.target.checked;
-  controls.enabled = e.target.checked;
-  if (e.target.checked) { controls.target.set(0, 0, 0); controls.update(); toast("Free orbit — drag to look, scroll to zoom"); }
-  else toast("Guided descent resumed");
+    const on = e.target.checked;
+    params.freeOrbit = on;
+    controls.enabled = on;
+    if (on) {
+        controls.target.set(0, 0, 0);
+        controls.update();
+        toast("Free orbit — drag to look, scroll to zoom");
+    }
+    else
+        toast("Guided descent resumed");
 });
 document.getElementById("toggle-dock").addEventListener("click", () => {
-  document.getElementById("dock").classList.toggle("collapsed");
+    document.getElementById("dock").classList.toggle("collapsed");
 });
 document.getElementById("nav-cosmos").addEventListener("click", enterCosmos);
 document.querySelector('.nav-pills button[data-view="sim"]').addEventListener("click", exitCosmos);
@@ -312,338 +321,364 @@ const cosmosLabel = document.getElementById("cosmos-label");
 const cosmosCard = document.getElementById("cosmos-card");
 let cosmosHover = null;
 function openCosmosCard(d) {
-  cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
-  document.getElementById("cc-kind").textContent = d.kind;
-  document.getElementById("cc-name").textContent = d.name;
-  document.getElementById("cc-dist").textContent = "Distance · " + d.dist;
-  document.getElementById("cc-blurb").textContent = d.blurb;
-  cosmosCard.classList.add("open");
+    cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
+    document.getElementById("cc-kind").textContent = d.kind;
+    document.getElementById("cc-name").textContent = d.name;
+    document.getElementById("cc-dist").textContent = "Distance · " + d.dist;
+    document.getElementById("cc-blurb").textContent = d.blurb;
+    cosmosCard.classList.add("open");
 }
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => cosmosCard.classList.remove("open"));
 document.getElementById("cc-enter").addEventListener("click", () => {
-  cosmosCard.classList.remove("open");
-  exitCosmos();
-  document.querySelector('.nav-pills button[data-view="sim"]').classList.add("active");
-  beginJourney();                      // fall into the black-hole descent
+    cosmosCard.classList.remove("open");
+    exitCosmos();
+    document.querySelector('.nav-pills button[data-view="sim"]').classList.add("active");
+    beginJourney(); // fall into the black-hole descent
 });
 canvas.addEventListener("click", (e) => {
-  if (page !== "cosmos") return;
-  const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
-  if (hit) openCosmosCard(hit.data);
+    if (page !== "cosmos")
+        return;
+    const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
+    if (hit)
+        openCosmosCard(hit.data);
 });
-
 // ---------- star map (top-down minimap of the cosmos) ----------
 const mapCanvas = document.getElementById("cosmos-map-canvas");
 const mapCtx = mapCanvas.getContext("2d");
 const MAP_W = 220, MAP_H = 220;
 function worldToMap(x, z) {
-  return [((x + 1100) / 2200) * MAP_W, ((z + 2900) / 3200) * MAP_H];
+    return [((x + 1100) / 2200) * MAP_W, ((z + 2900) / 3200) * MAP_H];
 }
 mapCanvas.addEventListener("click", (e) => {
-  const r = mapCanvas.getBoundingClientRect();
-  const my = ((e.clientY - r.top) / r.height) * MAP_H;
-  const z = (my / MAP_H) * 3200 - 2900;       // inverse of worldToMap
-  cosmos.flyToZ(z);
-  toast("Diving toward that region…");
+    const r = mapCanvas.getBoundingClientRect();
+    const my = ((e.clientY - r.top) / r.height) * MAP_H;
+    const z = (my / MAP_H) * 3200 - 2900; // inverse of worldToMap
+    cosmos.flyToZ(z);
+    toast("Diving toward that region…");
 });
 const cosDepth = document.getElementById("cos-depth");
 const cosZoom = document.getElementById("cos-zoom");
-document.getElementById("cos-count").textContent = cosmos.anomalies.length;
+document.getElementById("cos-count").textContent = String(cosmos.anomalies.length);
 function updateCosmosHUD() {
-  const z = cosmos.zoom;
-  cosDepth.textContent = (z * 4.2).toFixed(2) + " Bly";
-  cosZoom.textContent = Math.round(z * 100) + "%";
+    const z = cosmos.zoom;
+    cosDepth.textContent = (z * 4.2).toFixed(2) + " Bly";
+    cosZoom.textContent = Math.round(z * 100) + "%";
 }
 function drawCosmosMap() {
-  mapCtx.clearRect(0, 0, MAP_W, MAP_H);
-  mapCtx.fillStyle = "rgba(8,11,24,0.55)"; mapCtx.fillRect(0, 0, MAP_W, MAP_H);
-  mapCtx.strokeStyle = "rgba(120,150,220,0.12)"; mapCtx.lineWidth = 1;
-  for (let i = 1; i < 4; i++) { const g = (i / 4) * MAP_H; mapCtx.beginPath(); mapCtx.moveTo(0, g); mapCtx.lineTo(MAP_W, g); mapCtx.stroke(); }
-  for (const a of cosmos.anomalies) {
-    const [mx, my] = worldToMap(a.group.position.x, a.group.position.z);
-    mapCtx.fillStyle = "#" + a.data.color.toString(16).padStart(6, "0");
-    mapCtx.beginPath(); mapCtx.arc(mx, my, 3, 0, 7); mapCtx.fill();
-  }
-  const [cx, cy] = worldToMap(cosmos.camera.position.x, cosmos.camera.position.z);
-  mapCtx.strokeStyle = "#fff"; mapCtx.lineWidth = 1.5;
-  mapCtx.beginPath(); mapCtx.arc(cx, cy, 4, 0, 7); mapCtx.stroke();
-  mapCtx.strokeStyle = "rgba(255,255,255,0.35)";
-  mapCtx.beginPath(); mapCtx.moveTo(cx, cy); mapCtx.lineTo(cx - 9, cy - 16); mapCtx.moveTo(cx, cy); mapCtx.lineTo(cx + 9, cy - 16); mapCtx.stroke();
+    mapCtx.clearRect(0, 0, MAP_W, MAP_H);
+    mapCtx.fillStyle = "rgba(8,11,24,0.55)";
+    mapCtx.fillRect(0, 0, MAP_W, MAP_H);
+    mapCtx.strokeStyle = "rgba(120,150,220,0.12)";
+    mapCtx.lineWidth = 1;
+    for (let i = 1; i < 4; i++) {
+        const g = (i / 4) * MAP_H;
+        mapCtx.beginPath();
+        mapCtx.moveTo(0, g);
+        mapCtx.lineTo(MAP_W, g);
+        mapCtx.stroke();
+    }
+    for (const a of cosmos.anomalies) {
+        const [mx, my] = worldToMap(a.group.position.x, a.group.position.z);
+        mapCtx.fillStyle = "#" + a.data.color.toString(16).padStart(6, "0");
+        mapCtx.beginPath();
+        mapCtx.arc(mx, my, 3, 0, 7);
+        mapCtx.fill();
+    }
+    const [cx, cy] = worldToMap(cosmos.camera.position.x, cosmos.camera.position.z);
+    mapCtx.strokeStyle = "#fff";
+    mapCtx.lineWidth = 1.5;
+    mapCtx.beginPath();
+    mapCtx.arc(cx, cy, 4, 0, 7);
+    mapCtx.stroke();
+    mapCtx.strokeStyle = "rgba(255,255,255,0.35)";
+    mapCtx.beginPath();
+    mapCtx.moveTo(cx, cy);
+    mapCtx.lineTo(cx - 9, cy - 16);
+    mapCtx.moveTo(cx, cy);
+    mapCtx.lineTo(cx + 9, cy - 16);
+    mapCtx.stroke();
 }
 window.addEventListener("pointermove", (e) => {
-  if (page !== "cosmos") return;
-  const nx = (e.clientX / window.innerWidth) * 2 - 1;
-  const ny = (e.clientY / window.innerHeight) * 2 - 1;
-  cosmos.setPointer(nx, ny);
-  cosmosHover = cosmos.pick(nx, -ny);          // raycaster NDC has y up
-  if (cosmosHover) {
-    const d = cosmosHover.data;
-    cosmosLabel.innerHTML = `<b>${d.name}</b><span>${d.kind} · ${d.dist}</span>`;
-    cosmosLabel.style.left = e.clientX + "px";
-    cosmosLabel.style.top = e.clientY + "px";
-    cosmosLabel.classList.add("show");
-    document.body.style.cursor = "pointer";
-  } else {
-    cosmosLabel.classList.remove("show");
-    document.body.style.cursor = "";
-  }
+    if (page !== "cosmos")
+        return;
+    const nx = (e.clientX / window.innerWidth) * 2 - 1;
+    const ny = (e.clientY / window.innerHeight) * 2 - 1;
+    cosmos.setPointer(nx, ny);
+    cosmosHover = cosmos.pick(nx, -ny); // raycaster NDC has y up
+    if (cosmosHover) {
+        const d = cosmosHover.data;
+        cosmosLabel.innerHTML = `<b>${d.name}</b><span>${d.kind} · ${d.dist}</span>`;
+        cosmosLabel.style.left = e.clientX + "px";
+        cosmosLabel.style.top = e.clientY + "px";
+        cosmosLabel.classList.add("show");
+        document.body.style.cursor = "pointer";
+    }
+    else {
+        cosmosLabel.classList.remove("show");
+        document.body.style.cursor = "";
+    }
 });
-
 // ---------- frame capture (download the current view as a PNG) ----------
 let captureRequested = false;
 function saveFrame() {
-  try {
-    const url = renderer.domElement.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
-    document.body.appendChild(a); a.click(); a.remove();
-    document.body.classList.add("flash");
-    setTimeout(() => document.body.classList.remove("flash"), 240);
-    toast("Frame saved to your downloads.");
-  } catch (err) {
-    toast("Couldn't capture this frame.");
-  }
+    try {
+        const url = renderer.domElement.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        document.body.classList.add("flash");
+        setTimeout(() => document.body.classList.remove("flash"), 240);
+        toast("Frame saved to your downloads.");
+    }
+    catch (err) {
+        toast("Couldn't capture this frame.");
+    }
 }
 document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
-window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey) captureRequested = true; });
-
+window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey)
+    captureRequested = true; });
 // ---------- help / shortcuts overlay ----------
 const helpModal = document.getElementById("help-modal");
 function toggleHelp(force) {
-  const open = force !== undefined ? force : !helpModal.classList.contains("open");
-  helpModal.classList.toggle("open", open);
+    const open = force !== undefined ? force : !helpModal.classList.contains("open");
+    helpModal.classList.toggle("open", open);
 }
 document.getElementById("tool-help").addEventListener("click", () => toggleHelp());
 helpModal.querySelector("[data-help-close]").addEventListener("click", () => toggleHelp(false));
-helpModal.addEventListener("click", (e) => { if (e.target === helpModal) toggleHelp(false); });
+helpModal.addEventListener("click", (e) => { if (e.target === helpModal)
+    toggleHelp(false); });
 window.addEventListener("keydown", (e) => {
-  if (e.key === "?") toggleHelp();
-  else if (e.key === "Escape") toggleHelp(false);
+    if (e.key === "?")
+        toggleHelp();
+    else if (e.key === "Escape")
+        toggleHelp(false);
 });
-
 // ---------- procedural ambient audio (swells near the horizon) ----------
 const audio = createAudio();
 document.getElementById("tool-audio").addEventListener("click", () => {
-  const on = audio.toggle();
-  const btn = document.getElementById("tool-audio");
-  btn.classList.toggle("active", on);
-  btn.textContent = on ? "🔊" : "🔈";
-  toast(on ? "Ambient audio on" : "Ambient audio muted");
+    const on = audio.toggle();
+    const btn = document.getElementById("tool-audio");
+    btn.classList.toggle("active", on);
+    btn.textContent = on ? "🔊" : "🔈";
+    toast(on ? "Ambient audio on" : "Ambient audio muted");
 });
-
 // ---------- cinematic mode (hide chrome + letterbox) ----------
 function toggleCinematic() {
-  const on = document.body.classList.toggle("cinematic");
-  document.getElementById("tool-cinema").classList.toggle("active", on);
-  toast(on ? "Cinematic mode — press C to exit" : "Interface restored");
+    const on = document.body.classList.toggle("cinematic");
+    document.getElementById("tool-cinema").classList.toggle("active", on);
+    toast(on ? "Cinematic mode — press C to exit" : "Interface restored");
 }
 document.getElementById("tool-cinema").addEventListener("click", toggleCinematic);
 window.addEventListener("keydown", (e) => {
-  if ((e.key === "c" || e.key === "C") && !e.metaKey && !e.ctrlKey && !document.querySelector(".panel.open")) toggleCinematic();
+    if ((e.key === "c" || e.key === "C") && !e.metaKey && !e.ctrlKey && !document.querySelector(".panel.open"))
+        toggleCinematic();
 });
-
 // ---------- disk spectrum (color theme) ----------
 const SPECTRUM_NAMES = ["Sagittarius Gold", "Cygnus Blue", "Quasar Violet", "Magnetar Ice", "Crimson Redshift"];
 document.querySelectorAll("#c-spectrum .sw").forEach((b) => b.addEventListener("click", () => {
-  document.querySelectorAll("#c-spectrum .sw").forEach((x) => x.classList.remove("active"));
-  b.classList.add("active");
-  const p = +b.dataset.pal;
-  lensing.uniforms.uPalette.value = p;
-  document.getElementById("v-spectrum").textContent = SPECTRUM_NAMES[p];
-  toast(`Disk spectrum: ${SPECTRUM_NAMES[p]}`);
+    document.querySelectorAll("#c-spectrum .sw").forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+    const p = +b.dataset.pal;
+    lensing.uniforms.uPalette.value = p;
+    document.getElementById("v-spectrum").textContent = SPECTRUM_NAMES[p];
+    toast(`Disk spectrum: ${SPECTRUM_NAMES[p]}`);
 }));
-
 // ---------- UI build ----------
 buildUI(jumpToStage);
-
 // ---------- anime.js: buttery hero entrance ----------
 if (window.anime && !reduceMotion) {
-  window.anime.timeline({ easing: "easeOutExpo" })
-    .add({ targets: ".hero-eyebrow", opacity: [0, 0.85], translateY: [16, 0], duration: 700 })
-    .add({ targets: "#loader h1", opacity: [0, 1], translateY: [22, 0], duration: 1000 }, "-=520")
-    .add({ targets: ".hero-sub", opacity: [0, 0.82], translateY: [16, 0], duration: 700 }, "-=640")
-    .add({ targets: ".hero-stats > div", opacity: [0, 1], translateY: [16, 0], delay: window.anime.stagger(90), duration: 600 }, "-=520")
-    .add({ targets: ".hero-hint", opacity: [0, 0.7], duration: 700 }, "-=300");
+    window.anime.timeline({ easing: "easeOutExpo" })
+        .add({ targets: ".hero-eyebrow", opacity: [0, 0.85], translateY: [16, 0], duration: 700 })
+        .add({ targets: "#loader h1", opacity: [0, 1], translateY: [22, 0], duration: 1000 }, "-=520")
+        .add({ targets: ".hero-sub", opacity: [0, 0.82], translateY: [16, 0], duration: 700 }, "-=640")
+        .add({ targets: ".hero-stats > div", opacity: [0, 1], translateY: [16, 0], delay: window.anime.stagger(90), duration: 600 }, "-=520")
+        .add({ targets: ".hero-hint", opacity: [0, 0.7], duration: 700 }, "-=300");
 }
-
 // ---------- loader / enter ----------
 const loader = document.getElementById("loader");
 const enterBtn = document.getElementById("enter-btn");
 const loaderStatus = document.getElementById("loader-status");
 const bootMsgs = [
-  "Warming up the engines…",
-  "Painting a million stars…",
-  "Lighting the accretion disk…",
-  "Bending the starlight…",
-  "Ready.",
+    "Warming up the engines…",
+    "Painting a million stars…",
+    "Lighting the accretion disk…",
+    "Bending the starlight…",
+    "Ready.",
 ];
 const ctaCatalog = document.getElementById("enter-catalog");
 const ctaPhysics = document.getElementById("enter-physics");
 const ctaCosmos = document.getElementById("enter-cosmos");
-
 document.body.classList.add("mode-explore");
-
 let revealed = false, started = false;
-function reveal() {                       // home scene becomes live + draggable
-  if (revealed) return;
-  revealed = true;
-  loader.classList.add("revealed");       // backdrop turns transparent, scene shows
-  controls.enabled = true;                // drag to explore the 3D space
+function reveal() {
+    if (revealed)
+        return;
+    revealed = true;
+    loader.classList.add("revealed"); // backdrop turns transparent, scene shows
+    controls.enabled = true; // drag to explore the 3D space
 }
-
 let boot = 0;
 const bootTimer = setInterval(() => {
-  loaderStatus.textContent = bootMsgs[boot];
-  if (++boot >= bootMsgs.length) {
-    clearInterval(bootTimer);
-    enterBtn.classList.add("ready");
-    ctaCatalog.classList.add("ready");
-    ctaCosmos.classList.add("ready");
-    ctaPhysics.classList.add("ready");
-    loaderStatus.textContent = "Drag to look around — then begin.";
-    reveal();
-  }
+    loaderStatus.textContent = bootMsgs[boot];
+    if (++boot >= bootMsgs.length) {
+        clearInterval(bootTimer);
+        enterBtn.classList.add("ready");
+        ctaCatalog.classList.add("ready");
+        ctaCosmos.classList.add("ready");
+        ctaPhysics.classList.add("ready");
+        loaderStatus.textContent = "Drag to look around — then begin.";
+        reveal();
+    }
 }, 420);
-
-function beginJourney() {                 // explicit Start → cinematic tracking shot
-  if (started) return;
-  started = true;
-  loader.classList.add("hidden");
-  document.body.classList.replace("mode-explore", "mode-journey");
-  mode = "journey";
-  controls.autoRotate = false;
-  controls.enabled = params.freeOrbit;
-  progress = 0; targetProgress = 0;
-  autoCruise = true;
-  toast("Launching… scroll or ← → to steer · Space to pause.");
+function beginJourney() {
+    if (started)
+        return;
+    started = true;
+    loader.classList.add("hidden");
+    document.body.classList.replace("mode-explore", "mode-journey");
+    mode = "journey";
+    controls.autoRotate = false;
+    controls.enabled = params.freeOrbit;
+    progress = 0;
+    targetProgress = 0;
+    autoCruise = true;
+    toast("Launching… scroll or ← → to steer · Space to pause.");
 }
-function returnToExplore() {              // go back to the draggable home scene
-  if (mode !== "journey") return;
-  mode = "explore";
-  document.body.classList.replace("mode-journey", "mode-explore");
-  started = false;
-  autoCruise = false;
-  ship.visible = false;
-  controls.enabled = true;
-  controls.autoRotate = !reduceMotion;
-  camera.position.set(0, 11, 36);
-  controls.target.set(0, 0, 0);
-  controls.update();
-  loader.classList.remove("hidden");      // bring the hero/Start back
-  loader.classList.add("revealed");
-  toast("Back to free exploration — drag to look around.");
+function returnToExplore() {
+    if (mode !== "journey")
+        return;
+    mode = "explore";
+    document.body.classList.replace("mode-journey", "mode-explore");
+    started = false;
+    autoCruise = false;
+    ship.visible = false;
+    controls.enabled = true;
+    controls.autoRotate = !reduceMotion;
+    camera.position.set(0, 11, 36);
+    controls.target.set(0, 0, 0);
+    controls.update();
+    loader.classList.remove("hidden"); // bring the hero/Start back
+    loader.classList.add("revealed");
+    toast("Back to free exploration — drag to look around.");
 }
 enterBtn.addEventListener("click", beginJourney);
 document.getElementById("back-home").addEventListener("click", returnToExplore);
 ctaCatalog.addEventListener("click", () => {
-  reveal();
-  document.querySelector('.nav-pills button[data-view="catalog"]')?.click();
+    reveal();
+    document.querySelector('.nav-pills button[data-view="catalog"]')?.click();
 });
 ctaPhysics.addEventListener("click", () => {
-  reveal();
-  document.querySelector('.nav-pills button[data-view="features"]')?.click();
+    reveal();
+    document.querySelector('.nav-pills button[data-view="features"]')?.click();
 });
 ctaCosmos.addEventListener("click", () => { reveal(); enterCosmos(); });
-
 // ---------- resize ----------
 function onResize() {
-  const w = window.innerWidth, h = window.innerHeight;
-  renderer.setSize(w, h);
-  composer.setSize(w, h);
-  camera.aspect = w / h; camera.updateProjectionMatrix();
-  lensing.uniforms.uResolution.value.set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio());
-  cosmos.resize(w, h);
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h);
+    composer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    lensing.uniforms.uResolution.value.set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio());
+    cosmos.resize(w, h);
 }
 window.addEventListener("resize", onResize);
 onResize();
-
 // ---------- adaptive performance (keep it smooth) ----------
 let perfTier = 2, lowTime = 0;
 function adaptPerf(dt) {
-  if (!revealed || perfTier === 0) return;
-  lowTime = fpsEMA < 42 ? lowTime + dt : Math.max(0, lowTime - dt * 0.6);
-  if (lowTime > 3.5) {
-    perfTier--;
-    if (perfTier === 1) {
-      const pr = Math.min(window.devicePixelRatio, 1.25);
-      renderer.setPixelRatio(pr); composer.setPixelRatio?.(pr); onResize();
-      toast("Tuning resolution for a smoother ride…");
-    } else {
-      renderer.setPixelRatio(1); composer.setPixelRatio?.(1);
-      bloomPass.strength = 0.32; onResize();
-      toast("Performance mode on");
+    if (!revealed || perfTier === 0)
+        return;
+    lowTime = fpsEMA < 42 ? lowTime + dt : Math.max(0, lowTime - dt * 0.6);
+    if (lowTime > 3.5) {
+        perfTier--;
+        if (perfTier === 1) {
+            const pr = Math.min(window.devicePixelRatio, 1.25);
+            renderer.setPixelRatio(pr);
+            composer.setPixelRatio?.(pr);
+            onResize();
+            toast("Tuning resolution for a smoother ride…");
+        }
+        else {
+            renderer.setPixelRatio(1);
+            composer.setPixelRatio?.(1);
+            bloomPass.strength = 0.32;
+            onResize();
+            toast("Performance mode on");
+        }
+        lowTime = 0;
     }
-    lowTime = 0;
-  }
 }
-
 // ---------- render loop ----------
 const clock = new THREE.Clock();
 let fpsEMA = 60, frame = 0, simTime = 0;
 const right = new THREE.Vector3(), up = new THREE.Vector3(), fwd = new THREE.Vector3();
-
 function tick() {
-  const dt = Math.min(clock.getDelta(), 0.05);
-  simTime += dt * params.timeScale;          // Time Flow scales all animation
-  const time = simTime;
-
-  if (page === "cosmos") {
-    cosmos.update(dt, time);
-    if (frame % 3 === 0) { drawCosmosMap(); updateCosmosHUD(); }
-  } else {
-    if (mode === "explore") {
-      controls.update();                               // drag-to-look + auto-rotate
-    } else {
-      if (autoCruise && !params.freeOrbit) {
-        targetProgress += dt * 0.045 * params.timeScale;
-        if (targetProgress >= 1) targetProgress = 0;   // endless dive
-      }
-      progress += (targetProgress - progress) * Math.min(1, dt * 3.2);
-      journeyFill.style.width = (progress * 100).toFixed(1) + "%";
-      refreshStage();
-      updateJourneyCamera(dt, time);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    simTime += dt * params.timeScale; // Time Flow scales all animation
+    const time = simTime;
+    if (page === "cosmos") {
+        cosmos.update(dt, time);
+        if (frame % 3 === 0) {
+            drawCosmosMap();
+            updateCosmosHUD();
+        }
     }
-
-    // animated elements
-    updateShip(dt, time);
-    jets.update(time, params.spin);
-    ergo.update(time, params.spin);
-
-    // feed camera basis into the lensing shader
-    camera.updateMatrixWorld();
-    const m = camera.matrixWorld.elements;
-    right.set(m[0], m[1], m[2]);
-    up.set(m[4], m[5], m[6]);
-    fwd.set(-m[8], -m[9], -m[10]);
-    lensing.uniforms.uCamPos.value.copy(camera.position);
-    lensing.uniforms.uCamRight.value.copy(right);
-    lensing.uniforms.uCamUp.value.copy(up);
-    lensing.uniforms.uCamFwd.value.copy(fwd);
-    lensing.uniforms.uTanFov.value = Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5);
-    lensing.uniforms.uTime.value = time;
-    lensing.uniforms.uPlunge.value = THREE.MathUtils.clamp((progress - 0.9) / 0.1, 0, 1);
-  }
-
-  // render through the HDR bloom + tone-mapping pipeline
-  composer.render();
-
-  // capture the freshly-rendered frame before the next clear
-  if (captureRequested) { captureRequested = false; saveFrame(); }
-
-  // ambient audio intensifies as the camera nears the horizon
-  if (page !== "cosmos") audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
-
-  // HUD
-  frame++;
-  const fps = 1 / Math.max(1e-4, dt);
-  fpsEMA += (fps - fpsEMA) * 0.08;
-  if (frame % 8 === 0) updateHUD(fpsEMA);
-  adaptPerf(dt);
-
-  requestAnimationFrame(tick);
+    else {
+        if (mode === "explore") {
+            controls.update(); // drag-to-look + auto-rotate
+        }
+        else {
+            if (autoCruise && !params.freeOrbit) {
+                targetProgress += dt * 0.045 * params.timeScale;
+                if (targetProgress >= 1)
+                    targetProgress = 0; // endless dive
+            }
+            progress += (targetProgress - progress) * Math.min(1, dt * 3.2);
+            journeyFill.style.width = (progress * 100).toFixed(1) + "%";
+            refreshStage();
+            updateJourneyCamera(dt, time);
+        }
+        // animated elements
+        updateShip(dt, time);
+        jets.update(time, params.spin);
+        ergo.update(time, params.spin);
+        // feed camera basis into the lensing shader
+        camera.updateMatrixWorld();
+        const m = camera.matrixWorld.elements;
+        right.set(m[0], m[1], m[2]);
+        up.set(m[4], m[5], m[6]);
+        fwd.set(-m[8], -m[9], -m[10]);
+        lensing.uniforms.uCamPos.value.copy(camera.position);
+        lensing.uniforms.uCamRight.value.copy(right);
+        lensing.uniforms.uCamUp.value.copy(up);
+        lensing.uniforms.uCamFwd.value.copy(fwd);
+        lensing.uniforms.uTanFov.value = Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5);
+        lensing.uniforms.uTime.value = time;
+        lensing.uniforms.uPlunge.value = THREE.MathUtils.clamp((progress - 0.9) / 0.1, 0, 1);
+    }
+    // render through the HDR bloom + tone-mapping pipeline
+    composer.render();
+    // capture the freshly-rendered frame before the next clear
+    if (captureRequested) {
+        captureRequested = false;
+        saveFrame();
+    }
+    // ambient audio intensifies as the camera nears the horizon
+    if (page !== "cosmos")
+        audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
+    // HUD
+    frame++;
+    const fps = 1 / Math.max(1e-4, dt);
+    fpsEMA += (fps - fpsEMA) * 0.08;
+    if (frame % 8 === 0)
+        updateHUD(fpsEMA);
+    adaptPerf(dt);
+    requestAnimationFrame(tick);
 }
 tick();
-
 // expose for debugging
 window.__sing = { params, lensing, camera, ship, cosmos, get mode() { return mode; }, get page() { return page; }, begin: beginJourney };

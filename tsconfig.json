@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "rootDir": "src",
+    "outDir": "js",
+    "baseUrl": ".",
+    "paths": {
+      "three/addons/*": ["node_modules/@types/three/examples/jsm/*"]
+    },
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "noEmitOnError": false,
+    "removeComments": false,
+    "sourceMap": false,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts"]
+}

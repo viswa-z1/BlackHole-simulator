@@ -1,0 +1,16 @@
+{
+  "name": "singularity-blackhole-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SINGULARITY — real-time black hole simulator (TypeScript source, compiled to ESM for GitHub Pages).",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "@types/three": "^0.161.2",
+    "three": "0.161.0",
+    "typescript": "^5.6.3"
+  }
+}
