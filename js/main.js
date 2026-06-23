@@ -486,8 +486,53 @@ document.querySelectorAll("#c-spectrum .sw").forEach((b) => b.addEventListener("
     document.getElementById("v-spectrum").textContent = SPECTRUM_NAMES[p];
     toast(`Disk spectrum: ${SPECTRUM_NAMES[p]}`);
 }));
+// ---------- settings persistence (localStorage) ----------
+const PREF_KEY = "singularity.prefs.v1";
+function savePrefs() {
+    try {
+        localStorage.setItem(PREF_KEY, JSON.stringify({
+            mass: params.mass, spin: params.spin, bright: params.bright, steps: params.steps,
+            timeScale: params.timeScale, doppler: params.doppler, jets: params.jets, ergo: params.ergo,
+            palette: lensing.uniforms.uPalette.value,
+        }));
+    }
+    catch (e) { /* storage unavailable */ }
+}
+function loadPrefs() {
+    let p;
+    try {
+        p = JSON.parse(localStorage.getItem(PREF_KEY) || "null");
+    }
+    catch (e) {
+        return;
+    }
+    if (!p)
+        return;
+    const setRange = (id, v) => { const el = document.getElementById(id); if (el && v != null) {
+        el.value = String(v);
+        el.dispatchEvent(new Event("input"));
+    } };
+    const setCheck = (id, v) => { const el = document.getElementById(id); if (el && v != null && el.checked !== v) {
+        el.checked = v;
+        el.dispatchEvent(new Event("change"));
+    } };
+    setRange("c-mass", p.mass);
+    setRange("c-spin", p.spin);
+    setRange("c-bright", p.bright);
+    setRange("c-steps", p.steps);
+    setRange("c-time", p.timeScale);
+    setCheck("c-doppler", p.doppler);
+    setCheck("c-jets", p.jets);
+    setCheck("c-ergo", p.ergo);
+    if (p.palette != null)
+        document.querySelector(`#c-spectrum .sw[data-pal="${p.palette}"]`)?.click();
+}
+["c-mass", "c-spin", "c-bright", "c-steps", "c-time"].forEach(id => document.getElementById(id)?.addEventListener("input", savePrefs));
+["c-doppler", "c-jets", "c-ergo"].forEach(id => document.getElementById(id)?.addEventListener("change", savePrefs));
+document.getElementById("c-spectrum")?.addEventListener("click", () => setTimeout(savePrefs, 0));
 // ---------- UI build ----------
 buildUI(jumpToStage);
+loadPrefs();
 // ---------- anime.js: buttery hero entrance ----------
 if (window.anime && !reduceMotion) {
     window.anime.timeline({ easing: "easeOutExpo" })
