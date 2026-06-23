@@ -581,12 +581,23 @@ const ctaCosmos = document.getElementById("enter-cosmos");
 document.body.classList.add("mode-explore");
 
 let revealed = false, started = false;
+function firstVisitTips() {               // gentle onboarding, shown once
+  try { if (localStorage.getItem("singularity.seen")) return; localStorage.setItem("singularity.seen", "1"); } catch (e) { return; }
+  const tips = [
+    "Tip: drag to orbit the black hole.",
+    "Scroll to zoom in and out.",
+    "Press “Begin the Journey” to fall in.",
+    "Or open the Cosmos to explore a universe.",
+  ];
+  tips.forEach((t, i) => setTimeout(() => toast(t), 1600 + i * 3200));
+}
 function reveal() {                       // home scene becomes live + draggable
   if (revealed) return;
   revealed = true;
   loader.classList.add("revealed");       // backdrop turns transparent, scene shows
   controls.enabled = true;                // drag to explore the 3D space
   applyHash();                            // honour a shared deep link (#cosmos/#catalog/#anatomy)
+  if (!location.hash) firstVisitTips();
 }
 
 let boot = 0;
