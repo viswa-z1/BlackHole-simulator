@@ -318,6 +318,7 @@ bindRange("c-bright", "v-bright", v => v.toFixed(2), v => {
 });
 bindRange("c-steps", "v-steps", v => String(v | 0), v => { params.steps = v; lensing.uniforms.uSteps.value = v; });
 bindRange("c-time", "v-time", v => v.toFixed(2) + "×", v => { params.timeScale = v; });
+bindRange("c-fov", "v-fov", v => (v | 0) + "°", v => { camera.fov = v; camera.updateProjectionMatrix(); });
 document.getElementById("c-doppler").addEventListener("change", (e) => {
     const on = e.target.checked;
     params.doppler = on;
