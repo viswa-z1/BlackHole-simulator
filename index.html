@@ -139,6 +139,16 @@
     <label>Field of View <span id="v-fov">55°</span></label>
     <input type="range" id="c-fov" min="35" max="80" step="1" value="55" />
   </div>
+  <div class="ctrl">
+    <label>Quality</label>
+    <select id="c-quality" class="dock-select">
+      <option value="">Adaptive (auto)</option>
+      <option value="low">Low</option>
+      <option value="med">Medium</option>
+      <option value="high">High</option>
+      <option value="ultra">Ultra</option>
+    </select>
+  </div>
   <div class="ctrl toggle">
     <label style="margin:0">Relativistic Doppler</label>
     <span class="switch"><input type="checkbox" id="c-doppler" checked><span class="slider-sw"></span></span>

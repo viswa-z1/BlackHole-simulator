@@ -325,6 +325,22 @@ document.getElementById("c-preset")?.addEventListener("change", (e) => {
   toast("Preset applied");
 });
 
+// quality presets (manual override of the adaptive scaler)
+const QUALITY: Record<string, { pr: number; steps: number; bloom: number }> = {
+  low: { pr: 1, steps: 90, bloom: 0.3 }, med: { pr: 1.25, steps: 140, bloom: 0.5 },
+  high: { pr: 1.5, steps: 200, bloom: 0.7 }, ultra: { pr: Math.min(window.devicePixelRatio, 2), steps: 320, bloom: 0.95 },
+};
+document.getElementById("c-quality")?.addEventListener("change", (e) => {
+  const q = QUALITY[(e.target as HTMLSelectElement).value];
+  if (!q) { perfTier = 2; toast("Adaptive quality on"); return; }   // back to auto
+  renderer.setPixelRatio(q.pr); composer.setPixelRatio?.(q.pr); onResize();
+  const steps = document.getElementById("c-steps") as HTMLInputElement;
+  steps.value = String(q.steps); steps.dispatchEvent(new Event("input"));
+  bloomPass.strength = q.bloom;
+  perfTier = 0;                                                     // stop the adaptive scaler from overriding
+  toast("Quality set");
+});
+
 document.getElementById("c-doppler").addEventListener("change", (e) => {
   const on = (e.target as HTMLInputElement).checked;
   params.doppler = on; lensing.uniforms.uDoppler.value = on ? 1 : 0;
