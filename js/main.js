@@ -448,9 +448,20 @@ mapCanvas.addEventListener("click", (e) => {
 const cosDepth = document.getElementById("cos-depth");
 const cosZoom = document.getElementById("cos-zoom");
 document.getElementById("cos-count").textContent = String(cosmos.anomalies.length);
+const cosNear = document.getElementById("cos-near");
 function updateCosmosHUD() {
     const z = cosmos.zoom;
     cosDepth.textContent = (z * 4.2).toFixed(2) + " Bly";
+    let best = null, bd = Infinity;
+    for (const a of cosmos.anomalies) {
+        const d = a.group.position.distanceTo(cosmos.camera.position);
+        if (d < bd) {
+            bd = d;
+            best = a;
+        }
+    }
+    if (cosNear)
+        cosNear.textContent = best ? best.data.name : "—";
     cosZoom.textContent = Math.round(z * 100) + "%";
 }
 function drawCosmosMap() {
