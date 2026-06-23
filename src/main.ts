@@ -311,6 +311,20 @@ bindRange("c-steps", "v-steps", v => String(v | 0), v => { params.steps = v; len
 bindRange("c-time", "v-time", v => v.toFixed(2) + "×", v => { params.timeScale = v; });
 bindRange("c-fov", "v-fov", v => (v | 0) + "°", v => { camera.fov = v; camera.updateProjectionMatrix(); });
 
+// real-object parameter presets
+const PRESETS: Record<string, { mass: number; spin: number; pal: number }> = {
+  sgra: { mass: 1.6, spin: 0.90, pal: 0 }, m87: { mass: 2.6, spin: 0.94, pal: 4 },
+  cyg: { mass: 0.7, spin: 0.97, pal: 1 }, ton: { mass: 3.0, spin: 0.50, pal: 2 },
+  gw: { mass: 0.5, spin: 0.67, pal: 0 },
+};
+document.getElementById("c-preset")?.addEventListener("change", (e) => {
+  const p = PRESETS[(e.target as HTMLSelectElement).value]; if (!p) return;
+  const setR = (id: string, v: number) => { const el = document.getElementById(id) as HTMLInputElement; el.value = String(v); el.dispatchEvent(new Event("input")); };
+  setR("c-mass", p.mass); setR("c-spin", p.spin);
+  document.querySelector<HTMLElement>(`#c-spectrum .sw[data-pal="${p.pal}"]`)?.click();
+  toast("Preset applied");
+});
+
 document.getElementById("c-doppler").addEventListener("change", (e) => {
   const on = (e.target as HTMLInputElement).checked;
   params.doppler = on; lensing.uniforms.uDoppler.value = on ? 1 : 0;

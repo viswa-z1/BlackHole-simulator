@@ -95,6 +95,17 @@
 <aside id="dock" class="collapsed">
   <h3>Simulation Controls</h3>
   <div class="ctrl">
+    <label>Object preset</label>
+    <select id="c-preset" class="dock-select">
+      <option value="">— custom —</option>
+      <option value="sgra">Sagittarius A*</option>
+      <option value="m87">M87*</option>
+      <option value="cyg">Cygnus X-1</option>
+      <option value="ton">TON 618 (quasar)</option>
+      <option value="gw">GW150914 merger</option>
+    </select>
+  </div>
+  <div class="ctrl">
     <label>Black Hole Mass <span id="v-mass">1.0 M</span></label>
     <input type="range" id="c-mass" min="0.4" max="3.0" step="0.05" value="1.0" />
   </div>
