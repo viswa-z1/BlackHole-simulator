@@ -424,6 +424,17 @@ function saveFrame() {
 document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
 window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey) captureRequested = true; });
 
+// ---------- fullscreen ----------
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+document.getElementById("tool-fs")?.addEventListener("click", toggleFullscreen);
+document.addEventListener("fullscreenchange", () => document.getElementById("tool-fs")?.classList.toggle("active", !!document.fullscreenElement));
+window.addEventListener("keydown", (e) => {
+  if ((e.key === "f" || e.key === "F") && !e.metaKey && !e.ctrlKey && !document.querySelector(".panel.open")) toggleFullscreen();
+});
+
 // ---------- help / shortcuts overlay ----------
 const helpModal = document.getElementById("help-modal");
 function toggleHelp(force?: boolean) {
