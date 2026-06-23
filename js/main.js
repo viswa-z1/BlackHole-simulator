@@ -69,6 +69,7 @@ function enterCosmos() {
     document.body.classList.add("page-cosmos");
     document.querySelector('.nav-pills button[data-view="sim"]')?.classList.remove("active");
     document.getElementById("nav-cosmos").classList.add("active");
+    setHash("cosmos");
     toast("The cosmos — drag to look, scroll to dive deeper.");
 }
 function exitCosmos() {
@@ -83,7 +84,23 @@ function exitCosmos() {
     document.getElementById("cosmos-card")?.classList.remove("open");
     document.getElementById("cosmos-label")?.classList.remove("show");
     document.body.style.cursor = "";
+    setHash("");
 }
+// ---------- shareable deep links via the URL hash ----------
+function setHash(v) { try {
+    history.replaceState(null, "", v ? "#" + v : location.pathname + location.search);
+}
+catch (e) { } }
+function applyHash() {
+    const h = location.hash.slice(1).toLowerCase();
+    if (h === "cosmos")
+        enterCosmos();
+    else if (h === "catalog")
+        document.querySelector('.nav-pills button[data-view="catalog"]')?.click();
+    else if (h === "anatomy")
+        document.querySelector('.nav-pills button[data-view="features"]')?.click();
+}
+window.addEventListener("hashchange", applyHash);
 const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.7, // strength — lush Interstellar glow
 0.6, // radius
 0.9 // luminance threshold — the gold disk + photon ring bloom
@@ -564,6 +581,7 @@ function reveal() {
     revealed = true;
     loader.classList.add("revealed"); // backdrop turns transparent, scene shows
     controls.enabled = true; // drag to explore the 3D space
+    applyHash(); // honour a shared deep link (#cosmos/#catalog/#anatomy)
 }
 let boot = 0;
 const bootTimer = setInterval(() => {
