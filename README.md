@@ -57,7 +57,7 @@ Best experienced in **Chrome or Safari on an Apple-Silicon Mac**, full-screen.
 - **14 astrophysical anomalies** (black holes, quasars, pulsars, magnetars, a
   neutron star, nebulae, a merger and a wormhole) as glowing nodes — **hover**
   for a label, **click** for an info card, and **fall into the simulation** from
-  any card.
+  any card but limited to view only and not simulation.
 - A live top-down **star map** you can click to navigate, plus a cosmos
   telemetry HUD (dive depth / anomaly count).
 
