@@ -6,7 +6,7 @@ entirely in the ray-marcher (Interstellar/Gargantua-style), an HDR bloom + filmi
 pipeline, optional relativistic jets and a Kerr ergosphere, a richly lensed
 deep-space backdrop, and a guided cinematic descent from approach to beyond the
 event horizon — plus a second, separate **Cosmos** you can fly into, dive
-through, and map.
+through, and space map
 
 ### ▶ Live: https://viswa-z1.github.io/BlackHole-simulator/
 
