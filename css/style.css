@@ -806,8 +806,14 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 .dock-select option { background: #0c1020; color: var(--fg); }
 
 /* catalog search */
+.cat-controls { display: flex; gap: 10px; margin: 0 0 24px; flex-wrap: wrap; align-items: center; }
+.cat-sort {
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  border-radius: 999px; padding: 11px 16px; font-family: var(--font); font-size: 13px; cursor: pointer; outline: none;
+}
+.cat-sort option { background: #0c1020; }
 .cat-search {
-  width: 100%; max-width: 360px; margin: 0 0 24px; display: block;
+  width: 100%; max-width: 360px; flex: 1 1 220px; display: block;
   background: var(--glass); border: 1px solid var(--glass-brd); border-radius: 999px;
   color: var(--fg); font-family: var(--font); font-size: 14px; padding: 11px 18px;
   outline: none; transition: border-color .2s;

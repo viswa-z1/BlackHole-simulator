@@ -206,7 +206,15 @@
       <button data-cat="quasar">Quasars</button>
       <button data-cat="pulsar">Pulsars</button>
     </div>
-    <input id="cat-search" class="cat-search" type="search" placeholder="Search by name…" aria-label="Search the catalog" />
+    <div class="cat-controls">
+      <input id="cat-search" class="cat-search" type="search" placeholder="Search by name…" aria-label="Search the catalog" />
+      <select id="cat-sort" class="cat-sort" aria-label="Sort the catalog">
+        <option value="rank">Default order</option>
+        <option value="name">Name (A–Z)</option>
+        <option value="distance">Distance (near→far)</option>
+        <option value="mass">Mass (small→large)</option>
+      </select>
+    </div>
     <div class="cat-grid" id="cat-grid"></div>
   </div>
 </section>

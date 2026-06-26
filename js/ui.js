@@ -94,13 +94,33 @@ function listFor(cat) {
         return BLACK_HOLES.filter(o => o.category === "blackhole");
     return [...BLACK_HOLES, ...PULSARS];
 }
+// parse "53.5 million ly" / "6.5 billion M☉" / "7,200 ly" → comparable number
+function parseSci(s) {
+    if (!s)
+        return 0;
+    const m = s.replace(/,/g, "").match(/([\d.]+)/);
+    let n = m ? parseFloat(m[1]) : 0;
+    if (/billion|Bly/i.test(s))
+        n *= 1e9;
+    else if (/million|Mly/i.test(s))
+        n *= 1e6;
+    return n;
+}
 function buildCatalog() {
     const grid = document.getElementById("cat-grid");
     const search = document.getElementById("cat-search");
+    const sort = document.getElementById("cat-sort");
     let cat = "all";
     const render = () => {
         const q = (search?.value || "").trim().toLowerCase();
-        const list = listFor(cat).filter(o => !q || o.name.toLowerCase().includes(q) || (o.alias || "").toLowerCase().includes(q));
+        let list = listFor(cat).filter(o => !q || o.name.toLowerCase().includes(q) || (o.alias || "").toLowerCase().includes(q));
+        const by = sort?.value || "rank";
+        if (by === "name")
+            list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+        else if (by === "distance")
+            list = [...list].sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
+        else if (by === "mass")
+            list = [...list].sort((a, b) => parseSci(a.mass || a.period || "") - parseSci(b.mass || b.period || ""));
         grid.innerHTML = list.length
             ? list.map((o, i) => objCard(o, i + 1)).join("")
             : `<p class="cat-empty">No objects match “${q}”.</p>`;
@@ -116,6 +136,7 @@ function buildCatalog() {
         });
     });
     search?.addEventListener("input", render);
+    sort?.addEventListener("change", render);
 }
 function wireNav() {
     const pills = document.querySelectorAll(".nav-pills button[data-view]");
