@@ -405,7 +405,7 @@ document.getElementById("cos-tour")?.addEventListener("click", () => {
 canvas.addEventListener("click", (e) => {
   if (page !== "cosmos") return;
   const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
-  if (hit) openCosmosCard(hit.data);
+  if (hit) { openCosmosCard(hit.data); cosmos.focus(cosmos.anomalies.indexOf(hit)); }
 });
 
 // ---------- star map (top-down minimap of the cosmos) ----------

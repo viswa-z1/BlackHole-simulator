@@ -439,8 +439,10 @@ canvas.addEventListener("click", (e) => {
     if (page !== "cosmos")
         return;
     const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
-    if (hit)
+    if (hit) {
         openCosmosCard(hit.data);
+        cosmos.focus(cosmos.anomalies.indexOf(hit));
+    }
 });
 // ---------- star map (top-down minimap of the cosmos) ----------
 const mapCanvas = document.getElementById("cosmos-map-canvas");
