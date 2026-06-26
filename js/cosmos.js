@@ -259,6 +259,7 @@ export function createCosmos(renderer) {
         filterKind(kind) { for (const a of anomalies)
             a.group.visible = !kind || a.data.kind === kind; },
         addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
+        reset() { zoomTarget = 0; pan.set(0, 0); },
         flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); }, // dive toward a depth
         update(dt, time = 0) {
             zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);

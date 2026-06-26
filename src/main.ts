@@ -273,6 +273,7 @@ window.addEventListener("keydown", (e) => {
     else if (k === "arrowdown" || k === "s") cosmos.addZoom(-0.06);
     else if (k === "q") cosmos.panBy(0, 0.14);
     else if (k === "e") cosmos.panBy(0, -0.14);
+    else if (k === "r") { cosmos.reset(); toast("View recentered"); }
     return;
   }
   if (e.key === "ArrowRight") nudgeProgress(0.04);
