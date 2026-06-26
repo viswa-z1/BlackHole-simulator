@@ -327,6 +327,7 @@ bindRange("c-steps", "v-steps", v => String(v | 0), v => { params.steps = v; len
 bindRange("c-time", "v-time", v => v.toFixed(2) + "×", v => { params.timeScale = v; });
 bindRange("c-fov", "v-fov", v => (v | 0) + "°", v => { camera.fov = v; camera.updateProjectionMatrix(); });
 bindRange("c-thick", "v-thick", v => v.toFixed(1) + "×", v => { lensing.uniforms.uDiskThick.value = v; });
+bindRange("c-stars", "v-stars", v => v.toFixed(2) + "×", v => { lensing.uniforms.uStarBright.value = v; });
 // real-object parameter presets
 const PRESETS = {
     sgra: { mass: 1.6, spin: 0.90, pal: 0 }, m87: { mass: 2.6, spin: 0.94, pal: 4 },
