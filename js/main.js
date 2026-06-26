@@ -285,6 +285,9 @@ window.addEventListener("keydown", (e) => {
             cosmos.reset();
             toast("View recentered");
         }
+        else if (k === "g") {
+            toast(cosmos.toggleGrid() ? "Reference grid on" : "Reference grid off");
+        }
         return;
     }
     if (e.key === "ArrowRight")

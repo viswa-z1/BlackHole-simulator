@@ -224,6 +224,18 @@ export function createCosmos(renderer) {
             s.line.material.opacity = Math.sin(k * Math.PI) * 0.9;
         }
     }
+    // ---------- depth reference grid (toggleable) ----------
+    const grid = new THREE.Group();
+    grid.visible = false;
+    for (let i = 0; i < 6; i++) {
+        const z = -i * 280 - 100, seg = 72, r = 720, pts = [];
+        for (let s = 0; s <= seg; s++) {
+            const a = s / seg * Math.PI * 2;
+            pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r * 0.7, z));
+        }
+        grid.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x335a88, transparent: true, opacity: 0.22 })));
+    }
+    scene.add(grid);
     const target = new THREE.Vector3();
     const pan = new THREE.Vector2(0, 0); // keyboard strafe offset
     let zoom = 0, zoomTarget = 0; // 0 = far out, 1 = deep dive
@@ -260,6 +272,7 @@ export function createCosmos(renderer) {
             a.group.visible = !kind || a.data.kind === kind; },
         addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
         reset() { zoomTarget = 0; pan.set(0, 0); },
+        toggleGrid() { grid.visible = !grid.visible; return grid.visible; },
         flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); }, // dive toward a depth
         update(dt, time = 0) {
             zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
