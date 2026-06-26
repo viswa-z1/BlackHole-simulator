@@ -29,6 +29,7 @@ uniform float uDiskInner;    // ISCO radius (in Rs units)
 uniform float uDiskOuter;
 uniform float uDiskThick;    // disk thickness multiplier
 uniform float uStarBright;   // background starfield brightness
+uniform float uRingBright;   // photon-ring brightness multiplier
 uniform float uSteps;
 uniform float uBright;
 uniform float uDoppler;      // 0 or 1
@@ -244,7 +245,7 @@ void main(){
 
   // ---- photon ring: rays grazing the photon sphere at 1.5 Rs ----
   float ring = exp(-pow((rmin - 1.5) / 0.055, 2.0));      // razor-thin
-  color += vec3(1.0, 0.91, 0.74) * ring * 3.2 * uBright * transmit;
+  color += vec3(1.0, 0.91, 0.74) * ring * 3.2 * uBright * uRingBright * transmit;
 
   if(captured){
     color += transmit * vec3(0.008, 0.013, 0.030);        // dark navy shadow interior
@@ -282,6 +283,7 @@ export function createLensing(renderer) {
         uDiskOuter: { value: 14.0 },
         uDiskThick: { value: 1.0 },
         uStarBright: { value: 1.0 },
+        uRingBright: { value: 1.0 },
         uSteps: { value: 150 },
         uBright: { value: 1.0 },
         uDoppler: { value: 1.0 },
