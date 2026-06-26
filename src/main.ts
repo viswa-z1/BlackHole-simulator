@@ -646,16 +646,20 @@ const ctaCosmos = document.getElementById("enter-cosmos");
 document.body.classList.add("mode-explore");
 
 let revealed = false, started = false;
-function firstVisitTips() {               // gentle onboarding, shown once
-  try { if (localStorage.getItem("singularity.seen")) return; localStorage.setItem("singularity.seen", "1"); } catch (e) { return; }
+function runTips(delay = 1600) {           // staggered onboarding toasts
   const tips = [
     "Tip: drag to orbit the black hole.",
     "Scroll to zoom in and out.",
     "Press “Begin the Journey” to fall in.",
     "Or open the Cosmos to explore a universe.",
   ];
-  tips.forEach((t, i) => setTimeout(() => toast(t), 1600 + i * 3200));
+  tips.forEach((t, i) => setTimeout(() => toast(t), delay + i * 3200));
 }
+function firstVisitTips() {                // shown once, on the first visit
+  try { if (localStorage.getItem("singularity.seen")) return; localStorage.setItem("singularity.seen", "1"); } catch (e) { return; }
+  runTips();
+}
+document.getElementById("help-replay")?.addEventListener("click", () => { toggleHelp(false); runTips(300); });
 function reveal() {                       // home scene becomes live + draggable
   if (revealed) return;
   revealed = true;

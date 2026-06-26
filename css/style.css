@@ -673,6 +673,12 @@ body.cinematic #toolbar .tool-btn:not(#tool-cinema) { opacity: 0; pointer-events
   border-radius: 7px; padding: 5px 8px;
 }
 .help-group b { min-width: 0; color: var(--hot); white-space: nowrap; }
+.help-replay {
+  margin-top: 26px; font-family: var(--font); font-size: 13px; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  padding: 10px 18px; border-radius: 999px; transition: all .2s;
+}
+.help-replay:hover { border-color: var(--accent2); color: var(--accent2); }
 
 /* ---------- Cosmos page: hide black-hole-only chrome ---------- */
 body.page-cosmos #hud,

@@ -738,6 +738,15 @@ const ctaPhysics = document.getElementById("enter-physics");
 const ctaCosmos = document.getElementById("enter-cosmos");
 document.body.classList.add("mode-explore");
 let revealed = false, started = false;
+function runTips(delay = 1600) {
+    const tips = [
+        "Tip: drag to orbit the black hole.",
+        "Scroll to zoom in and out.",
+        "Press “Begin the Journey” to fall in.",
+        "Or open the Cosmos to explore a universe.",
+    ];
+    tips.forEach((t, i) => setTimeout(() => toast(t), delay + i * 3200));
+}
 function firstVisitTips() {
     try {
         if (localStorage.getItem("singularity.seen"))
@@ -747,14 +756,9 @@ function firstVisitTips() {
     catch (e) {
         return;
     }
-    const tips = [
-        "Tip: drag to orbit the black hole.",
-        "Scroll to zoom in and out.",
-        "Press “Begin the Journey” to fall in.",
-        "Or open the Cosmos to explore a universe.",
-    ];
-    tips.forEach((t, i) => setTimeout(() => toast(t), 1600 + i * 3200));
+    runTips();
 }
+document.getElementById("help-replay")?.addEventListener("click", () => { toggleHelp(false); runTips(300); });
 function reveal() {
     if (revealed)
         return;
