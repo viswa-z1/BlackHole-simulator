@@ -27,6 +27,7 @@ uniform float uTanFov;       // tan(fov/2)
 uniform float uTime;
 uniform float uDiskInner;    // ISCO radius (in Rs units)
 uniform float uDiskOuter;
+uniform float uDiskThick;    // disk thickness multiplier
 uniform float uSteps;
 uniform float uBright;
 uniform float uDoppler;      // 0 or 1
@@ -198,7 +199,7 @@ void main(){
     vec3 mid = 0.5*(pos + newPos);
     float rd = length(mid.xz);
     if(rd > uDiskInner && rd < uDiskOuter){
-      float H  = 0.03 + 0.025*rd;                           // thin, gently flaring slab
+      float H  = (0.03 + 0.025*rd) * uDiskThick;            // thin, gently flaring slab
       float vg = exp(-0.5*(mid.y*mid.y)/(H*H));             // vertical falloff
       if(vg > 0.002){
         float radial = smoothstep(uDiskInner, uDiskInner*1.14, rd)
@@ -278,6 +279,7 @@ export function createLensing(renderer) {
         uTime: { value: 0 },
         uDiskInner: { value: 3.0 },
         uDiskOuter: { value: 14.0 },
+        uDiskThick: { value: 1.0 },
         uSteps: { value: 150 },
         uBright: { value: 1.0 },
         uDoppler: { value: 1.0 },
