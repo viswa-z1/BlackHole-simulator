@@ -703,6 +703,22 @@ body.page-cosmos #cosmos-hud { opacity: 1; }
 .cos-tour-btn:hover { border-color: var(--accent2); color: #cfeaff; }
 .cos-tour-btn.active { background: rgba(77,181,255,0.18); border-color: var(--accent2); color: #cfeaff; }
 
+/* cosmos kind filter */
+#cosmos-filter {
+  position: fixed; top: 78px; left: 50%; transform: translateX(-50%); z-index: 18;
+  display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 90vw;
+  opacity: 0; pointer-events: none; transition: opacity .4s ease;
+}
+body.page-cosmos #cosmos-filter { opacity: 1; pointer-events: auto; }
+.cfilter {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--muted);
+  padding: 6px 12px; border-radius: 999px; backdrop-filter: blur(12px); transition: all .2s;
+}
+.cfilter:hover { color: var(--fg); }
+.cfilter.active { background: rgba(77,181,255,0.16); border-color: var(--accent2); color: #cfeaff; }
+@media (max-width: 720px) { #cosmos-filter { display: none; } }
+
 /* cosmos star map */
 #cosmos-map {
   position: fixed; right: 22px; bottom: 100px; z-index: 22;

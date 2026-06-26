@@ -242,7 +242,8 @@ export function createCosmos(renderer) {
         scene, camera, layers, anomalies, pick,
         get active() { return active; },
         get zoom() { return zoom; },
-        enter() { active = true; zoom = 0; zoomTarget = 0; pan.set(0, 0); camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
+        enter() { active = true; zoom = 0; zoomTarget = 0; pan.set(0, 0); for (const a of anomalies)
+            a.group.visible = true; camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); },
         leave() { active = false; },
         resize(w, h) { camera.aspect = w / h; camera.updateProjectionMatrix(); },
         setPointer(x, y) { pointer.set(x, y); },
@@ -254,6 +255,9 @@ export function createCosmos(renderer) {
             pan.set(Math.max(-1.6, Math.min(1.6, p.x / 70)), Math.max(-1.6, Math.min(1.6, -p.y / 45)));
             return a.data;
         },
+        kinds() { return [...new Set(anomalies.map(a => a.data.kind))]; },
+        filterKind(kind) { for (const a of anomalies)
+            a.group.visible = !kind || a.data.kind === kind; },
         addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
         flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); }, // dive toward a depth
         update(dt, time = 0) {

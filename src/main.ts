@@ -394,6 +394,18 @@ function showAnomaly(i: number) {
 }
 document.getElementById("cc-prev")?.addEventListener("click", () => showAnomaly(cardIndex - 1));
 document.getElementById("cc-next")?.addEventListener("click", () => showAnomaly(cardIndex + 1));
+
+// cosmos kind-filter chips
+(function buildCosmosFilter() {
+  const bar = document.getElementById("cosmos-filter"); if (!bar) return;
+  const kinds = ["All", ...cosmos.kinds()];
+  bar.innerHTML = kinds.map((k, i) => `<button class="cfilter${i === 0 ? " active" : ""}" data-kind="${k === "All" ? "" : k}">${k}</button>`).join("");
+  bar.querySelectorAll(".cfilter").forEach(b => b.addEventListener("click", () => {
+    bar.querySelectorAll(".cfilter").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    cosmos.filterKind((b as HTMLElement).dataset.kind);
+  }));
+})();
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => cosmosCard.classList.remove("open"));
 document.getElementById("cc-enter").addEventListener("click", () => {
   cosmosCard.classList.remove("open");
