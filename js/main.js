@@ -13,6 +13,7 @@ import { createLensing } from "./lensing.js";
 import { createJets, createErgosphere } from "./extras.js";
 import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
+import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
 import { buildUI, STAGES, toast } from "./ui.js";
 // ---------- renderer ----------
@@ -396,8 +397,18 @@ document.querySelector('.nav-pills button[data-view="sim"]').addEventListener("c
 const cosmosLabel = document.getElementById("cosmos-label");
 const cosmosCard = document.getElementById("cosmos-card");
 let cosmosHover = null;
+const KIND_TO_PORTRAIT = {
+    "Black Hole": "supermassive", "Quasar": "quasar", "Pulsar": "pulsar",
+    "Magnetar": "magnetar", "Neutron Star": "neutron", "Nebula": "supermassive",
+    "Merger": "binary", "Wormhole": "supermassive",
+};
 function openCosmosCard(d) {
     cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
+    const img = document.getElementById("cc-img");
+    if (img) {
+        img.src = portraitDataURL({ name: d.name, kind: KIND_TO_PORTRAIT[d.kind] || "stellar" }, 760, 380);
+        img.alt = `Rendered figure of ${d.name}`;
+    }
     document.getElementById("cc-kind").textContent = d.kind;
     document.getElementById("cc-name").textContent = d.name;
     document.getElementById("cc-dist").textContent = "Distance · " + d.dist;
