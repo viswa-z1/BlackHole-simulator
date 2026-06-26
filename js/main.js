@@ -415,6 +415,14 @@ function openCosmosCard(d) {
     document.getElementById("cc-blurb").textContent = d.blurb;
     cosmosCard.classList.add("open");
 }
+let cardIndex = 0;
+function showAnomaly(i) {
+    const n = cosmos.anomalies.length;
+    cardIndex = ((i % n) + n) % n;
+    openCosmosCard(cosmos.focus(cardIndex)); // focus() centres + returns the data
+}
+document.getElementById("cc-prev")?.addEventListener("click", () => showAnomaly(cardIndex - 1));
+document.getElementById("cc-next")?.addEventListener("click", () => showAnomaly(cardIndex + 1));
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => cosmosCard.classList.remove("open"));
 document.getElementById("cc-enter").addEventListener("click", () => {
     cosmosCard.classList.remove("open");
@@ -439,10 +447,8 @@ canvas.addEventListener("click", (e) => {
     if (page !== "cosmos")
         return;
     const hit = cosmos.pick((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
-    if (hit) {
-        openCosmosCard(hit.data);
-        cosmos.focus(cosmos.anomalies.indexOf(hit));
-    }
+    if (hit)
+        showAnomaly(cosmos.anomalies.indexOf(hit));
 });
 // ---------- star map (top-down minimap of the cosmos) ----------
 const mapCanvas = document.getElementById("cosmos-map-canvas");
