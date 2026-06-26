@@ -578,6 +578,11 @@ function saveFrame() {
 document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
 window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey)
     captureRequested = true; });
+// ---------- copy share link ----------
+document.getElementById("tool-share")?.addEventListener("click", () => {
+    const url = location.href;
+    navigator.clipboard?.writeText(url).then(() => toast("Share link copied to clipboard."), () => toast(url));
+});
 // ---------- fullscreen ----------
 function toggleFullscreen() {
     if (!document.fullscreenElement)
