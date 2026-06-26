@@ -400,6 +400,7 @@ function showAnomaly(i: number) {
 }
 document.getElementById("cc-prev")?.addEventListener("click", () => showAnomaly(cardIndex - 1));
 document.getElementById("cc-next")?.addEventListener("click", () => showAnomaly(cardIndex + 1));
+document.getElementById("cos-random")?.addEventListener("click", () => showAnomaly(Math.floor(Math.random() * cosmos.anomalies.length)));
 
 // cosmos kind-filter chips
 (function buildCosmosFilter() {
