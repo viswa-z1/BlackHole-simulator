@@ -483,6 +483,30 @@ mapCanvas.addEventListener("click", (e) => {
     cosmos.flyToZ(z);
     toast("Diving toward that region…");
 });
+// hover the star map to label the nearest anomaly dot
+mapCanvas.addEventListener("mousemove", (e) => {
+    const r = mapCanvas.getBoundingClientRect();
+    const mx = ((e.clientX - r.left) / r.width) * MAP_W, my = ((e.clientY - r.top) / r.height) * MAP_H;
+    let best = null, bd = 9;
+    for (const a of cosmos.anomalies) {
+        const [ax, ay] = worldToMap(a.group.position.x, a.group.position.z);
+        const d = Math.hypot(ax - mx, ay - my);
+        if (d < bd) {
+            bd = d;
+            best = a;
+        }
+    }
+    const lbl = document.getElementById("cosmos-label");
+    if (best) {
+        lbl.innerHTML = `<b>${best.data.name}</b><span>${best.data.kind}</span>`;
+        lbl.style.left = e.clientX + "px";
+        lbl.style.top = e.clientY + "px";
+        lbl.classList.add("show");
+    }
+    else
+        lbl.classList.remove("show");
+});
+mapCanvas.addEventListener("mouseleave", () => document.getElementById("cosmos-label").classList.remove("show"));
 const cosDepth = document.getElementById("cos-depth");
 const cosZoom = document.getElementById("cos-zoom");
 document.getElementById("cos-count").textContent = String(cosmos.anomalies.length);
