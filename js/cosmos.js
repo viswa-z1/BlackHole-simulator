@@ -291,6 +291,13 @@ export function createCosmos(renderer) {
         addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
         reset() { zoomTarget = 0; pan.set(0, 0); },
         toggleGrid() { grid.visible = !grid.visible; return grid.visible; },
+        spotlight(i) {
+            anomalies.forEach((a, j) => {
+                const on = i < 0 || j === i;
+                a.glow.material.opacity = on ? 0.95 : 0.26;
+                a.label.material.opacity = on ? 0.75 : 0.14;
+            });
+        },
         flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); }, // dive toward a depth
         update(dt, time = 0) {
             zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);

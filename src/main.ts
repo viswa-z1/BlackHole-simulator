@@ -101,6 +101,7 @@ function exitCosmos() {
   document.getElementById("cosmos-card")?.classList.remove("open");
   document.getElementById("cosmos-label")?.classList.remove("show");
   document.body.style.cursor = "";
+  cosmos.spotlight(-1);
   tour = false; document.getElementById("cos-tour")?.classList.remove("active");
   setHash("");
 }
@@ -408,6 +409,7 @@ function showAnomaly(i: number) {
   const n = cosmos.anomalies.length;
   cardIndex = ((i % n) + n) % n;
   openCosmosCard(cosmos.focus(cardIndex));   // focus() centres + returns the data
+  cosmos.spotlight(cardIndex);               // dim the rest for focus
 }
 document.getElementById("cc-prev")?.addEventListener("click", () => showAnomaly(cardIndex - 1));
 document.getElementById("cc-next")?.addEventListener("click", () => showAnomaly(cardIndex + 1));
@@ -424,7 +426,7 @@ document.getElementById("cos-random")?.addEventListener("click", () => showAnoma
     cosmos.filterKind((b as HTMLElement).dataset.kind);
   }));
 })();
-cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => cosmosCard.classList.remove("open"));
+cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => { cosmosCard.classList.remove("open"); cosmos.spotlight(-1); });
 
 // ---------- cosmos auto-tour ----------
 let tour = false, tourI = 0, tourT = 0;
