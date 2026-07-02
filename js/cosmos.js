@@ -143,6 +143,22 @@ export function createCosmos(renderer) {
         return new THREE.CanvasTexture(c);
     }
     const glowTex = glowTexture();
+    // billboard text label for a node name
+    function labelSprite(text) {
+        const fs = 44, pad = 10, c = document.createElement("canvas"), x = c.getContext("2d");
+        x.font = `500 ${fs}px Geist, "Space Grotesk", sans-serif`;
+        c.width = Math.ceil(x.measureText(text).width) + pad * 2;
+        c.height = fs + pad * 2;
+        x.font = `500 ${fs}px Geist, "Space Grotesk", sans-serif`;
+        x.fillStyle = "rgba(255,255,255,0.92)";
+        x.textBaseline = "middle";
+        x.shadowColor = "#000";
+        x.shadowBlur = 8;
+        x.fillText(text, pad, c.height / 2);
+        const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, opacity: 0.62 }));
+        s.scale.set(c.width * 0.34, c.height * 0.34, 1);
+        return s;
+    }
     const anomalies = ANOMALIES.map((d, i) => {
         const group = new THREE.Group();
         const ang = (i / ANOMALIES.length) * Math.PI * 2 + 0.6;
@@ -159,9 +175,11 @@ export function createCosmos(renderer) {
             blending: THREE.AdditiveBlending, depthWrite: false,
         }));
         core.scale.set(16, 16, 1);
-        group.add(glow, core);
+        const label = labelSprite(d.name);
+        label.position.set(0, 46, 0);
+        group.add(glow, core, label);
         scene.add(group);
-        return { data: d, group, glow, core, phase: Math.random() * 6.28 };
+        return { data: d, group, glow, core, label, phase: Math.random() * 6.28 };
     });
     // ---------- constellation lines (link anomalies of the same kind) ----------
     const byKind = {};
