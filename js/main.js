@@ -64,13 +64,18 @@ composer.addPass(renderPass);
 // ---------- Cosmos page (a separate explorable universe) ----------
 const cosmos = createCosmos(renderer);
 let page = "bh"; // "bh" (black hole) | "cosmos"
+// smooth cross-fade around the scene swap (Vercel-style page transition)
+const pageFade = document.getElementById("page-fade");
+function crossfade(swap) {
+    pageFade?.classList.add("show");
+    setTimeout(() => { swap(); setTimeout(() => pageFade?.classList.remove("show"), 90); }, 240);
+}
 function enterCosmos() {
     if (page === "cosmos")
         return;
     page = "cosmos";
     cosmos.enter();
-    renderPass.scene = cosmos.scene;
-    renderPass.camera = cosmos.camera;
+    crossfade(() => { renderPass.scene = cosmos.scene; renderPass.camera = cosmos.camera; });
     document.body.classList.add("page-cosmos");
     document.querySelector('.nav-pills button[data-view="sim"]')?.classList.remove("active");
     document.getElementById("nav-cosmos").classList.add("active");
@@ -82,8 +87,7 @@ function exitCosmos() {
         return;
     page = "bh";
     cosmos.leave();
-    renderPass.scene = scene;
-    renderPass.camera = camera;
+    crossfade(() => { renderPass.scene = scene; renderPass.camera = camera; });
     document.body.classList.remove("page-cosmos");
     document.getElementById("nav-cosmos").classList.remove("active");
     document.getElementById("cosmos-card")?.classList.remove("open");

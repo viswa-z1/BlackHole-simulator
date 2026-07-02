@@ -46,6 +46,13 @@ html, body {
 
 a { color: var(--accent2); text-decoration: none; }
 
+/* page cross-fade overlay (masks the scene swap between BH ↔ cosmos) */
+#page-fade {
+  position: fixed; inset: 0; z-index: 95; background: var(--bg);
+  opacity: 0; pointer-events: none; transition: opacity .34s var(--ease);
+}
+#page-fade.show { opacity: 1; }
+
 /* ---------- WebGL canvas ---------- */
 #scene {
   position: fixed;
