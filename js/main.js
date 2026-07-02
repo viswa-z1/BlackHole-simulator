@@ -9,6 +9,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { createLensing } from "./lensing.js";
 import { createJets, createErgosphere } from "./extras.js";
 import { createShip } from "./ship.js";
@@ -51,6 +52,9 @@ scene.add(ergo.mesh);
 scene.add(new THREE.HemisphereLight(0x2a4070, 0x05060c, 0.55));
 const diskLight = new THREE.PointLight(0xffb060, 3.0, 140, 1.2);
 scene.add(diskLight);
+// image-based lighting so the ship's metal reflects realistically (PBR)
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 const ship = createShip();
 scene.add(ship.group);
 // ---------- HDR post-processing: bloom + filmic tone mapping ----------
