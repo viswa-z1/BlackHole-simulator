@@ -287,6 +287,7 @@ window.addEventListener("keydown", (e) => {
     else if (k === "e") cosmos.panBy(0, -0.14);
     else if (k === "r") { cosmos.reset(); toast("View recentered"); }
     else if (k === "g") { toast(cosmos.toggleGrid() ? "Reference grid on" : "Reference grid off"); }
+    else if (k >= "1" && k <= "9") showAnomaly(+k - 1);   // jump to entity N
     return;
   }
   if (e.key === "ArrowRight") nudgeProgress(0.04);
