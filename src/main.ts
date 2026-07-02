@@ -111,6 +111,7 @@ function setHash(v: string) { try { history.replaceState(null, "", v ? "#" + v :
 function applyHash() {
   const h = location.hash.slice(1).toLowerCase();
   if (h === "cosmos") enterCosmos();
+  else if (h.startsWith("cosmos/")) { enterCosmos(); const idx = parseInt(h.slice(7), 10); if (!isNaN(idx)) setTimeout(() => showAnomaly(idx), 420); }
   else if (h === "catalog") document.querySelector<HTMLElement>('.nav-pills button[data-view="catalog"]')?.click();
   else if (h === "anatomy") document.querySelector<HTMLElement>('.nav-pills button[data-view="features"]')?.click();
 }
@@ -411,6 +412,7 @@ function showAnomaly(i: number) {
   cardIndex = ((i % n) + n) % n;
   openCosmosCard(cosmos.focus(cardIndex));   // focus() centres + returns the data
   cosmos.spotlight(cardIndex);               // dim the rest for focus
+  setHash("cosmos/" + cardIndex);            // shareable deep link to this entity
 }
 function stepAnomaly(dir: number) {        // step to the next *visible* (filtered) entity
   const n = cosmos.anomalies.length;
