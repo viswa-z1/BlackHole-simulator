@@ -560,13 +560,22 @@ function drawCosmosMap() {
         mapCtx.lineTo(MAP_W, g);
         mapCtx.stroke();
     }
-    for (const a of cosmos.anomalies) {
+    const selected = cosmosCard.classList.contains("open") ? cardIndex : -1;
+    cosmos.anomalies.forEach((a, i) => {
         const [mx, my] = worldToMap(a.group.position.x, a.group.position.z);
-        mapCtx.fillStyle = "#" + a.data.color.toString(16).padStart(6, "0");
+        const col = "#" + a.data.color.toString(16).padStart(6, "0");
+        mapCtx.fillStyle = col;
         mapCtx.beginPath();
-        mapCtx.arc(mx, my, 3, 0, 7);
+        mapCtx.arc(mx, my, i === selected ? 4.5 : 3, 0, 7);
         mapCtx.fill();
-    }
+        if (i === selected) {
+            mapCtx.strokeStyle = col;
+            mapCtx.lineWidth = 1.5;
+            mapCtx.beginPath();
+            mapCtx.arc(mx, my, 8, 0, 7);
+            mapCtx.stroke();
+        }
+    });
     const [cx, cy] = worldToMap(cosmos.camera.position.x, cosmos.camera.position.z);
     mapCtx.strokeStyle = "#fff";
     mapCtx.lineWidth = 1.5;

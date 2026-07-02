@@ -487,11 +487,14 @@ function drawCosmosMap() {
   mapCtx.fillStyle = "rgba(8,11,24,0.55)"; mapCtx.fillRect(0, 0, MAP_W, MAP_H);
   mapCtx.strokeStyle = "rgba(120,150,220,0.12)"; mapCtx.lineWidth = 1;
   for (let i = 1; i < 4; i++) { const g = (i / 4) * MAP_H; mapCtx.beginPath(); mapCtx.moveTo(0, g); mapCtx.lineTo(MAP_W, g); mapCtx.stroke(); }
-  for (const a of cosmos.anomalies) {
+  const selected = cosmosCard.classList.contains("open") ? cardIndex : -1;
+  cosmos.anomalies.forEach((a, i) => {
     const [mx, my] = worldToMap(a.group.position.x, a.group.position.z);
-    mapCtx.fillStyle = "#" + a.data.color.toString(16).padStart(6, "0");
-    mapCtx.beginPath(); mapCtx.arc(mx, my, 3, 0, 7); mapCtx.fill();
-  }
+    const col = "#" + a.data.color.toString(16).padStart(6, "0");
+    mapCtx.fillStyle = col;
+    mapCtx.beginPath(); mapCtx.arc(mx, my, i === selected ? 4.5 : 3, 0, 7); mapCtx.fill();
+    if (i === selected) { mapCtx.strokeStyle = col; mapCtx.lineWidth = 1.5; mapCtx.beginPath(); mapCtx.arc(mx, my, 8, 0, 7); mapCtx.stroke(); }
+  });
   const [cx, cy] = worldToMap(cosmos.camera.position.x, cosmos.camera.position.z);
   mapCtx.strokeStyle = "#fff"; mapCtx.lineWidth = 1.5;
   mapCtx.beginPath(); mapCtx.arc(cx, cy, 4, 0, 7); mapCtx.stroke();
