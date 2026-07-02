@@ -871,3 +871,13 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 @media (prefers-reduced-motion: reduce) {
   .detail-modal .detail-inner, .help-card { transform: none; transition: opacity .2s ease; }
 }
+
+/* smooth panel content entrance (rise + fade on open) */
+.panel-inner {
+  transform: translateY(14px); opacity: 0;
+  transition: transform .55s var(--ease-out) .05s, opacity .5s var(--ease-out) .05s;
+}
+.panel.open .panel-inner { transform: none; opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .panel-inner { transform: none; transition: opacity .2s ease; }
+}
