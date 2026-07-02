@@ -444,8 +444,19 @@ function showAnomaly(i) {
     openCosmosCard(cosmos.focus(cardIndex)); // focus() centres + returns the data
     cosmos.spotlight(cardIndex); // dim the rest for focus
 }
-document.getElementById("cc-prev")?.addEventListener("click", () => showAnomaly(cardIndex - 1));
-document.getElementById("cc-next")?.addEventListener("click", () => showAnomaly(cardIndex + 1));
+function stepAnomaly(dir) {
+    const n = cosmos.anomalies.length;
+    let i = cardIndex;
+    for (let k = 0; k < n; k++) {
+        i = ((i + dir) % n + n) % n;
+        if (cosmos.anomalies[i].group.visible) {
+            showAnomaly(i);
+            return;
+        }
+    }
+}
+document.getElementById("cc-prev")?.addEventListener("click", () => stepAnomaly(-1));
+document.getElementById("cc-next")?.addEventListener("click", () => stepAnomaly(1));
 document.getElementById("cos-random")?.addEventListener("click", () => showAnomaly(Math.floor(Math.random() * cosmos.anomalies.length)));
 // cosmos kind-filter chips
 (function buildCosmosFilter() {
