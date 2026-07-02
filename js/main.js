@@ -488,10 +488,19 @@ function worldToMap(x, z) {
 }
 mapCanvas.addEventListener("click", (e) => {
     const r = mapCanvas.getBoundingClientRect();
-    const my = ((e.clientY - r.top) / r.height) * MAP_H;
-    const z = (my / MAP_H) * 3200 - 2900; // inverse of worldToMap
-    cosmos.flyToZ(z);
-    toast("Diving toward that region…");
+    const mx = ((e.clientX - r.left) / r.width) * MAP_W, my = ((e.clientY - r.top) / r.height) * MAP_H;
+    // clicking a dot displays that entity; clicking empty space dives to that depth
+    let bi = -1, bd = 11;
+    cosmos.anomalies.forEach((a, i) => { const [ax, ay] = worldToMap(a.group.position.x, a.group.position.z); const d = Math.hypot(ax - mx, ay - my); if (d < bd) {
+        bd = d;
+        bi = i;
+    } });
+    if (bi >= 0)
+        showAnomaly(bi);
+    else {
+        cosmos.flyToZ((my / MAP_H) * 3200 - 2900);
+        toast("Diving toward that region…");
+    }
 });
 // hover the star map to label the nearest anomaly dot
 mapCanvas.addEventListener("mousemove", (e) => {
