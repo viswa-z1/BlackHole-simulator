@@ -418,12 +418,6 @@ document.getElementById("cos-random")?.addEventListener("click", () => showAnoma
   }));
 })();
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => cosmosCard.classList.remove("open"));
-document.getElementById("cc-enter").addEventListener("click", () => {
-  cosmosCard.classList.remove("open");
-  exitCosmos();
-  document.querySelector('.nav-pills button[data-view="sim"]').classList.add("active");
-  beginJourney();                      // fall into the black-hole descent
-});
 
 // ---------- cosmos auto-tour ----------
 let tour = false, tourI = 0, tourT = 0;
