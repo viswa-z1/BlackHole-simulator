@@ -370,6 +370,7 @@ bindRange("c-thick", "v-thick", v => v.toFixed(1) + "×", v => { lensing.uniform
 bindRange("c-stars", "v-stars", v => v.toFixed(2) + "×", v => { lensing.uniforms.uStarBright.value = v; });
 bindRange("c-ring", "v-ring", v => v.toFixed(2) + "×", v => { lensing.uniforms.uRingBright.value = v; });
 bindRange("c-bloom", "v-bloom", v => v.toFixed(2), v => { bloomPass.strength = v; });
+bindRange("c-vol", "v-vol", v => v.toFixed(2) + "×", v => { audio.setVolume(v); });
 // real-object parameter presets
 const PRESETS = {
     sgra: { mass: 1.6, spin: 0.90, pal: 0 }, m87: { mass: 2.6, spin: 0.94, pal: 4 },

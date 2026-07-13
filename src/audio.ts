@@ -42,13 +42,16 @@ export function createAudio() {
 
   function resume() { if (ctx && ctx.state === "suspended") ctx.resume(); }
 
+  let volume = 1;
+
   return {
     toggle() { build(); resume(); muted = !muted; return !muted; },
     get on() { return built && !muted; },
+    setVolume(v) { volume = Math.max(0, Math.min(2, v)); },
     setIntensity(x) {
       if (!built || muted) { if (master) master.gain.setTargetAtTime(0, ctx.currentTime, 0.3); return; }
       const t = ctx.currentTime;
-      master.gain.setTargetAtTime(0.05 + 0.20 * x, t, 0.4);     // overall level swells inward
+      master.gain.setTargetAtTime((0.05 + 0.20 * x) * volume, t, 0.4);   // level swells inward, scaled by user volume
       lp.frequency.setTargetAtTime(180 + 1000 * x, t, 0.4);      // rumble opens up
       hiGain.gain.setTargetAtTime(0.018 * Math.max(0, x - 0.55) * 2.2, t, 0.5);
       hi.frequency.setTargetAtTime(300 + 260 * x, t, 0.6);
