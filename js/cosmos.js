@@ -319,7 +319,14 @@ export function createCosmos(renderer) {
             target.set((pointer.x + pan.x) * 70, -(pointer.y + pan.y) * 45, z);
             camera.position.lerp(target, Math.min(1, dt * 2.5));
             camera.lookAt(camera.position.x, camera.position.y, camera.position.z - 800);
-            const fov = 60 + zoom * 10; // subtle warp on the dive
+            // warp effect: fast dives spawn star streaks + surge the FOV
+            const warp = Math.min(1, Math.abs(zoomTarget - zoom) * 3.2);
+            if (warp > 0.2)
+                for (const s of streaks) {
+                    if (s.dur <= 0 && s.t < -0.3)
+                        s.t = -0.03 - Math.random() * 0.1;
+                }
+            const fov = 60 + zoom * 10 + warp * 12; // subtle warp on the dive
             if (Math.abs(camera.fov - fov) > 0.01) {
                 camera.fov = fov;
                 camera.updateProjectionMatrix();
