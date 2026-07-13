@@ -62,6 +62,21 @@ function buildFeatures() {
 function chipLabel(o) {
     return o.category === "quasar" ? "Quasar" : o.category === "pulsar" ? "Pulsar" : "Black Hole";
 }
+// ---- favorites (persisted) ----
+const FAV_KEY = "singularity.favs";
+const favs = new Set(JSON.parse((() => { try {
+    return localStorage.getItem(FAV_KEY) || "[]";
+}
+catch (e) {
+    return "[]";
+} })()));
+function toggleFav(name) {
+    favs.has(name) ? favs.delete(name) : favs.add(name);
+    try {
+        localStorage.setItem(FAV_KEY, JSON.stringify([...favs]));
+    }
+    catch (e) { }
+}
 function objCard(o, rank) {
     const isPulsar = o.category === "pulsar";
     const stats = isPulsar
@@ -73,6 +88,7 @@ function objCard(o, rank) {
         <img loading="lazy" src="${portraitDataURL(o, 460, 280)}" alt="Rendered portrait of ${o.name}">
         <span class="obj-rank">${String(rank).padStart(2, "0")}</span>
         <span class="type-chip cat-${o.category}">${chipLabel(o)}</span>
+        <span class="fav-btn${favs.has(o.name) ? " on" : ""}" data-favname="${encodeURIComponent(o.name)}" title="Favorite">${favs.has(o.name) ? "★" : "☆"}</span>
       </div>
       <div class="obj-body">
         <h4>${o.name}</h4>
@@ -92,6 +108,8 @@ function listFor(cat) {
         return BLACK_HOLES.filter(o => o.category === "quasar");
     if (cat === "blackhole")
         return BLACK_HOLES.filter(o => o.category === "blackhole");
+    if (cat === "fav")
+        return [...BLACK_HOLES, ...PULSARS].filter(o => favs.has(o.name));
     return [...BLACK_HOLES, ...PULSARS];
 }
 // parse "53.5 million ly" / "6.5 billion M☉" / "7,200 ly" → comparable number
@@ -123,9 +141,18 @@ function buildCatalog() {
             list = [...list].sort((a, b) => parseSci(a.mass || a.period || "") - parseSci(b.mass || b.period || ""));
         grid.innerHTML = list.length
             ? list.map((o, i) => objCard(o, i + 1)).join("")
-            : `<p class="cat-empty">No objects match “${q}”.</p>`;
+            : `<p class="cat-empty">${cat === "fav" && !q ? "No favorites yet — tap ☆ on any object to save it here." : `No objects match “${q}”.`}</p>`;
     };
     render();
+    // star toggles favorite (registered before the detail handler; stops it)
+    grid.addEventListener("click", (e) => {
+        const f = e.target.closest(".fav-btn");
+        if (!f)
+            return;
+        e.stopImmediatePropagation();
+        toggleFav(decodeURIComponent(f.dataset.favname));
+        render();
+    });
     document.querySelectorAll(".cat-tabs button").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".cat-tabs button").forEach(b => b.classList.remove("active"));
