@@ -183,6 +183,15 @@ function updateJourneyCamera(dt, time) {
     _camTarget.set(R * ce * Math.cos(az), R * Math.sin(elev), R * ce * Math.sin(az));
     // smooth follow → eases the hand-off from explore mode and softens the dive
     camera.position.lerp(_camTarget, 1 - Math.pow(0.0015, dt));
+    // gravitational turbulence: multi-frequency shake building toward the horizon
+    if (!reduceMotion) {
+        const shake = THREE.MathUtils.clamp((progress - 0.78) / 0.2, 0, 1) * 0.05;
+        if (shake > 0.001) {
+            const t = time * 31;
+            camera.position.x += (Math.sin(t) + 0.5 * Math.sin(t * 2.7)) * shake;
+            camera.position.y += (Math.cos(t * 1.3) + 0.5 * Math.sin(t * 3.1)) * shake;
+        }
+    }
     camera.lookAt(0, 0, 0);
 }
 // ---------- ship choreography (leads the camera toward the hole) ----------
