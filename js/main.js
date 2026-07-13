@@ -331,6 +331,14 @@ window.addEventListener("keydown", (e) => {
         nudgeProgress(0.04);
     else if (e.key === "ArrowLeft")
         nudgeProgress(-0.04);
+    else if (e.key === "ArrowUp" || e.key === "ArrowDown") { // step between journey stages
+        e.preventDefault();
+        const idx = stageForProgress(progress) + (e.key === "ArrowUp" ? 1 : -1);
+        const s = STAGES[THREE.MathUtils.clamp(idx, 0, STAGES.length - 1)];
+        autoCruise = false;
+        targetProgress = s.t;
+        toast(`Stage: ${s.name}`);
+    }
     else if (e.code === "Space") {
         e.preventDefault();
         autoCruise = !autoCruise;
