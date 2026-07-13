@@ -486,7 +486,8 @@ document.getElementById("cos-random")?.addEventListener("click", () => showAnoma
     if (!bar)
         return;
     const kinds = ["All", ...cosmos.kinds()];
-    bar.innerHTML = kinds.map((k, i) => `<button class="cfilter${i === 0 ? " active" : ""}" data-kind="${k === "All" ? "" : k}">${k}</button>`).join("");
+    const countFor = (k) => k === "All" ? cosmos.anomalies.length : cosmos.anomalies.filter((a) => a.data.kind === k).length;
+    bar.innerHTML = kinds.map((k, i) => `<button class="cfilter${i === 0 ? " active" : ""}" data-kind="${k === "All" ? "" : k}">${k}<i>${countFor(k)}</i></button>`).join("");
     bar.querySelectorAll(".cfilter").forEach(b => b.addEventListener("click", () => {
         bar.querySelectorAll(".cfilter").forEach(x => x.classList.remove("active"));
         b.classList.add("active");

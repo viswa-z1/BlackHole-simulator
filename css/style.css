@@ -881,3 +881,10 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 @media (prefers-reduced-motion: reduce) {
   .panel-inner { transform: none; transition: opacity .2s ease; }
 }
+
+/* entity counts on cosmos filter chips */
+.cfilter i {
+  font-style: normal; margin-left: 6px; padding: 1px 6px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); font-size: 9px; color: var(--muted);
+}
+.cfilter.active i { background: rgba(77,181,255,0.25); color: #cfeaff; }
