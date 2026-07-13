@@ -898,3 +898,8 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 #map-collapse:hover { color: var(--fg); border-color: var(--accent2); }
 #cosmos-map.collapsed canvas { display: none; }
 #cosmos-map.collapsed { width: auto; }
+
+/* HUD visibility toggle (H) */
+#hud, #cosmos-hud { transition: opacity .3s var(--ease); }
+body.hud-hidden #hud,
+body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !important; }

@@ -289,6 +289,11 @@ window.addEventListener("wheel", (e) => {
 
 window.addEventListener("keydown", (e) => {
   if (document.querySelector(".panel.open")) return;
+  if ((e.key === "h" || e.key === "H") && !e.metaKey && !e.ctrlKey) {
+    const hidden = document.body.classList.toggle("hud-hidden");
+    toast(hidden ? "Telemetry hidden — press H to restore" : "Telemetry shown");
+    return;
+  }
   if (page === "cosmos") {                 // WASD / arrows fly the cosmos
     const k = e.key.toLowerCase();
     if (k === "arrowleft" || k === "a") cosmos.panBy(-0.14, 0);
