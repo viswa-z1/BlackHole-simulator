@@ -64,6 +64,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 const ship = createShip();
 scene.add(ship.group);
+scene.add(ship.trail);
 
 // ---------- HDR post-processing: bloom + filmic tone mapping ----------
 const composer = new EffectComposer(renderer);
@@ -191,7 +192,7 @@ function updateJourneyCamera(dt, time) {
 // ---------- ship choreography (leads the camera toward the hole) ----------
 const _shipPos = new THREE.Vector3();
 function updateShip(dt, time) {
-  if (mode !== "journey") { ship.visible = false; return; }
+  if (mode !== "journey") { ship.visible = false; ship.clearTrail(); return; }
   ship.visible = true;
   const R = radiusForProgress(progress) * 0.62;          // leads the camera toward the hole
   const az = time * 0.06 + progress * 1.4 + 0.22;        // off to one side of frame
@@ -206,6 +207,7 @@ function updateShip(dt, time) {
   const fade = 1 - THREE.MathUtils.clamp((progress - 0.82) / 0.12, 0, 1);
   ship.group.scale.setScalar(0.5 + fade * 0.32);
   ship.group.visible = fade > 0.02;
+  if (ship.group.visible) ship.updateTrail(_shipPos); else ship.clearTrail();
   ship.update(time);
 }
 

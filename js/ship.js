@@ -164,6 +164,49 @@ export function createShip() {
     craft.add(strobe);
     craft.scale.setScalar(0.5);
     group.visible = false;
+    // ---- fading light trail (world-space line behind the craft) ----
+    const TRAIL_N = 64;
+    const trailPos = new Float32Array(TRAIL_N * 3);
+    const trailCol = new Float32Array(TRAIL_N * 3);
+    const trailGeo = new THREE.BufferGeometry();
+    trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
+    trailGeo.setAttribute("color", new THREE.BufferAttribute(trailCol, 3));
+    const trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({
+        vertexColors: true, transparent: true, opacity: 0.85,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    trail.frustumCulled = false;
+    trail.visible = false;
+    let trailSeeded = false;
+    function updateTrail(p) {
+        if (!trailSeeded) {
+            for (let i = 0; i < TRAIL_N; i++) {
+                trailPos[i * 3] = p.x;
+                trailPos[i * 3 + 1] = p.y;
+                trailPos[i * 3 + 2] = p.z;
+            }
+            trailSeeded = true;
+        }
+        // shift back, write head
+        for (let i = TRAIL_N - 1; i > 0; i--) {
+            trailPos[i * 3] = trailPos[(i - 1) * 3];
+            trailPos[i * 3 + 1] = trailPos[(i - 1) * 3 + 1];
+            trailPos[i * 3 + 2] = trailPos[(i - 1) * 3 + 2];
+        }
+        trailPos[0] = p.x;
+        trailPos[1] = p.y;
+        trailPos[2] = p.z;
+        for (let i = 0; i < TRAIL_N; i++) {
+            const f = 1 - i / TRAIL_N;
+            trailCol[i * 3] = 0.42 * f;
+            trailCol[i * 3 + 1] = 0.66 * f;
+            trailCol[i * 3 + 2] = 1.0 * f;
+        }
+        trailGeo.attributes.position.needsUpdate = true;
+        trailGeo.attributes.color.needsUpdate = true;
+        trail.visible = true;
+    }
+    function clearTrail() { trailSeeded = false; trail.visible = false; }
     function update(time) {
         const pulse = 0.82 + 0.18 * Math.sin(time * 10.0);
         engines.forEach(e => e.scale.setScalar(pulse));
@@ -175,7 +218,7 @@ export function createShip() {
         craft.rotation.z = Math.sin(time * 0.45) * 0.03;
     }
     return {
-        group, update,
+        group, update, trail, updateTrail, clearTrail,
         get visible() { return group.visible; },
         set visible(v) { group.visible = v; },
     };

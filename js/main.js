@@ -57,6 +57,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 const ship = createShip();
 scene.add(ship.group);
+scene.add(ship.trail);
 // ---------- HDR post-processing: bloom + filmic tone mapping ----------
 const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
@@ -189,6 +190,7 @@ const _shipPos = new THREE.Vector3();
 function updateShip(dt, time) {
     if (mode !== "journey") {
         ship.visible = false;
+        ship.clearTrail();
         return;
     }
     ship.visible = true;
@@ -205,6 +207,10 @@ function updateShip(dt, time) {
     const fade = 1 - THREE.MathUtils.clamp((progress - 0.82) / 0.12, 0, 1);
     ship.group.scale.setScalar(0.5 + fade * 0.32);
     ship.group.visible = fade > 0.02;
+    if (ship.group.visible)
+        ship.updateTrail(_shipPos);
+    else
+        ship.clearTrail();
     ship.update(time);
 }
 // ---------- HUD ----------
