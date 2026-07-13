@@ -796,6 +796,36 @@ function loadPrefs() {
 ["c-mass", "c-spin", "c-bright", "c-steps", "c-time"].forEach(id => document.getElementById(id)?.addEventListener("input", savePrefs));
 ["c-doppler", "c-jets", "c-ergo"].forEach(id => document.getElementById(id)?.addEventListener("change", savePrefs));
 document.getElementById("c-spectrum")?.addEventListener("click", () => setTimeout(savePrefs, 0));
+// ---------- interface accent themes (persisted) ----------
+const UI_ACCENTS = {
+    ember: { name: "Ember", accent: "#ff9d3c", hot: "#ffd98a" },
+    ice: { name: "Ice", accent: "#4db5ff", hot: "#a8dcff" },
+    nova: { name: "Nova", accent: "#b79cff", hot: "#e2d4ff" },
+};
+function applyUIAccent(key, save = true) {
+    const a = UI_ACCENTS[key];
+    if (!a)
+        return;
+    document.documentElement.style.setProperty("--accent", a.accent);
+    document.documentElement.style.setProperty("--hot", a.hot);
+    const lbl = document.getElementById("v-uiaccent");
+    if (lbl)
+        lbl.textContent = a.name;
+    document.querySelectorAll("#c-uiaccent .sw").forEach(b => b.classList.toggle("active", b.dataset.ui === key));
+    if (save) {
+        try {
+            localStorage.setItem("singularity.uiaccent", key);
+        }
+        catch (e) { }
+    }
+}
+document.querySelectorAll("#c-uiaccent .sw").forEach(b => b.addEventListener("click", () => applyUIAccent(b.dataset.ui)));
+try {
+    const saved = localStorage.getItem("singularity.uiaccent");
+    if (saved)
+        applyUIAccent(saved, false);
+}
+catch (e) { }
 // ---------- UI build ----------
 buildUI(jumpToStage);
 loadPrefs();
