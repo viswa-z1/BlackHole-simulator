@@ -164,6 +164,12 @@ function buildCatalog() {
     });
     search?.addEventListener("input", render);
     sort?.addEventListener("change", render);
+    // open a random object from the active tab
+    document.getElementById("cat-random")?.addEventListener("click", () => {
+        const list = listFor(cat === "fav" && !listFor("fav").length ? "all" : cat);
+        if (list.length)
+            openDetail(list[Math.floor(Math.random() * list.length)]);
+    });
 }
 function wireNav() {
     const pills = document.querySelectorAll(".nav-pills button[data-view]");
