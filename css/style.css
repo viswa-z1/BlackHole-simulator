@@ -888,3 +888,13 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
   background: rgba(255,255,255,0.08); font-size: 9px; color: var(--muted);
 }
 .cfilter.active i { background: rgba(77,181,255,0.25); color: #cfeaff; }
+
+/* collapsible star map */
+#cosmos-map .map-title { display: flex; align-items: center; justify-content: space-between; }
+#map-collapse {
+  background: none; border: 1px solid var(--glass-brd); color: var(--muted);
+  width: 20px; height: 20px; border-radius: 6px; cursor: pointer; font-size: 12px; line-height: 1;
+}
+#map-collapse:hover { color: var(--fg); border-color: var(--accent2); }
+#cosmos-map.collapsed canvas { display: none; }
+#cosmos-map.collapsed { width: auto; }

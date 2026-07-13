@@ -538,6 +538,14 @@ mapCanvas.addEventListener("click", (e) => {
         toast("Diving toward that region…");
     }
 });
+// collapse / expand the star map
+document.getElementById("map-collapse")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const map = document.getElementById("cosmos-map");
+    const collapsed = map.classList.toggle("collapsed");
+    e.target.textContent = collapsed ? "+" : "–";
+    e.target.title = collapsed ? "Expand map" : "Collapse map";
+});
 // hover the star map to label the nearest anomaly dot
 mapCanvas.addEventListener("mousemove", (e) => {
     const r = mapCanvas.getBoundingClientRect();

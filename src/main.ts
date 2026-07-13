@@ -478,6 +478,14 @@ mapCanvas.addEventListener("click", (e) => {
   if (bi >= 0) showAnomaly(bi);
   else { cosmos.flyToZ((my / MAP_H) * 3200 - 2900); toast("Diving toward that region…"); }
 });
+// collapse / expand the star map
+document.getElementById("map-collapse")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const map = document.getElementById("cosmos-map");
+  const collapsed = map.classList.toggle("collapsed");
+  (e.target as HTMLElement).textContent = collapsed ? "+" : "–";
+  (e.target as HTMLElement).title = collapsed ? "Expand map" : "Collapse map";
+});
 // hover the star map to label the nearest anomaly dot
 mapCanvas.addEventListener("mousemove", (e) => {
   const r = mapCanvas.getBoundingClientRect();
