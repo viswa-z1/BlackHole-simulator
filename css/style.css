@@ -983,3 +983,12 @@ body.ui-idle #hud,
 body.ui-idle #journey,
 body.ui-idle #stage,
 body.ui-idle #toolbar { opacity: 0; pointer-events: none; }
+
+/* reset-settings button in the dock */
+.dock-reset {
+  width: 100%; margin-top: 4px; font-family: var(--font); font-size: 12px; cursor: pointer;
+  background: none; border: 1px solid var(--glass-brd); color: var(--muted);
+  padding: 8px 10px; border-radius: 999px; transition: all .2s var(--ease);
+}
+.dock-reset:hover { color: #ff8a8a; border-color: rgba(255,90,90,0.5); }
+.dock-reset.armed { color: #fff; background: rgba(255,90,90,0.2); border-color: #ff5c6c; }

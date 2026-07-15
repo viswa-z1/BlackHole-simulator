@@ -712,6 +712,24 @@ function loadPrefs() {
 ["c-doppler", "c-jets", "c-ergo"].forEach(id => document.getElementById(id)?.addEventListener("change", savePrefs));
 document.getElementById("c-spectrum")?.addEventListener("click", () => setTimeout(savePrefs, 0));
 
+// ---------- reset all saved settings ----------
+let resetArmed = false;
+document.getElementById("c-reset")?.addEventListener("click", (e) => {
+  const btn = e.target as HTMLElement;
+  if (!resetArmed) {            // two-step: arm, then confirm
+    resetArmed = true;
+    btn.textContent = "Tap again to confirm reset";
+    btn.classList.add("armed");
+    setTimeout(() => { resetArmed = false; btn.textContent = "Reset all settings"; btn.classList.remove("armed"); }, 3000);
+    return;
+  }
+  try {
+    ["singularity.prefs.v1", "singularity.favs", "singularity.seen", "singularity.uiaccent"]
+      .forEach(k => localStorage.removeItem(k));
+  } catch (err) {}
+  location.reload();
+});
+
 // ---------- interface accent themes (persisted) ----------
 const UI_ACCENTS: Record<string, { name: string; accent: string; hot: string }> = {
   ember: { name: "Ember", accent: "#ff9d3c", hot: "#ffd98a" },
