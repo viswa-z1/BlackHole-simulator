@@ -10,6 +10,7 @@ export function buildUI(onStageJump) {
     wireNav();
     wireDetail();
     wireCompare();
+    updateFavCount();
     buildJourneyStops(onStageJump);
 }
 // name -> object registry for the detail modal
@@ -84,12 +85,18 @@ const favs = new Set(JSON.parse((() => { try {
 catch (e) {
     return "[]";
 } })()));
+function updateFavCount() {
+    const el = document.getElementById("fav-count");
+    if (el)
+        el.textContent = favs.size ? String(favs.size) : "";
+}
 function toggleFav(name) {
     favs.has(name) ? favs.delete(name) : favs.add(name);
     try {
         localStorage.setItem(FAV_KEY, JSON.stringify([...favs]));
     }
     catch (e) { }
+    updateFavCount();
 }
 // ---- compare mode: pin one object, pick another, view side by side ----
 let comparePin = null;

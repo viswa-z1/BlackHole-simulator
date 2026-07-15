@@ -11,6 +11,7 @@ export function buildUI(onStageJump) {
   wireNav();
   wireDetail();
   wireCompare();
+  updateFavCount();
   buildJourneyStops(onStageJump);
 }
 
@@ -88,9 +89,14 @@ function chipLabel(o) {
 // ---- favorites (persisted) ----
 const FAV_KEY = "singularity.favs";
 const favs = new Set<string>(JSON.parse((() => { try { return localStorage.getItem(FAV_KEY) || "[]"; } catch (e) { return "[]"; } })()));
+function updateFavCount() {
+  const el = document.getElementById("fav-count");
+  if (el) el.textContent = favs.size ? String(favs.size) : "";
+}
 function toggleFav(name: string) {
   favs.has(name) ? favs.delete(name) : favs.add(name);
   try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch (e) {}
+  updateFavCount();
 }
 
 // ---- compare mode: pin one object, pick another, view side by side ----

@@ -972,3 +972,7 @@ body.page-cosmos #cosmos-search-wrap { opacity: 1; pointer-events: auto; }
 #cosmos-search:focus { border-color: var(--accent2); width: 300px; }
 #cosmos-search::placeholder { color: var(--muted); }
 @media (max-width: 720px) { #cosmos-search-wrap { display: none; } }
+
+/* count badge on the Favorites tab */
+.tab-count { font-style: normal; margin-left: 6px; font-family: var(--mono); font-size: 10px; color: var(--hot); }
+.tab-count:empty { display: none; }
