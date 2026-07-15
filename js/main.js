@@ -494,6 +494,29 @@ function stepAnomaly(dir) {
 document.getElementById("cc-prev")?.addEventListener("click", () => stepAnomaly(-1));
 document.getElementById("cc-next")?.addEventListener("click", () => stepAnomaly(1));
 document.getElementById("cos-random")?.addEventListener("click", () => showAnomaly(Math.floor(Math.random() * cosmos.anomalies.length)));
+// cosmos entity search (datalist + Enter/pick jumps to the match)
+(function wireCosmosSearch() {
+    const input = document.getElementById("cosmos-search");
+    const list = document.getElementById("cosmos-entities");
+    if (!input || !list)
+        return;
+    list.innerHTML = cosmos.anomalies.map((a) => `<option value="${a.data.name}"></option>`).join("");
+    const jump = () => {
+        const q = input.value.trim().toLowerCase();
+        if (!q)
+            return;
+        const i = cosmos.anomalies.findIndex((a) => a.data.name.toLowerCase().includes(q));
+        if (i >= 0) {
+            showAnomaly(i);
+            input.blur();
+        }
+        else
+            toast("No entity matches that name.");
+    };
+    input.addEventListener("change", jump);
+    input.addEventListener("keydown", (e) => { e.stopPropagation(); if (e.key === "Enter")
+        jump(); });
+})();
 // cosmos kind-filter chips
 (function buildCosmosFilter() {
     const bar = document.getElementById("cosmos-filter");

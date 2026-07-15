@@ -957,3 +957,18 @@ body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !impor
   box-shadow: 0 0 12px rgba(255,157,60,0.8); transition: left .6s var(--ease-out);
 }
 .ms-ticks { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--mono); font-size: 9px; color: var(--muted); }
+
+/* cosmos entity search */
+#cosmos-search-wrap {
+  position: fixed; top: 118px; left: 50%; transform: translateX(-50%); z-index: 18;
+  opacity: 0; pointer-events: none; transition: opacity .4s var(--ease);
+}
+body.page-cosmos #cosmos-search-wrap { opacity: 1; pointer-events: auto; }
+#cosmos-search {
+  width: 240px; background: var(--glass); border: 1px solid var(--glass-brd);
+  border-radius: 999px; color: var(--fg); font-family: var(--font); font-size: 12.5px;
+  padding: 9px 16px; outline: none; backdrop-filter: blur(12px); transition: border-color .2s, width .3s var(--ease-out);
+}
+#cosmos-search:focus { border-color: var(--accent2); width: 300px; }
+#cosmos-search::placeholder { color: var(--muted); }
+@media (max-width: 720px) { #cosmos-search-wrap { display: none; } }
