@@ -941,3 +941,19 @@ body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !impor
   text-shadow: 0 0 8px rgba(0,0,0,0.8); transition: transform .2s var(--ease-spring), color .2s;
 }
 .cmp-btn:hover { transform: scale(1.25); color: var(--accent2); }
+
+/* ---------- mass scale bar in the detail modal ---------- */
+.mass-scale { margin: 14px 0 4px; }
+.ms-lab { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.ms-lab span { color: var(--hot); text-transform: none; letter-spacing: 0; }
+.ms-track {
+  position: relative; height: 6px; border-radius: 999px;
+  background: linear-gradient(90deg, rgba(77,181,255,0.35), rgba(255,157,60,0.5), rgba(255,90,90,0.6));
+}
+.ms-sun { position: absolute; left: 0; top: -7px; font-size: 11px; color: var(--hot); transform: translateX(-30%); }
+.ms-marker {
+  position: absolute; top: -3px; width: 12px; height: 12px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--accent); transform: translateX(-50%);
+  box-shadow: 0 0 12px rgba(255,157,60,0.8); transition: left .6s var(--ease-out);
+}
+.ms-ticks { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--mono); font-size: 9px; color: var(--muted); }

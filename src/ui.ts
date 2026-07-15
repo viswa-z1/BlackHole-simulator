@@ -43,6 +43,18 @@ function openDetail(o) {
     .filter(k => o[k])
     .map(k => `<div class="dstat"><span class="lab">${STAT_LABELS[k]}</span><span class="val">${o[k]}</span></div>`)
     .join("");
+  // mass scale bar (log₁₀ vs the Sun); hidden when the object has no mass
+  const ms = document.getElementById("mass-scale");
+  const massN = parseSci(o.mass || "");
+  if (massN > 0) {
+    ms.style.display = "";
+    const exp = Math.log10(massN);
+    (document.getElementById("ms-marker") as HTMLElement).style.left =
+      (Math.max(0, Math.min(1, exp / 11)) * 100).toFixed(1) + "%";
+    document.getElementById("ms-caption").textContent =
+      exp < 0.05 ? "about the Sun's mass" : `≈ 10^${exp.toFixed(1)} × the Sun`;
+  } else ms.style.display = "none";
+
   document.getElementById("detail-desc").innerHTML = `<b>${o.tag}</b> ${o.fact}`;
   (document.getElementById("detail-source") as HTMLAnchorElement).href = o.source;
 
