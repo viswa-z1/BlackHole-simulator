@@ -976,3 +976,10 @@ body.page-cosmos #cosmos-search-wrap { opacity: 1; pointer-events: auto; }
 /* count badge on the Favorites tab */
 .tab-count { font-style: normal; margin-left: 6px; font-family: var(--mono); font-size: 10px; color: var(--hot); }
 .tab-count:empty { display: none; }
+
+/* auto-immersion: chrome fades when idle during the journey */
+body.ui-idle #topbar,
+body.ui-idle #hud,
+body.ui-idle #journey,
+body.ui-idle #stage,
+body.ui-idle #toolbar { opacity: 0; pointer-events: none; }

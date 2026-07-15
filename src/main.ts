@@ -605,6 +605,18 @@ document.getElementById("tool-share")?.addEventListener("click", () => {
   );
 });
 
+// ---------- auto-immersion: fade the chrome when idle during the journey ----------
+let idleTimer: any = null;
+function pokeIdle() {
+  document.body.classList.remove("ui-idle");
+  clearTimeout(idleTimer);
+  if (mode === "journey" && page === "bh" && !document.querySelector(".panel.open, .detail-modal.open, .help-modal.open")) {
+    idleTimer = setTimeout(() => document.body.classList.add("ui-idle"), 4000);
+  }
+}
+["pointermove", "pointerdown", "keydown", "wheel"].forEach(ev =>
+  window.addEventListener(ev, pokeIdle, { passive: true }));
+
 // ---------- fullscreen ----------
 function toggleFullscreen() {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
@@ -787,6 +799,7 @@ function beginJourney() {                 // explicit Start → cinematic tracki
   progress = 0; targetProgress = 0;
   autoCruise = true;
   toast("Launching… scroll or ← → to steer · Space to pause.");
+  pokeIdle();
 }
 function returnToExplore() {              // go back to the draggable home scene
   if (mode !== "journey") return;
@@ -803,6 +816,7 @@ function returnToExplore() {              // go back to the draggable home scene
   loader.classList.remove("hidden");      // bring the hero/Start back
   loader.classList.add("revealed");
   toast("Back to free exploration — drag to look around.");
+  document.body.classList.remove("ui-idle"); clearTimeout(idleTimer);
 }
 enterBtn.addEventListener("click", beginJourney);
 document.getElementById("back-home").addEventListener("click", returnToExplore);
