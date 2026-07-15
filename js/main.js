@@ -97,6 +97,9 @@ function exitCosmos() {
     cosmos.spotlight(-1);
     tour = false;
     document.getElementById("cos-tour")?.classList.remove("active");
+    const tourBtn = document.getElementById("cos-tour");
+    if (tourBtn)
+        tourBtn.textContent = "▶ Auto-tour";
     setHash("");
 }
 // ---------- shareable deep links via the URL hash ----------
@@ -567,12 +570,24 @@ document.getElementById("cos-tour")?.addEventListener("click", () => {
     tourT = 0;
     tourI = 0;
     document.getElementById("cos-tour")?.classList.toggle("active", tour);
-    if (tour)
+    if (tour) {
         openCosmosCard(cosmos.focus(0));
-    else
+        updateTourLabel();
+    }
+    else {
         cosmosCard.classList.remove("open");
+        updateTourLabel();
+    }
     toast(tour ? "Auto-tour started — sit back and drift." : "Auto-tour stopped");
 });
+function updateTourLabel() {
+    const btn = document.getElementById("cos-tour");
+    if (!btn)
+        return;
+    btn.textContent = tour
+        ? `◼ ${tourI + 1} / ${cosmos.anomalies.length} · ${cosmos.anomalies[tourI].data.name}`
+        : "▶ Auto-tour";
+}
 canvas.addEventListener("click", (e) => {
     if (page !== "cosmos")
         return;
@@ -1095,6 +1110,7 @@ function tick() {
                 tourT = 0;
                 tourI = (tourI + 1) % cosmos.anomalies.length;
                 openCosmosCard(cosmos.focus(tourI));
+                updateTourLabel();
             }
         }
         if (frame % 3 === 0) {
