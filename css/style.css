@@ -995,3 +995,25 @@ body.ui-idle #toolbar { opacity: 0; pointer-events: none; }
 
 /* frame-time sparkline in the HUD */
 #hud-spark { display: block; width: 100%; height: 24px; margin: 4px 0 2px; opacity: 0.85; }
+
+/* ============================================================
+   Refinement pass — accessibility & consistency
+   ============================================================ */
+/* visible keyboard focus everywhere, without mouse-click rings */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--accent2);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* tactile press feedback on every control */
+button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
+/* consistent slim scrollbars in modals and panels */
+.panel, .compare-inner, .help-card, .panel-inner {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,157,60,0.3) transparent;
+}
+.compare-inner::-webkit-scrollbar { width: 8px; }
+.compare-inner::-webkit-scrollbar-thumb { background: rgba(255,157,60,0.3); border-radius: 999px; }
+/* prevent text selection on control chrome */
+.nav-pills, #toolbar, #journey, .cat-tabs, #cosmos-filter, #dock label { user-select: none; -webkit-user-select: none; }
