@@ -9,6 +9,7 @@ export function buildUI(onStageJump) {
     buildCatalog();
     wireNav();
     wireDetail();
+    wireCompare();
     buildJourneyStops(onStageJump);
 }
 // name -> object registry for the detail modal
@@ -77,6 +78,48 @@ function toggleFav(name) {
     }
     catch (e) { }
 }
+// ---- compare mode: pin one object, pick another, view side by side ----
+let comparePin = null;
+const CMP_ROWS = [
+    ["alias", "Alias"], ["type", "Type"], ["mass", "Mass"], ["period", "Spin Period"],
+    ["distance", "Distance"], ["diameter", "Ø Event Horizon"], ["spin", "Spin (a)"],
+    ["field", "Magnetic Field"], ["age", "Age"], ["discovered", "Discovered"],
+];
+function pickCompare(name) {
+    if (!comparePin) {
+        comparePin = name;
+        toast(`Pinned ${name} — tap ⇄ on another object to compare.`);
+        return;
+    }
+    if (comparePin === name) {
+        comparePin = null;
+        toast("Compare pin cleared.");
+        return;
+    }
+    openCompare(REGISTRY.get(comparePin), REGISTRY.get(name));
+    comparePin = null;
+}
+function openCompare(a, b) {
+    if (!a || !b)
+        return;
+    const grid = document.getElementById("compare-grid");
+    const col = (o) => `
+    <div class="cmp-col">
+      <img src="${portraitDataURL(o, 460, 240)}" alt="Rendered portrait of ${o.name}">
+      <h3>${o.name}</h3>
+      ${CMP_ROWS.filter(([k]) => a[k] || b[k]).map(([k, lab]) => `<div class="cmp-row"><span>${lab}</span><b>${o[k] || "—"}</b></div>`).join("")}
+    </div>`;
+    grid.innerHTML = col(a) + col(b);
+    document.getElementById("compare-modal").classList.add("open");
+}
+function wireCompare() {
+    const modal = document.getElementById("compare-modal");
+    modal.querySelector("[data-compare-close]").addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", (e) => { if (e.target === modal)
+        modal.classList.remove("open"); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape")
+        modal.classList.remove("open"); });
+}
 function objCard(o, rank) {
     const isPulsar = o.category === "pulsar";
     const stats = isPulsar
@@ -89,6 +132,7 @@ function objCard(o, rank) {
         <span class="obj-rank">${String(rank).padStart(2, "0")}</span>
         <span class="type-chip cat-${o.category}">${chipLabel(o)}</span>
         <span class="fav-btn${favs.has(o.name) ? " on" : ""}" data-favname="${encodeURIComponent(o.name)}" title="Favorite">${favs.has(o.name) ? "★" : "☆"}</span>
+        <span class="cmp-btn" data-cmpname="${encodeURIComponent(o.name)}" title="Compare">⇄</span>
       </div>
       <div class="obj-body">
         <h4>${o.name}</h4>
@@ -146,12 +190,19 @@ function buildCatalog() {
     render();
     // star toggles favorite (registered before the detail handler; stops it)
     grid.addEventListener("click", (e) => {
-        const f = e.target.closest(".fav-btn");
-        if (!f)
+        const t = e.target;
+        const f = t.closest(".fav-btn");
+        if (f) {
+            e.stopImmediatePropagation();
+            toggleFav(decodeURIComponent(f.dataset.favname));
+            render();
             return;
-        e.stopImmediatePropagation();
-        toggleFav(decodeURIComponent(f.dataset.favname));
-        render();
+        }
+        const c = t.closest(".cmp-btn");
+        if (c) {
+            e.stopImmediatePropagation();
+            pickCompare(decodeURIComponent(c.dataset.cmpname));
+        }
     });
     document.querySelectorAll(".cat-tabs button").forEach(btn => {
         btn.addEventListener("click", () => {
