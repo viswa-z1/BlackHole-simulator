@@ -932,6 +932,13 @@ function reveal() {
         firstVisitTips();
 }
 let boot = 0;
+// returning visitors skip the slow boot theatre and get straight in
+const returning = (() => { try {
+    return !!localStorage.getItem("singularity.seen");
+}
+catch (e) {
+    return false;
+} })();
 const bootTimer = setInterval(() => {
     loaderStatus.textContent = bootMsgs[boot];
     if (++boot >= bootMsgs.length) {
@@ -940,10 +947,10 @@ const bootTimer = setInterval(() => {
         ctaCatalog.classList.add("ready");
         ctaCosmos.classList.add("ready");
         ctaPhysics.classList.add("ready");
-        loaderStatus.textContent = "Drag to look around — then begin.";
+        loaderStatus.textContent = returning ? "Welcome back." : "Drag to look around — then begin.";
         reveal();
     }
-}, 420);
+}, returning ? 90 : 420);
 function beginJourney() {
     if (started)
         return;
