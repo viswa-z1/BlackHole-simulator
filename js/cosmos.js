@@ -208,11 +208,14 @@ export function createCosmos(renderer) {
         scene.add(line);
         streaks.push({ line, t: -(0.5 + Math.random() * 5), dur: 0, head: new THREE.Vector3(), vel: new THREE.Vector3() });
     }
+    const DEFAULT_STREAK = new THREE.Color(0xcfe0ff);
+    let streakTint = null; // set while warping toward an entity
     function spawnStreak(s) {
         s.head.set((Math.random() * 2 - 1) * 900, (Math.random() * 2 - 1) * 580, camera.position.z - 300 - Math.random() * 700);
         s.vel.set(Math.random() * 2 - 1, Math.random() * 2 - 1, 0.25).normalize().multiplyScalar(800 + Math.random() * 700);
         s.t = 0;
         s.dur = 0.45 + Math.random() * 0.5;
+        s.line.material.color.copy(streakTint ? DEFAULT_STREAK.clone().lerp(streakTint, 0.7) : DEFAULT_STREAK);
     }
     function updateStreaks(dt) {
         for (const s of streaks) {
@@ -284,13 +287,14 @@ export function createCosmos(renderer) {
             const p = a.group.position;
             zoomTarget = Math.max(0, Math.min(1, -p.z / 1500));
             pan.set(Math.max(-1.6, Math.min(1.6, p.x / 70)), Math.max(-1.6, Math.min(1.6, -p.y / 45)));
+            streakTint = new THREE.Color(a.data.color); // tint the warp toward the target
             return a.data;
         },
         kinds() { return [...new Set(anomalies.map(a => a.data.kind))]; },
         filterKind(kind) { for (const a of anomalies)
             a.group.visible = !kind || a.data.kind === kind; },
         addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
-        reset() { zoomTarget = 0; pan.set(0, 0); },
+        reset() { zoomTarget = 0; pan.set(0, 0); streakTint = null; },
         toggleGrid() { grid.visible = !grid.visible; return grid.visible; },
         spotlight(i) { spotlightIndex = i; }, // dim all but anomaly i (i<0 clears); applied per-frame
         flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); }, // dive toward a depth
