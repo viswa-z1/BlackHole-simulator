@@ -232,7 +232,30 @@ const hud = {
 };
 if (hud.particles) hud.particles.textContent = "volumetric";
 
+// frame-time sparkline (last ~120 frames)
+const sparkCanvas = document.getElementById("hud-spark") as HTMLCanvasElement | null;
+const sparkCtx = sparkCanvas?.getContext("2d");
+const sparkBuf = new Float32Array(120);
+let sparkI = 0;
+function pushSpark(dt: number) { sparkBuf[sparkI++ % sparkBuf.length] = dt * 1000; }
+function drawSpark() {
+  if (!sparkCtx || !sparkCanvas) return;
+  const W = sparkCanvas.width, H = sparkCanvas.height;
+  sparkCtx.clearRect(0, 0, W, H);
+  sparkCtx.strokeStyle = "rgba(120,150,220,0.25)";
+  sparkCtx.beginPath(); sparkCtx.moveTo(0, H - (16.7 / 50) * H); sparkCtx.lineTo(W, H - (16.7 / 50) * H); sparkCtx.stroke();  // 60fps line
+  sparkCtx.strokeStyle = "#4db5ff"; sparkCtx.lineWidth = 1;
+  sparkCtx.beginPath();
+  for (let i = 0; i < sparkBuf.length; i++) {
+    const v = sparkBuf[(sparkI + i) % sparkBuf.length];
+    const y = H - Math.min(1, v / 50) * H;
+    const x = (i / (sparkBuf.length - 1)) * W;
+    i ? sparkCtx.lineTo(x, y) : sparkCtx.moveTo(x, y);
+  }
+  sparkCtx.stroke();
+}
 function updateHUD(fps) {
+  drawSpark();
   hud.fps.textContent = fps.toFixed(0);
   const r = camera.position.length();
   hud.radius.textContent = r.toFixed(2);
@@ -955,6 +978,7 @@ function tick() {
 
   // HUD
   frame++;
+  pushSpark(dt);
   const fps = 1 / Math.max(1e-4, dt);
   fpsEMA += (fps - fpsEMA) * 0.08;
   if (frame % 8 === 0) updateHUD(fpsEMA);
