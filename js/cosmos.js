@@ -304,9 +304,30 @@ export function createCosmos(renderer) {
             // labels fade with distance (near = legible, far = decluttered),
             // and the spotlight dims everything but the selected entity.
             anomalies.forEach((a, j) => {
-                const p = 0.8 + 0.2 * Math.sin(time * 2.0 + a.phase);
+                // kind-specific character: pulsars strobe, mergers chirp, wormholes shimmer…
+                const k = a.data.kind;
+                let p = 0.8 + 0.2 * Math.sin(time * 2.0 + a.phase); // default breathing
+                let halo = 0.94 + 0.1 * Math.sin(time * 1.3 + a.phase);
+                if (k === "Pulsar" || k === "Neutron Star") {
+                    p = 0.55 + 1.1 * Math.pow(Math.max(0, Math.sin(time * 5.5 + a.phase)), 14); // lighthouse flash
+                }
+                else if (k === "Magnetar") {
+                    p = 0.7 + 0.5 * Math.max(0, Math.sin(time * 9 + a.phase) * Math.sin(time * 2.3 + a.phase * 2)); // crackle
+                }
+                else if (k === "Merger") {
+                    const c = (time * 0.7 + a.phase) % 3; // inspiral chirp: two quickening beats
+                    p = 0.7 + 0.8 * (Math.pow(Math.max(0, Math.sin(c * c * 6)), 8));
+                }
+                else if (k === "Wormhole") {
+                    halo = 0.8 + 0.3 * Math.sin(time * 0.8 + a.phase); // slow iris shimmer
+                    a.glow.material.rotation += dt * 1.2; // extra swirl
+                }
+                else if (k === "Nebula") {
+                    p = 0.85 + 0.1 * Math.sin(time * 0.7 + a.phase); // slow, soft breathing
+                    halo = 1.0 + 0.18 * Math.sin(time * 0.5 + a.phase);
+                }
                 a.core.scale.setScalar(16 * p);
-                a.glow.scale.setScalar(64 * (0.94 + 0.1 * Math.sin(time * 1.3 + a.phase)));
+                a.glow.scale.setScalar(64 * halo);
                 a.glow.material.rotation += dt * 0.15;
                 const d = a.group.position.distanceTo(camera.position);
                 const near = THREE.MathUtils.clamp(1 - (d - 260) / 900, 0, 1); // 1 near → 0 far
