@@ -691,26 +691,39 @@ window.addEventListener("pointermove", (e) => {
 });
 // ---------- frame capture (download the current view as a PNG) ----------
 let captureRequested = false;
-function saveFrame() {
+function saveFrame(dest) {
     try {
-        const url = renderer.domElement.toDataURL("image/png");
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        if (dest === "clipboard" && navigator.clipboard && window.ClipboardItem) {
+            renderer.domElement.toBlob((blob) => {
+                if (!blob) {
+                    toast("Couldn't capture this frame.");
+                    return;
+                }
+                navigator.clipboard.write([new window.ClipboardItem({ "image/png": blob })]).then(() => toast("Frame copied to your clipboard."), () => toast("Clipboard blocked — press P to download instead."));
+            }, "image/png");
+        }
+        else {
+            const url = renderer.domElement.toDataURL("image/png");
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            toast("Frame saved to your downloads.");
+        }
         document.body.classList.add("flash");
         setTimeout(() => document.body.classList.remove("flash"), 240);
-        toast("Frame saved to your downloads.");
     }
     catch (err) {
         toast("Couldn't capture this frame.");
     }
 }
-document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = true; });
-window.addEventListener("keydown", (e) => { if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey)
-    captureRequested = true; });
+document.getElementById("tool-capture").addEventListener("click", () => { captureRequested = "download"; });
+window.addEventListener("keydown", (e) => {
+    if ((e.key === "p" || e.key === "P") && !e.metaKey && !e.ctrlKey)
+        captureRequested = e.shiftKey ? "clipboard" : "download";
+});
 // ---------- copy share link ----------
 document.getElementById("tool-share")?.addEventListener("click", () => {
     const url = location.href;
@@ -1075,8 +1088,9 @@ function tick() {
     composer.render();
     // capture the freshly-rendered frame before the next clear
     if (captureRequested) {
+        const dest = captureRequested;
         captureRequested = false;
-        saveFrame();
+        saveFrame(dest);
     }
     // ambient audio intensifies as the camera nears the horizon
     if (page !== "cosmos")
