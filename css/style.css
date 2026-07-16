@@ -1017,3 +1017,17 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 .compare-inner::-webkit-scrollbar-thumb { background: rgba(255,157,60,0.3); border-radius: 999px; }
 /* prevent text selection on control chrome */
 .nav-pills, #toolbar, #journey, .cat-tabs, #cosmos-filter, #dock label { user-select: none; -webkit-user-select: none; }
+
+/* compare-pin chip beside the catalog controls */
+.cmp-pin {
+  display: none; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--fg); padding: 9px 14px; border-radius: 999px;
+  background: rgba(77,181,255,0.12); border: 1px solid rgba(77,181,255,0.4);
+}
+.cmp-pin.show { display: inline-flex; }
+.cmp-pin b { color: #cfeaff; font-weight: 500; }
+.cmp-pin button {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 12px; line-height: 1; padding: 2px;
+}
+.cmp-pin button:hover { color: #fff; }

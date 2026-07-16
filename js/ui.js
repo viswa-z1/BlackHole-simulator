@@ -105,19 +105,30 @@ const CMP_ROWS = [
     ["distance", "Distance"], ["diameter", "Ø Event Horizon"], ["spin", "Spin (a)"],
     ["field", "Magnetic Field"], ["age", "Age"], ["discovered", "Discovered"],
 ];
+function updateComparePin() {
+    const chip = document.getElementById("cmp-pin");
+    if (!chip)
+        return;
+    chip.innerHTML = comparePin ? `⇄ Comparing: <b>${comparePin}</b><button aria-label="Clear compare pin">✕</button>` : "";
+    chip.classList.toggle("show", !!comparePin);
+    chip.querySelector("button")?.addEventListener("click", () => { comparePin = null; updateComparePin(); toast("Compare pin cleared."); });
+}
 function pickCompare(name) {
     if (!comparePin) {
         comparePin = name;
+        updateComparePin();
         toast(`Pinned ${name} — tap ⇄ on another object to compare.`);
         return;
     }
     if (comparePin === name) {
         comparePin = null;
+        updateComparePin();
         toast("Compare pin cleared.");
         return;
     }
     openCompare(REGISTRY.get(comparePin), REGISTRY.get(name));
     comparePin = null;
+    updateComparePin();
 }
 function openCompare(a, b) {
     if (!a || !b)
