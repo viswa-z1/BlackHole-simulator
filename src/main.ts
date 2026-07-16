@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName } from "./ui.js";
 
 // ---------- renderer ----------
 const canvas = document.getElementById("scene");
@@ -115,6 +115,11 @@ function applyHash() {
   if (h === "cosmos") enterCosmos();
   else if (h.startsWith("cosmos/")) { enterCosmos(); const idx = parseInt(h.slice(7), 10); if (!isNaN(idx)) setTimeout(() => showAnomaly(idx), 420); }
   else if (h === "catalog") document.querySelector<HTMLElement>('.nav-pills button[data-view="catalog"]')?.click();
+  else if (h.startsWith("object/")) {
+    document.querySelector<HTMLElement>('.nav-pills button[data-view="catalog"]')?.click();
+    const name = decodeURIComponent(location.hash.slice(8));   // preserve original casing
+    if (!openObjectByName(name)) toast("That object isn't in the catalog.");
+  }
   else if (h === "anatomy") document.querySelector<HTMLElement>('.nav-pills button[data-view="features"]')?.click();
 }
 window.addEventListener("hashchange", applyHash);

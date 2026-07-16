@@ -60,11 +60,22 @@ function openDetail(o) {
   (document.getElementById("detail-source") as HTMLAnchorElement).href = o.source;
 
   document.getElementById("detail-modal").classList.add("open");
+  try { history.replaceState(null, "", "#object/" + encodeURIComponent(o.name)); } catch (e) {}
+}
+
+// open an object's detail modal by name (used by the #object/<name> deep link)
+export function openObjectByName(name: string): boolean {
+  const o = REGISTRY.get(name);
+  if (o) openDetail(o);
+  return !!o;
 }
 
 function wireDetail() {
   const modal = document.getElementById("detail-modal");
-  const close = () => modal.classList.remove("open");
+  const close = () => {
+    modal.classList.remove("open");
+    if (location.hash.startsWith("#object/")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
+  };
 
   document.getElementById("cat-grid").addEventListener("click", (e) => {
     const card = (e.target as HTMLElement).closest(".obj-card") as HTMLElement | null;
