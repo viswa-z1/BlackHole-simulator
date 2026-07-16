@@ -332,7 +332,19 @@ function buildJourneyStops(onJump) {
   wrap.innerHTML = STAGES.map((s, i) =>
     `<button data-stage="${i}">${s.label}</button>`).join("");
   wrap.querySelectorAll("button").forEach(b =>
-    b.addEventListener("click", () => onJump(STAGES[+b.dataset.stage].t)));
+    b.addEventListener("click", () => onJump(STAGES[+(b as HTMLElement).dataset.stage].t)));
+  // tick marks on the track itself, one per stage, clickable
+  const track = document.querySelector(".journey-track");
+  if (track) {
+    STAGES.forEach((s) => {
+      const tick = document.createElement("i");
+      tick.className = "jtick";
+      tick.style.left = (s.t * 100) + "%";
+      tick.title = s.name;
+      tick.addEventListener("click", (e) => { e.stopPropagation(); onJump(s.t); });
+      track.appendChild(tick);
+    });
+  }
 }
 
 let toastTimer;
