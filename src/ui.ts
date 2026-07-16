@@ -117,6 +117,14 @@ function toggleFav(name: string) {
 
 // the ordered list currently rendered in the grid (drives modal prev/next)
 let currentList: any[] = [];
+// the active search query (drives match highlighting on cards)
+let currentQuery = "";
+function hi(s: string) {
+  if (!currentQuery || !s) return s;
+  const i = s.toLowerCase().indexOf(currentQuery);
+  if (i < 0) return s;
+  return s.slice(0, i) + "<mark>" + s.slice(i, i + currentQuery.length) + "</mark>" + s.slice(i + currentQuery.length);
+}
 
 // ---- compare mode: pin one object, pick another, view side by side ----
 let comparePin: string | null = null;
@@ -179,8 +187,8 @@ function objCard(o, rank) {
         <span class="cmp-btn" data-cmpname="${encodeURIComponent(o.name)}" title="Compare">⇄</span>
       </div>
       <div class="obj-body">
-        <h4>${o.name}</h4>
-        <div class="alias">${o.alias}</div>
+        <h4>${hi(o.name)}</h4>
+        <div class="alias">${hi(o.alias)}</div>
         <div class="obj-stats">
           ${stats.map(s => `<div class="stat"><span class="lab">${s[0]}</span><span class="val">${s[1]}</span></div>`).join("")}
         </div>
@@ -214,6 +222,7 @@ function buildCatalog() {
   let cat = "all";
   const render = () => {
     const q = (search?.value || "").trim().toLowerCase();
+    currentQuery = q;
     let list = listFor(cat).filter(o => !q || o.name.toLowerCase().includes(q) || (o.alias || "").toLowerCase().includes(q));
     const by = sort?.value || "rank";
     if (by === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));

@@ -1040,3 +1040,9 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
   padding: 8px 10px; border-radius: 999px; transition: all .2s var(--ease);
 }
 .detail-nav button:hover { border-color: var(--accent); color: var(--hot); }
+
+/* search-match highlighting on catalog cards */
+.obj-card mark {
+  background: rgba(255,157,60,0.28); color: var(--hot);
+  border-radius: 3px; padding: 0 1px;
+}
