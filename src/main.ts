@@ -311,7 +311,7 @@ function nudgeProgress(d) { targetProgress = THREE.MathUtils.clamp(targetProgres
 
 window.addEventListener("wheel", (e) => {
   if (document.querySelector(".panel.open")) return;
-  if (page === "cosmos") { cosmos.addZoom(e.deltaY * 0.0006); return; }
+  if (page === "cosmos") { stopTourForManualControl(); cosmos.addZoom(e.deltaY * 0.0006); return; }
   if (params.freeOrbit) return;
   nudgeProgress(e.deltaY * 0.00035);
 }, { passive: true });
@@ -516,6 +516,14 @@ document.getElementById("cos-tour")?.addEventListener("click", () => {
   else { cosmosCard.classList.remove("open"); updateTourLabel(); }
   toast(tour ? "Auto-tour started — sit back and drift." : "Auto-tour stopped");
 });
+function stopTourForManualControl() {
+  if (!tour) return;
+  tour = false;
+  document.getElementById("cos-tour")?.classList.remove("active");
+  updateTourLabel();
+  toast("Auto-tour paused — you have the controls.");
+}
+canvas.addEventListener("pointerdown", () => { if (page === "cosmos") stopTourForManualControl(); });
 function updateTourLabel() {
   const btn = document.getElementById("cos-tour");
   if (!btn) return;

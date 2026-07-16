@@ -324,6 +324,7 @@ window.addEventListener("wheel", (e) => {
     if (document.querySelector(".panel.open"))
         return;
     if (page === "cosmos") {
+        stopTourForManualControl();
         cosmos.addZoom(e.deltaY * 0.0006);
         return;
     }
@@ -586,6 +587,16 @@ document.getElementById("cos-tour")?.addEventListener("click", () => {
     }
     toast(tour ? "Auto-tour started — sit back and drift." : "Auto-tour stopped");
 });
+function stopTourForManualControl() {
+    if (!tour)
+        return;
+    tour = false;
+    document.getElementById("cos-tour")?.classList.remove("active");
+    updateTourLabel();
+    toast("Auto-tour paused — you have the controls.");
+}
+canvas.addEventListener("pointerdown", () => { if (page === "cosmos")
+    stopTourForManualControl(); });
 function updateTourLabel() {
     const btn = document.getElementById("cos-tour");
     if (!btn)
