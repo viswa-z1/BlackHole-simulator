@@ -382,6 +382,13 @@ window.addEventListener("keydown", (e) => {
         autoCruise = !autoCruise;
         toast(autoCruise ? "Auto-cruise engaged" : "Auto-cruise paused");
     }
+    else if (e.key === "[" || e.key === "]" || e.key === "0") { // Time Flow quick keys
+        const el = document.getElementById("c-time");
+        const v = e.key === "0" ? 1 : Math.max(0, Math.min(3, parseFloat(el.value) + (e.key === "]" ? 0.25 : -0.25)));
+        el.value = String(v);
+        el.dispatchEvent(new Event("input"));
+        toast(`Time flow ${v.toFixed(2)}×`);
+    }
 });
 // drag the journey bar
 const track = document.querySelector(".journey-track");
