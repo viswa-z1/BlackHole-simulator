@@ -374,11 +374,21 @@ function buildJourneyStops(onJump) {
         });
     }
 }
-let toastTimer;
 export function toast(msg) {
-    const el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+    const wrap = document.getElementById("toast");
+    if (!wrap)
+        return;
+    wrap.classList.add("stack");
+    // drop the oldest when three are already showing
+    while (wrap.children.length >= 3)
+        wrap.firstElementChild.remove();
+    const item = document.createElement("div");
+    item.className = "toast-item";
+    item.textContent = msg;
+    wrap.appendChild(item);
+    requestAnimationFrame(() => item.classList.add("show"));
+    setTimeout(() => {
+        item.classList.remove("show");
+        setTimeout(() => item.remove(), 400);
+    }, 2600);
 }

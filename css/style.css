@@ -1055,3 +1055,20 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
   transition: transform .2s var(--ease-spring), background .2s;
 }
 .jtick:hover { transform: translate(-50%, -50%) scale(1.6); background: var(--hot); }
+
+/* stacking toasts: #toast becomes a column of transient items */
+#toast.stack {
+  background: none; border: none; backdrop-filter: none; padding: 0;
+  opacity: 1; transform: translateX(-50%);
+  display: flex; flex-direction: column-reverse; gap: 8px; align-items: center;
+  pointer-events: none;
+}
+.toast-item {
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  padding: 11px 20px; border-radius: 999px; font-size: 13px; color: var(--fg);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .35s var(--ease-out), transform .35s var(--ease-out);
+  white-space: nowrap; max-width: 86vw; overflow: hidden; text-overflow: ellipsis;
+}
+.toast-item.show { opacity: 1; transform: none; }
