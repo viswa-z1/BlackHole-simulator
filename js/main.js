@@ -441,6 +441,7 @@ const QUALITY = {
 document.getElementById("c-quality")?.addEventListener("change", (e) => {
     const q = QUALITY[e.target.value];
     if (!q) {
+        perfPinned = false;
         perfTier = 2;
         toast("Adaptive quality on");
         return;
@@ -452,7 +453,7 @@ document.getElementById("c-quality")?.addEventListener("change", (e) => {
     steps.value = String(q.steps);
     steps.dispatchEvent(new Event("input"));
     bloomPass.strength = q.bloom;
-    perfTier = 0; // stop the adaptive scaler from overriding
+    perfPinned = true; // manual choice: adaptive scaler stands down
     toast("Quality set");
 });
 document.getElementById("c-doppler").addEventListener("change", (e) => {
@@ -1087,28 +1088,43 @@ function onResize() {
 window.addEventListener("resize", onResize);
 onResize();
 // ---------- adaptive performance (keep it smooth) ----------
-let perfTier = 2, lowTime = 0;
+let perfTier = 2, lowTime = 0, highTime = 0, perfPinned = false;
+function applyPerfTier() {
+    if (perfTier >= 2) {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        composer.setPixelRatio?.(Math.min(window.devicePixelRatio, 1.5));
+        bloomPass.strength = parseFloat(document.getElementById("c-bloom")?.value || "0.7");
+    }
+    else if (perfTier === 1) {
+        const pr = Math.min(window.devicePixelRatio, 1.25);
+        renderer.setPixelRatio(pr);
+        composer.setPixelRatio?.(pr);
+    }
+    else {
+        renderer.setPixelRatio(1);
+        composer.setPixelRatio?.(1);
+        bloomPass.strength = 0.32;
+    }
+    onResize();
+}
 function adaptPerf(dt) {
-    if (!revealed || perfTier === 0)
+    if (!revealed || perfPinned)
         return;
     lowTime = fpsEMA < 42 ? lowTime + dt : Math.max(0, lowTime - dt * 0.6);
-    if (lowTime > 3.5) {
+    highTime = fpsEMA > 56 ? highTime + dt : 0;
+    if (lowTime > 3.5 && perfTier > 0) { // sustained low FPS → step down
         perfTier--;
-        if (perfTier === 1) {
-            const pr = Math.min(window.devicePixelRatio, 1.25);
-            renderer.setPixelRatio(pr);
-            composer.setPixelRatio?.(pr);
-            onResize();
-            toast("Tuning resolution for a smoother ride…");
-        }
-        else {
-            renderer.setPixelRatio(1);
-            composer.setPixelRatio?.(1);
-            bloomPass.strength = 0.32;
-            onResize();
-            toast("Performance mode on");
-        }
+        applyPerfTier();
+        toast(perfTier === 1 ? "Tuning resolution for a smoother ride…" : "Performance mode on");
         lowTime = 0;
+        highTime = 0;
+    }
+    else if (highTime > 8 && perfTier < 2) { // comfortably fast again → step back up
+        perfTier++;
+        applyPerfTier();
+        toast("Performance recovered — quality restored.");
+        lowTime = 0;
+        highTime = 0;
     }
 }
 // ---------- render loop ----------
