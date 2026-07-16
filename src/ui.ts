@@ -262,7 +262,14 @@ function wireNav() {
       closeAll();
       pills.forEach(p => p.classList.toggle("active", (p as HTMLElement).dataset.view === "sim"));
     }));
-  document.addEventListener("keydown", e => { if (e.key === "Escape") { closeAll(); pills.forEach(p => p.classList.toggle("active", (p as HTMLElement).dataset.view === "sim")); } });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    // layered dismissal: when a modal is above the panel, this press closes
+    // only the modal (its own handler runs next); the panel needs a second Esc.
+    if (document.querySelector(".detail-modal.open, .help-modal.open")) return;
+    closeAll();
+    pills.forEach(p => p.classList.toggle("active", (p as HTMLElement).dataset.view === "sim"));
+  });
 }
 
 export const STAGES = [
