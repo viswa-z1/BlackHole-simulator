@@ -70,6 +70,29 @@ function wireDetail() {
         close(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape")
         close(); });
+    // step through the currently rendered list from inside the modal
+    const stepDetail = (dir) => {
+        const name = document.getElementById("detail-name").textContent;
+        if (!currentList.length)
+            return;
+        let i = currentList.findIndex(o => o.name === name);
+        i = ((i + dir) % currentList.length + currentList.length) % currentList.length;
+        openDetail(currentList[i]);
+    };
+    document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
+    document.getElementById("dn-next")?.addEventListener("click", () => stepDetail(1));
+    document.addEventListener("keydown", (e) => {
+        if (!modal.classList.contains("open"))
+            return;
+        if (e.key === "ArrowLeft") {
+            e.stopPropagation();
+            stepDetail(-1);
+        }
+        else if (e.key === "ArrowRight") {
+            e.stopPropagation();
+            stepDetail(1);
+        }
+    }, true); // capture: runs before the journey's arrow-key handler
 }
 function buildFeatures() {
     buildAnatomy(document.getElementById("feature-grid"));
@@ -98,6 +121,8 @@ function toggleFav(name) {
     catch (e) { }
     updateFavCount();
 }
+// the ordered list currently rendered in the grid (drives modal prev/next)
+let currentList = [];
 // ---- compare mode: pin one object, pick another, view side by side ----
 let comparePin = null;
 const CMP_ROWS = [
@@ -214,6 +239,7 @@ function buildCatalog() {
             list = [...list].sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
         else if (by === "mass")
             list = [...list].sort((a, b) => parseSci(a.mass || a.period || "") - parseSci(b.mass || b.period || ""));
+        currentList = list;
         grid.innerHTML = list.length
             ? list.map((o, i) => objCard(o, i + 1)).join("")
             : `<p class="cat-empty">${cat === "fav" && !q ? "No favorites yet — tap ☆ on any object to save it here." : `No objects match “${q}”.`}</p>`;

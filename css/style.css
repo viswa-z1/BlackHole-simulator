@@ -1031,3 +1031,12 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
   font-size: 12px; line-height: 1; padding: 2px;
 }
 .cmp-pin button:hover { color: #fff; }
+
+/* prev/next inside the detail modal */
+.detail-nav { display: flex; gap: 8px; margin: 4px 0 12px; }
+.detail-nav button {
+  flex: 1; font-family: var(--font); font-size: 12px; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  padding: 8px 10px; border-radius: 999px; transition: all .2s var(--ease);
+}
+.detail-nav button:hover { border-color: var(--accent); color: var(--hot); }

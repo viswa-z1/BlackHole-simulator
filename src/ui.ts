@@ -76,6 +76,22 @@ function wireDetail() {
   modal.querySelector("[data-detail-close]").addEventListener("click", close);
   modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+
+  // step through the currently rendered list from inside the modal
+  const stepDetail = (dir: number) => {
+    const name = document.getElementById("detail-name").textContent;
+    if (!currentList.length) return;
+    let i = currentList.findIndex(o => o.name === name);
+    i = ((i + dir) % currentList.length + currentList.length) % currentList.length;
+    openDetail(currentList[i]);
+  };
+  document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
+  document.getElementById("dn-next")?.addEventListener("click", () => stepDetail(1));
+  document.addEventListener("keydown", (e) => {
+    if (!modal.classList.contains("open")) return;
+    if (e.key === "ArrowLeft") { e.stopPropagation(); stepDetail(-1); }
+    else if (e.key === "ArrowRight") { e.stopPropagation(); stepDetail(1); }
+  }, true);   // capture: runs before the journey's arrow-key handler
 }
 
 function buildFeatures() {
@@ -98,6 +114,9 @@ function toggleFav(name: string) {
   try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch (e) {}
   updateFavCount();
 }
+
+// the ordered list currently rendered in the grid (drives modal prev/next)
+let currentList: any[] = [];
 
 // ---- compare mode: pin one object, pick another, view side by side ----
 let comparePin: string | null = null;
@@ -200,6 +219,7 @@ function buildCatalog() {
     if (by === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     else if (by === "distance") list = [...list].sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
     else if (by === "mass") list = [...list].sort((a, b) => parseSci(a.mass || a.period || "") - parseSci(b.mass || b.period || ""));
+    currentList = list;
     grid.innerHTML = list.length
       ? list.map((o, i) => objCard(o, i + 1)).join("")
       : `<p class="cat-empty">${cat === "fav" && !q ? "No favorites yet — tap ☆ on any object to save it here." : `No objects match “${q}”.`}</p>`;
