@@ -815,6 +815,12 @@ function savePrefs() {
       mass: params.mass, spin: params.spin, bright: params.bright, steps: params.steps,
       timeScale: params.timeScale, doppler: params.doppler, jets: params.jets, ergo: params.ergo,
       palette: lensing.uniforms.uPalette.value,
+      fov: camera.fov,
+      thick: lensing.uniforms.uDiskThick.value,
+      stars: lensing.uniforms.uStarBright.value,
+      ring: lensing.uniforms.uRingBright.value,
+      bloom: bloomPass.strength,
+      vol: parseFloat((document.getElementById("c-vol") as HTMLInputElement)?.value || "1"),
     }));
   } catch (e) { /* storage unavailable */ }
 }
@@ -826,12 +832,23 @@ function loadPrefs() {
   const setCheck = (id: string, v: boolean) => { const el = document.getElementById(id) as HTMLInputElement; if (el && v != null && el.checked !== v) { el.checked = v; el.dispatchEvent(new Event("change")); } };
   setRange("c-mass", p.mass); setRange("c-spin", p.spin); setRange("c-bright", p.bright);
   setRange("c-steps", p.steps); setRange("c-time", p.timeScale);
+  setRange("c-fov", p.fov); setRange("c-thick", p.thick); setRange("c-stars", p.stars);
+  setRange("c-ring", p.ring); setRange("c-bloom", p.bloom); setRange("c-vol", p.vol);
   setCheck("c-doppler", p.doppler); setCheck("c-jets", p.jets); setCheck("c-ergo", p.ergo);
   if (p.palette != null) document.querySelector<HTMLElement>(`#c-spectrum .sw[data-pal="${p.palette}"]`)?.click();
 }
-["c-mass", "c-spin", "c-bright", "c-steps", "c-time"].forEach(id => document.getElementById(id)?.addEventListener("input", savePrefs));
+["c-mass", "c-spin", "c-bright", "c-steps", "c-time", "c-fov", "c-thick", "c-stars", "c-ring", "c-bloom", "c-vol"]
+  .forEach(id => document.getElementById(id)?.addEventListener("input", savePrefs));
 ["c-doppler", "c-jets", "c-ergo"].forEach(id => document.getElementById(id)?.addEventListener("change", savePrefs));
 document.getElementById("c-spectrum")?.addEventListener("click", () => setTimeout(savePrefs, 0));
+
+// ---------- centralized list of every persisted-settings key ----------
+// (kept in one place so reset/export/import can never silently drift apart)
+const SETTINGS_KEYS = [
+  "singularity.prefs.v1", "singularity.favs", "singularity.cosmosFavs",
+  "singularity.seen", "singularity.uiaccent",
+  "singularity.stats.viewed", "singularity.stats.session",
+];
 
 // ---------- reset all saved settings ----------
 let resetArmed = false;
@@ -844,11 +861,50 @@ document.getElementById("c-reset")?.addEventListener("click", (e) => {
     setTimeout(() => { resetArmed = false; btn.textContent = "Reset all settings"; btn.classList.remove("armed"); }, 3000);
     return;
   }
-  try {
-    ["singularity.prefs.v1", "singularity.favs", "singularity.seen", "singularity.uiaccent"]
-      .forEach(k => localStorage.removeItem(k));
-  } catch (err) {}
+  try { SETTINGS_KEYS.forEach(k => localStorage.removeItem(k)); } catch (err) {}
   location.reload();
+});
+
+// ---------- export / import settings as a JSON file ----------
+document.getElementById("c-export")?.addEventListener("click", () => {
+  const data: Record<string, string> = {};
+  SETTINGS_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v !== null) data[k] = v; });
+  const blob = new Blob([JSON.stringify({ app: "singularity", version: 1, exportedAt: new Date().toISOString(), data }, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "singularity-settings.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("Settings exported.");
+});
+document.getElementById("c-import")?.addEventListener("click", () => {
+  (document.getElementById("c-import-file") as HTMLInputElement)?.click();
+});
+document.getElementById("c-import-file")?.addEventListener("change", (e) => {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(String(reader.result));
+      const data = parsed && typeof parsed === "object" && parsed.data && typeof parsed.data === "object" ? parsed.data : parsed;
+      let count = 0;
+      SETTINGS_KEYS.forEach(k => {
+        if (data && Object.prototype.hasOwnProperty.call(data, k) && data[k] !== undefined) {
+          localStorage.setItem(k, typeof data[k] === "string" ? data[k] : JSON.stringify(data[k]));
+          count++;
+        }
+      });
+      if (!count) { toast("That file doesn't contain any recognized settings."); return; }
+      toast(`Imported ${count} setting${count === 1 ? "" : "s"} — reloading…`);
+      setTimeout(() => location.reload(), 700);
+    } catch (err) {
+      toast("Couldn't read that settings file.");
+    }
+  };
+  reader.readAsText(file);
+  input.value = "";   // allow re-importing the same file later
 });
 
 // ---------- interface accent themes (persisted) ----------
