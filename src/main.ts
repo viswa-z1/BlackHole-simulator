@@ -238,6 +238,8 @@ const hud = {
   dilation: document.getElementById("hud-dilation"),
   redshift: document.getElementById("hud-redshift"),
   zone: document.getElementById("hud-zone"),
+  etaRow: document.getElementById("hud-eta-row"),
+  eta: document.getElementById("hud-eta"),
 };
 if (hud.particles) hud.particles.textContent = "volumetric";
 
@@ -269,6 +271,19 @@ function updateHUD(fps) {
   const r = camera.position.length();
   hud.radius.textContent = r.toFixed(2);
   hud.stage.textContent = mode === "explore" ? "Explore" : (STAGES[currentStage] || STAGES[0]).label;
+  if (hud.etaRow) {
+    if (mode !== "journey") {
+      hud.etaRow.style.display = "none";
+    } else {
+      hud.etaRow.style.display = "";
+      const rate = 0.045 * params.timeScale;   // progress units per real second, matches tick()'s auto-cruise advance
+      if (!autoCruise || rate <= 0.0001 || progress >= 0.999) {
+        hud.eta.textContent = progress >= 0.999 ? "arriving" : "paused";
+      } else {
+        hud.eta.textContent = formatStatsTime((1 - progress) / rate);
+      }
+    }
+  }
   if (r > 1.0001) {
     const fac = 1 / Math.sqrt(1 - 1 / r);
     hud.dilation.textContent = fac > 50 ? "∞" : fac.toFixed(2) + "×";
