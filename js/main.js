@@ -568,6 +568,10 @@ document.getElementById("cc-fav")?.addEventListener("click", () => {
     refreshCosmosFavCount();
     toast(cosmosFavs.has(name) ? `${name} added to cosmos favorites` : `${name} removed from favorites`);
 });
+document.getElementById("cc-link")?.addEventListener("click", () => {
+    const url = location.href; // showAnomaly() keeps the hash in sync, so this already points at the open entity
+    navigator.clipboard?.writeText(url).then(() => toast("Link to this entity copied to clipboard."), () => toast(url));
+});
 let cardIndex = 0;
 function showAnomaly(i) {
     const n = cosmos.anomalies.length;
