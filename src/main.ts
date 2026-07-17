@@ -708,12 +708,16 @@ window.addEventListener("keydown", (e) => {
 
 // ---------- procedural ambient audio (swells near the horizon) ----------
 const audio = createAudio();
-document.getElementById("tool-audio").addEventListener("click", () => {
+function toggleAudio() {
   const on = audio.toggle();
   const btn = document.getElementById("tool-audio");
   btn.classList.toggle("active", on);
   btn.textContent = on ? "🔊" : "🔈";
   toast(on ? "Ambient audio on" : "Ambient audio muted");
+}
+document.getElementById("tool-audio").addEventListener("click", toggleAudio);
+window.addEventListener("keydown", (e) => {
+  if ((e.key === "m" || e.key === "M") && !e.metaKey && !e.ctrlKey && !document.querySelector(".panel.open, .detail-modal.open, .help-modal.open, input:focus")) toggleAudio();
 });
 
 // ---------- cinematic mode (hide chrome + letterbox) ----------
