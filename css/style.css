@@ -1082,3 +1082,11 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 }
 .cc-fav:hover { transform: scale(1.15); color: #fff; }
 .cc-fav.on { color: var(--hot); border-color: rgba(255,217,138,0.5); }
+
+/* cross-link button: catalog detail -> matching cosmos entity */
+.detail-cosmos-link {
+  display: block; margin-top: 10px; font-family: var(--font); font-size: 12.5px;
+  cursor: pointer; background: rgba(77,181,255,0.12); border: 1px solid rgba(77,181,255,0.4);
+  color: #cfeaff; padding: 9px 16px; border-radius: 999px; transition: all .2s var(--ease);
+}
+.detail-cosmos-link:hover { background: rgba(77,181,255,0.22); border-color: var(--accent2); }

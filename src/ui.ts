@@ -4,6 +4,23 @@
 import { BLACK_HOLES, PULSARS, FEATURES } from "./data.js";
 import { portraitDataURL } from "./portraits.js";
 import { buildAnatomy, setAnatomyActive } from "./anatomy.js";
+import { ANOMALIES } from "./cosmos-data.js";
+
+// cross-link: catalog objects that also appear as a cosmos anomaly
+function normalizeName(s: string): string {
+  return (s || "").toLowerCase()
+    .replace(/[‐‑‒–—−-]/g, "-")   // any dash variant -> hyphen
+    .replace(/\s*\([^)]*\)\s*/g, " ")          // strip parenthetical suffixes
+    .replace(/\s+remnant$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+const COSMOS_INDEX_BY_NAME = new Map<string, number>();
+ANOMALIES.forEach((a, i) => COSMOS_INDEX_BY_NAME.set(normalizeName(a.name), i));
+function cosmosIndexFor(catalogName: string): number | null {
+  const i = COSMOS_INDEX_BY_NAME.get(normalizeName(catalogName));
+  return i === undefined ? null : i;
+}
 
 export function buildUI(onStageJump) {
   buildFeatures();
@@ -59,6 +76,13 @@ function openDetail(o) {
   document.getElementById("detail-desc").innerHTML = `<b>${o.tag}</b> ${o.fact}`;
   (document.getElementById("detail-source") as HTMLAnchorElement).href = o.source;
 
+  const cosmosLink = document.getElementById("detail-cosmos-link") as HTMLButtonElement;
+  const cosmosIdx = cosmosIndexFor(o.name);
+  if (cosmosLink) {
+    cosmosLink.style.display = cosmosIdx === null ? "none" : "";
+    cosmosLink.dataset.cosmosIndex = cosmosIdx === null ? "" : String(cosmosIdx);
+  }
+
   document.getElementById("detail-modal").classList.add("open");
   try { history.replaceState(null, "", "#object/" + encodeURIComponent(o.name)); } catch (e) {}
 }
@@ -98,6 +122,20 @@ function wireDetail() {
   };
   document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
   document.getElementById("dn-next")?.addEventListener("click", () => stepDetail(1));
+
+  // cross-link into the cosmos: close everything here, then hand off via the hash router
+  document.getElementById("detail-cosmos-link")?.addEventListener("click", (e) => {
+    const idx = (e.currentTarget as HTMLElement).dataset.cosmosIndex;
+    if (idx === undefined || idx === "") return;
+    close();
+    document.querySelectorAll(".panel.open").forEach(p => p.classList.remove("open"));
+    document.querySelectorAll(".nav-pills button[data-view]").forEach(b =>
+      b.classList.toggle("active", (b as HTMLElement).dataset.view === "sim"));
+    // setting location.hash fires "hashchange" naturally, except when the hash is
+    // already this exact value — cover that edge case with an explicit re-dispatch.
+    if (location.hash === "#cosmos/" + idx) window.dispatchEvent(new HashChangeEvent("hashchange"));
+    else location.hash = "cosmos/" + idx;
+  });
   document.addEventListener("keydown", (e) => {
     if (!modal.classList.contains("open")) return;
     if (e.key === "ArrowLeft") { e.stopPropagation(); stepDetail(-1); }
