@@ -693,6 +693,42 @@ body.cinematic #toolbar .tool-btn:not(#tool-cinema) { opacity: 0; pointer-events
 }
 .help-replay:hover { border-color: var(--accent2); color: var(--accent2); }
 
+/* ---------- command palette ---------- */
+.cmdk-overlay {
+  position: fixed; inset: 0; z-index: 160; display: flex;
+  align-items: flex-start; justify-content: center; padding: 12vh 24px 24px;
+  background: rgba(2,3,10,0.6); backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none; transition: opacity .25s ease;
+}
+.cmdk-overlay.open { opacity: 1; pointer-events: auto; }
+.cmdk-modal {
+  width: min(560px, 94vw); max-height: 60vh; display: flex; flex-direction: column;
+  background: var(--glass-strong); border: 1px solid var(--glass-brd); border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6); overflow: hidden;
+  transform: translateY(-10px); transition: transform .25s var(--ease-out);
+}
+.cmdk-overlay.open .cmdk-modal { transform: none; }
+#cmdk-input {
+  width: 100%; box-sizing: border-box; background: none; border: none;
+  border-bottom: 1px solid var(--glass-brd); color: var(--fg);
+  font-family: var(--font); font-size: 16px; padding: 18px 20px; outline: none;
+}
+#cmdk-input::placeholder { color: var(--muted); }
+.cmdk-results { overflow-y: auto; padding: 8px; }
+.cmdk-item {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding: 10px 12px; border-radius: 9px; cursor: pointer; font-size: 13.5px;
+}
+.cmdk-item .cmdk-label { color: var(--fg); }
+.cmdk-item .cmdk-sub {
+  color: var(--muted); font-family: var(--mono); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap;
+}
+.cmdk-item.active { background: rgba(77,181,255,0.14); }
+.cmdk-item.active .cmdk-sub { color: var(--accent2); }
+.cmdk-empty { display: none; padding: 22px 20px; color: var(--muted); font-size: 13px; text-align: center; }
+.cmdk-empty.show { display: block; }
+
 /* ---------- Cosmos page: hide black-hole-only chrome ---------- */
 body.page-cosmos #hud,
 body.page-cosmos #journey,

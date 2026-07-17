@@ -336,6 +336,7 @@
         <ul>
           <li><kbd>C</kbd><span>Cinematic mode</span></li>
           <li><kbd>P</kbd><span>Capture a frame</span></li>
+          <li><kbd>⌘/Ctrl K</kbd><span>Command palette</span></li>
           <li><kbd>?</kbd><span>Open this help</span></li>
           <li><kbd>Esc</kbd><span>Close any panel</span></li>
         </ul>
@@ -403,6 +404,15 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Command palette -->
+<div class="cmdk-overlay" id="cmdk-overlay">
+  <div class="cmdk-modal">
+    <input type="text" id="cmdk-input" placeholder="Jump to a view, object, or entity…" autocomplete="off" spellcheck="false" />
+    <div class="cmdk-results" id="cmdk-results"></div>
+    <div class="cmdk-empty" id="cmdk-empty">No matches.</div>
+  </div>
+</div>
 
 <!-- anime.js — buttery hero / UI motion -->
 <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>

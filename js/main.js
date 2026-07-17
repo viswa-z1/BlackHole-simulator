@@ -17,6 +17,8 @@ import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
 import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount } from "./ui.js";
+import { ALL_OBJECTS } from "./data.js";
+import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
 const canvas = document.getElementById("scene");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
@@ -950,6 +952,94 @@ window.addEventListener("keydown", (e) => {
         toggleHelp();
     else if (e.key === "Escape")
         toggleHelp(false);
+});
+const cmdkItems = [
+    { label: "Simulator", sub: "view", action: () => document.querySelector('.nav-pills button[data-view="sim"]')?.click() },
+    { label: "Anatomy", sub: "view", action: () => document.querySelector('.nav-pills button[data-view="features"]')?.click() },
+    { label: "Catalog", sub: "view", action: () => document.querySelector('.nav-pills button[data-view="catalog"]')?.click() },
+    { label: "Cosmos", sub: "view", action: () => document.getElementById("nav-cosmos")?.click() },
+    { label: "Controls", sub: "view", action: () => document.getElementById("toggle-dock")?.click() },
+    { label: "Begin the Journey", sub: "action", action: () => document.getElementById("enter-btn")?.click() },
+    { label: "Return home", sub: "action", action: () => document.getElementById("back-home")?.click() },
+    { label: "Surprise me (random object)", sub: "action", action: () => document.getElementById("cat-random")?.click() },
+    ...ALL_OBJECTS.map((o) => ({
+        label: o.name, sub: (o.type || o.category || "catalog") + " · catalog",
+        action: () => { location.hash = "object/" + encodeURIComponent(o.name); },
+    })),
+    ...ANOMALIES.map((a, i) => ({
+        label: a.name, sub: a.kind + " · cosmos",
+        action: () => { location.hash = "cosmos/" + i; },
+    })),
+];
+const cmdkOverlay = document.getElementById("cmdk-overlay");
+const cmdkInput = document.getElementById("cmdk-input");
+const cmdkResults = document.getElementById("cmdk-results");
+const cmdkEmpty = document.getElementById("cmdk-empty");
+let cmdkMatches = [];
+let cmdkActive = 0;
+function renderCmdk() {
+    const q = cmdkInput.value.trim().toLowerCase();
+    cmdkMatches = (q ? cmdkItems.filter(it => it.label.toLowerCase().includes(q) || it.sub.toLowerCase().includes(q)) : cmdkItems).slice(0, 40);
+    cmdkActive = 0;
+    cmdkEmpty.classList.toggle("show", cmdkMatches.length === 0);
+    cmdkResults.innerHTML = cmdkMatches.map((it, i) => `<div class="cmdk-item${i === 0 ? " active" : ""}" data-i="${i}"><span class="cmdk-label">${it.label}</span><span class="cmdk-sub">${it.sub}</span></div>`).join("");
+}
+function highlightCmdk() {
+    cmdkResults.querySelectorAll(".cmdk-item").forEach((el, i) => el.classList.toggle("active", i === cmdkActive));
+    cmdkResults.children[cmdkActive]?.scrollIntoView({ block: "nearest" });
+}
+function activateCmdk(i) {
+    const it = cmdkMatches[i];
+    if (!it)
+        return;
+    toggleCmdk(false);
+    it.action();
+}
+function toggleCmdk(force) {
+    const open = force !== undefined ? force : !cmdkOverlay.classList.contains("open");
+    cmdkOverlay.classList.toggle("open", open);
+    if (open) {
+        cmdkInput.value = "";
+        renderCmdk();
+        setTimeout(() => cmdkInput.focus(), 10);
+    }
+    else
+        cmdkInput.blur();
+}
+cmdkInput.addEventListener("input", renderCmdk);
+cmdkResults.addEventListener("click", (e) => {
+    const item = e.target.closest(".cmdk-item");
+    if (item)
+        activateCmdk(parseInt(item.dataset.i, 10));
+});
+cmdkOverlay.addEventListener("click", (e) => { if (e.target === cmdkOverlay)
+    toggleCmdk(false); });
+cmdkInput.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        cmdkActive = Math.min(cmdkActive + 1, cmdkMatches.length - 1);
+        highlightCmdk();
+    }
+    else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        cmdkActive = Math.max(cmdkActive - 1, 0);
+        highlightCmdk();
+    }
+    else if (e.key === "Enter") {
+        e.preventDefault();
+        activateCmdk(cmdkActive);
+    }
+    else if (e.key === "Escape") {
+        e.preventDefault();
+        toggleCmdk(false);
+    }
+});
+window.addEventListener("keydown", (e) => {
+    if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        toggleCmdk(true);
+    }
 });
 // ---------- procedural ambient audio (swells near the horizon) ----------
 const audio = createAudio();
