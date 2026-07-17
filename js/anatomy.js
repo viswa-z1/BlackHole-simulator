@@ -9,7 +9,7 @@ let running = false;
 let raf = 0;
 export function buildAnatomy(gridEl) {
     gridEl.innerHTML = FEATURES.map(f => `
-    <div class="feature-card">
+    <div class="feature-card" data-feature-id="${f.id}" tabindex="0">
       <div class="feature-media"><canvas data-anim="${f.id}"></canvas><span class="feature-badge">live</span></div>
       <div class="feature-body">
         <div class="ic">${f.icon}</div>
@@ -37,6 +37,27 @@ export function setAnatomyActive(on) {
         running = false;
         cancelAnimationFrame(raf);
     }
+}
+// a single extra canvas can be registered to mirror one region's animation
+// at a larger size (used by the anatomy card's expanded/focus view)
+let focusEntry = null;
+export function setFeatureFocus(id, canvasEl) {
+    if (focusEntry) {
+        canvases = canvases.filter(c => c !== focusEntry);
+        focusEntry = null;
+    }
+    if (!id || !canvasEl)
+        return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = canvasEl.clientWidth || 480, h = canvasEl.clientHeight || 260;
+    canvasEl.width = w * dpr;
+    canvasEl.height = h * dpr;
+    const ctx = canvasEl.getContext("2d");
+    if (!ctx)
+        return;
+    ctx.scale(dpr, dpr);
+    focusEntry = { canvas: canvasEl, ctx, id, w, h };
+    canvases.push(focusEntry);
 }
 let t0 = performance.now();
 function loop() {

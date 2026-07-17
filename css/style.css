@@ -1112,3 +1112,23 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 .help-stats div { display: flex; flex-direction: column; gap: 4px; }
 .help-stats b { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--hot); }
 .help-stats span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ---------- anatomy card focus (expanded reading view) ---------- */
+.feature-focus-inner {
+  display: grid; grid-template-columns: 1.15fr 1fr;
+  max-width: 940px; width: 100%; max-height: 82vh;
+  background: linear-gradient(160deg, rgba(16,20,38,0.95), rgba(8,10,22,0.97));
+  border: 1px solid var(--glass-brd); border-radius: 22px; overflow: hidden;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+  transform: translateY(18px) scale(0.98); transition: transform .45s var(--ease-out);
+}
+#feature-focus-modal.open .feature-focus-inner { transform: none; }
+#feature-focus-canvas { display: block; width: 100%; height: 100%; min-height: 300px; background: #04050d; }
+.feature-focus-body { padding: 34px 32px; overflow-y: auto; }
+.feature-focus-body .ic { font-size: 30px; color: var(--accent); margin-bottom: 14px; }
+.feature-focus-body h3 { font-size: 24px; margin-bottom: 16px; }
+.feature-focus-body p { font-size: 14.5px; line-height: 1.75; color: var(--muted); }
+@media (max-width: 720px) {
+  .feature-focus-inner { grid-template-columns: 1fr; max-height: 88vh; overflow-y: auto; }
+  #feature-focus-canvas { min-height: 200px; }
+}

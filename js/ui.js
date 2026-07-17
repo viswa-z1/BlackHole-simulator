@@ -1,9 +1,9 @@
 // ===================================================================
 //  UI — panels, catalog rendering, navigation, toasts
 // ===================================================================
-import { BLACK_HOLES, PULSARS } from "./data.js";
+import { BLACK_HOLES, PULSARS, FEATURES } from "./data.js";
 import { portraitDataURL } from "./portraits.js";
-import { buildAnatomy, setAnatomyActive } from "./anatomy.js";
+import { buildAnatomy, setAnatomyActive, setFeatureFocus } from "./anatomy.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // cross-link: catalog objects that also appear as a cosmos anomaly
 function normalizeName(s) {
@@ -26,6 +26,7 @@ export function buildUI(onStageJump) {
     wireNav();
     wireDetail();
     wireCompare();
+    wireFeatureFocus();
     updateFavCount();
     buildJourneyStops(onStageJump);
 }
@@ -260,6 +261,32 @@ function wireCompare() {
         modal.classList.remove("open"); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape")
         modal.classList.remove("open"); });
+}
+// ---- anatomy card focus: click a card to read it full-size ----
+const FEATURE_BY_ID = new Map(FEATURES.map(f => [f.id, f]));
+function wireFeatureFocus() {
+    const modal = document.getElementById("feature-focus-modal");
+    if (!modal)
+        return;
+    const close = () => { modal.classList.remove("open"); setFeatureFocus(null); };
+    document.getElementById("feature-grid")?.addEventListener("click", (e) => {
+        const card = e.target.closest(".feature-card");
+        if (!card)
+            return;
+        const f = FEATURE_BY_ID.get(card.dataset.featureId);
+        if (!f)
+            return;
+        document.getElementById("ff-icon").textContent = f.icon;
+        document.getElementById("ff-name").textContent = f.name;
+        document.getElementById("ff-text").textContent = f.text;
+        modal.classList.add("open");
+        setFeatureFocus(f.id, document.getElementById("feature-focus-canvas"));
+    });
+    modal.querySelector("[data-feature-focus-close]")?.addEventListener("click", close);
+    modal.addEventListener("click", (e) => { if (e.target === modal)
+        close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("open"))
+        close(); });
 }
 function objCard(o, rank) {
     const isPulsar = o.category === "pulsar";
