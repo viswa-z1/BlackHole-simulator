@@ -798,8 +798,26 @@ window.addEventListener("pointermove", (e) => {
 });
 // ---------- frame capture (download the current view as a PNG) ----------
 let captureRequested = false;
+let capturePreviewTimer = null;
+function showCapturePreview(dataUrl) {
+    const wrap = document.getElementById("capture-preview");
+    const img = document.getElementById("capture-preview-img");
+    if (!wrap || !img)
+        return;
+    img.src = dataUrl;
+    wrap.classList.add("show");
+    clearTimeout(capturePreviewTimer);
+    capturePreviewTimer = setTimeout(() => wrap.classList.remove("show"), 4500);
+}
+document.getElementById("capture-preview")?.addEventListener("click", () => {
+    const img = document.getElementById("capture-preview-img");
+    if (img?.src)
+        window.open(img.src, "_blank");
+});
 function saveFrame(dest) {
     try {
+        const previewUrl = renderer.domElement.toDataURL("image/png");
+        showCapturePreview(previewUrl);
         if (dest === "clipboard" && navigator.clipboard && window.ClipboardItem) {
             renderer.domElement.toBlob((blob) => {
                 if (!blob) {
@@ -810,9 +828,8 @@ function saveFrame(dest) {
             }, "image/png");
         }
         else {
-            const url = renderer.domElement.toDataURL("image/png");
             const a = document.createElement("a");
-            a.href = url;
+            a.href = previewUrl;
             a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
             document.body.appendChild(a);
             a.click();

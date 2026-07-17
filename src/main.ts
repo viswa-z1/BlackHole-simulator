@@ -656,8 +656,25 @@ window.addEventListener("pointermove", (e) => {
 
 // ---------- frame capture (download the current view as a PNG) ----------
 let captureRequested: false | "download" | "clipboard" = false;
+let capturePreviewTimer: any = null;
+function showCapturePreview(dataUrl: string) {
+  const wrap = document.getElementById("capture-preview");
+  const img = document.getElementById("capture-preview-img") as HTMLImageElement | null;
+  if (!wrap || !img) return;
+  img.src = dataUrl;
+  wrap.classList.add("show");
+  clearTimeout(capturePreviewTimer);
+  capturePreviewTimer = setTimeout(() => wrap.classList.remove("show"), 4500);
+}
+document.getElementById("capture-preview")?.addEventListener("click", () => {
+  const img = document.getElementById("capture-preview-img") as HTMLImageElement | null;
+  if (img?.src) window.open(img.src, "_blank");
+});
+
 function saveFrame(dest: "download" | "clipboard") {
   try {
+    const previewUrl = renderer.domElement.toDataURL("image/png");
+    showCapturePreview(previewUrl);
     if (dest === "clipboard" && navigator.clipboard && (window as any).ClipboardItem) {
       renderer.domElement.toBlob((blob) => {
         if (!blob) { toast("Couldn't capture this frame."); return; }
@@ -667,9 +684,8 @@ function saveFrame(dest: "download" | "clipboard") {
         );
       }, "image/png");
     } else {
-      const url = renderer.domElement.toDataURL("image/png");
       const a = document.createElement("a");
-      a.href = url;
+      a.href = previewUrl;
       a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
       document.body.appendChild(a); a.click(); a.remove();
       toast("Frame saved to your downloads.");
