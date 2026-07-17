@@ -293,6 +293,8 @@ export function createCosmos(renderer) {
         kinds() { return [...new Set(anomalies.map(a => a.data.kind))]; },
         filterKind(kind) { for (const a of anomalies)
             a.group.visible = !kind || a.data.kind === kind; },
+        filterNames(names) { for (const a of anomalies)
+            a.group.visible = !names || names.has(a.data.name); },
         addZoom(d) { zoomTarget = Math.max(0, Math.min(1, zoomTarget + d)); },
         reset() { zoomTarget = 0; pan.set(0, 0); streakTint = null; },
         toggleGrid() { grid.visible = !grid.visible; return grid.visible; },

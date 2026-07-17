@@ -89,6 +89,9 @@ function enterCosmos() {
   document.body.classList.add("page-cosmos");
   document.querySelector('.nav-pills button[data-view="sim"]')?.classList.remove("active");
   document.getElementById("nav-cosmos").classList.add("active");
+  // reset the filter bar UI to "All" to match the freshly-reset visibility
+  const bar = document.getElementById("cosmos-filter");
+  bar?.querySelectorAll(".cfilter").forEach((b, i) => b.classList.toggle("active", i === 0));
   setHash("cosmos");
   toast("The cosmos — drag to look, scroll to dive deeper.");
 }
@@ -456,6 +459,11 @@ const KIND_TO_PORTRAIT: Record<string, string> = {
   "Magnetar": "magnetar", "Neutron Star": "neutron", "Nebula": "supermassive",
   "Merger": "binary", "Wormhole": "supermassive",
 };
+// cosmos favorites (persisted), independent of the catalog's favorites
+const COS_FAV_KEY = "singularity.cosmosFavs";
+const cosmosFavs = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(COS_FAV_KEY) || "[]"); } catch (e) { return []; } })());
+function saveCosmosFavs() { try { localStorage.setItem(COS_FAV_KEY, JSON.stringify([...cosmosFavs])); } catch (e) {} }
+
 function openCosmosCard(d) {
   cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
   const img = document.getElementById("cc-img") as HTMLImageElement;
@@ -464,8 +472,21 @@ function openCosmosCard(d) {
   document.getElementById("cc-name").textContent = d.name;
   document.getElementById("cc-dist").textContent = "Distance · " + d.dist;
   document.getElementById("cc-blurb").textContent = d.blurb;
+  const favBtn = document.getElementById("cc-fav");
+  if (favBtn) { favBtn.textContent = cosmosFavs.has(d.name) ? "★" : "☆"; favBtn.classList.toggle("on", cosmosFavs.has(d.name)); }
   cosmosCard.classList.add("open");
 }
+document.getElementById("cc-fav")?.addEventListener("click", () => {
+  const name = document.getElementById("cc-name").textContent;
+  if (!name) return;
+  cosmosFavs.has(name) ? cosmosFavs.delete(name) : cosmosFavs.add(name);
+  saveCosmosFavs();
+  const favBtn = document.getElementById("cc-fav");
+  favBtn.textContent = cosmosFavs.has(name) ? "★" : "☆";
+  favBtn.classList.toggle("on", cosmosFavs.has(name));
+  refreshCosmosFavCount();
+  toast(cosmosFavs.has(name) ? `${name} added to cosmos favorites` : `${name} removed from favorites`);
+});
 let cardIndex = 0;
 function showAnomaly(i: number) {
   const n = cosmos.anomalies.length;
@@ -505,13 +526,17 @@ document.getElementById("cos-random")?.addEventListener("click", () => showAnoma
   const bar = document.getElementById("cosmos-filter"); if (!bar) return;
   const kinds = ["All", ...cosmos.kinds()];
   const countFor = (k: string) => k === "All" ? cosmos.anomalies.length : cosmos.anomalies.filter((a: any) => a.data.kind === k).length;
-  bar.innerHTML = kinds.map((k, i) => `<button class="cfilter${i === 0 ? " active" : ""}" data-kind="${k === "All" ? "" : k}">${k}<i>${countFor(k)}</i></button>`).join("");
+  bar.innerHTML = kinds.map((k, i) => `<button class="cfilter${i === 0 ? " active" : ""}" data-kind="${k === "All" ? "" : k}">${k}<i>${countFor(k)}</i></button>`).join("")
+    + `<button class="cfilter cfilter-fav" data-kind="__fav__">★<i id="cos-fav-count">${cosmosFavs.size}</i></button>`;
   bar.querySelectorAll(".cfilter").forEach(b => b.addEventListener("click", () => {
     bar.querySelectorAll(".cfilter").forEach(x => x.classList.remove("active"));
     b.classList.add("active");
-    cosmos.filterKind((b as HTMLElement).dataset.kind);
+    const kind = (b as HTMLElement).dataset.kind;
+    if (kind === "__fav__") cosmos.filterNames(cosmosFavs.size ? cosmosFavs : new Set());
+    else cosmos.filterKind(kind);
   }));
 })();
+function refreshCosmosFavCount() { const el = document.getElementById("cos-fav-count"); if (el) el.textContent = String(cosmosFavs.size); }
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => { cosmosCard.classList.remove("open"); cosmos.spotlight(-1); });
 
 // ---------- cosmos auto-tour ----------
