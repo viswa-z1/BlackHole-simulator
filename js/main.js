@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount } from "./ui.js";
 // ---------- renderer ----------
 const canvas = document.getElementById("scene");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
@@ -521,6 +521,7 @@ function saveCosmosFavs() { try {
 }
 catch (e) { } }
 function openCosmosCard(d) {
+    recordObjectView(d.name);
     cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
     const img = document.getElementById("cc-img");
     if (img) {
@@ -876,11 +877,48 @@ window.addEventListener("keydown", (e) => {
     if ((e.key === "f" || e.key === "F") && !e.metaKey && !e.ctrlKey && !document.querySelector(".panel.open"))
         toggleFullscreen();
 });
+// ---------- session stats (time explored, deepest dive, objects viewed) ----------
+const STATS_KEY = "singularity.stats.session";
+const sessionStats = (() => {
+    try {
+        const s = JSON.parse(localStorage.getItem(STATS_KEY) || "null");
+        return s && typeof s === "object" ? s : {};
+    }
+    catch (e) {
+        return {};
+    }
+})();
+let statsTime = sessionStats.time || 0;
+let statsDepth = sessionStats.depth || 0;
+function saveSessionStats() { try {
+    localStorage.setItem(STATS_KEY, JSON.stringify({ time: statsTime, depth: statsDepth }));
+}
+catch (e) { } }
+function formatStatsTime(sec) {
+    const m = Math.floor(sec / 60), h = Math.floor(m / 60);
+    if (h > 0)
+        return `${h}h ${m % 60}m`;
+    if (m > 0)
+        return `${m}m ${Math.floor(sec % 60)}s`;
+    return `${Math.floor(sec)}s`;
+}
+window.addEventListener("pagehide", saveSessionStats);
+function updateStatsDisplay() {
+    const t = document.getElementById("stat-time"), d = document.getElementById("stat-depth"), v = document.getElementById("stat-viewed");
+    if (t)
+        t.textContent = formatStatsTime(statsTime);
+    if (d)
+        d.textContent = statsDepth.toFixed(2) + " Bly";
+    if (v)
+        v.textContent = String(getViewedCount());
+}
 // ---------- help / shortcuts overlay ----------
 const helpModal = document.getElementById("help-modal");
 function toggleHelp(force) {
     const open = force !== undefined ? force : !helpModal.classList.contains("open");
     helpModal.classList.toggle("open", open);
+    if (open)
+        updateStatsDisplay();
 }
 document.getElementById("tool-help").addEventListener("click", () => toggleHelp());
 helpModal.querySelector("[data-help-close]").addEventListener("click", () => toggleHelp(false));
@@ -1265,6 +1303,13 @@ function tick() {
     // ambient audio intensifies as the camera nears the horizon
     if (page !== "cosmos")
         audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
+    // session stats: real wall-clock time explored + deepest cosmos dive, persisted periodically
+    if (revealed)
+        statsTime += dt;
+    if (page === "cosmos")
+        statsDepth = Math.max(statsDepth, cosmos.zoom * 4.2);
+    if (frame % 300 === 0)
+        saveSessionStats();
     // HUD
     frame++;
     pushSpark(dt);

@@ -41,7 +41,18 @@ const STAT_LABELS = {
   period: "Spin Period", field: "Magnetic Field", age: "Age",
 };
 
+// distinct-objects-viewed tracker, shared between the catalog and cosmos figures
+const VIEWED_KEY = "singularity.stats.viewed";
+const viewedNames = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(VIEWED_KEY) || "[]"); } catch (e) { return []; } })());
+export function recordObjectView(name: string) {
+  if (!name || viewedNames.has(name)) return;
+  viewedNames.add(name);
+  try { localStorage.setItem(VIEWED_KEY, JSON.stringify([...viewedNames])); } catch (e) {}
+}
+export function getViewedCount(): number { return viewedNames.size; }
+
 function openDetail(o) {
+  recordObjectView(o.name);
   const isPulsar = o.category === "pulsar";
   const keys = isPulsar
     ? ["type", "period", "distance", "field", "age", "discovered"]

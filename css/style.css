@@ -1103,3 +1103,12 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 #capture-preview.show { opacity: 1; transform: none; pointer-events: auto; }
 #capture-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
 @media (max-width: 720px) { #capture-preview { right: 12px; bottom: 150px; width: 92px; } }
+
+/* session stats block in the help overlay */
+.help-stats {
+  display: flex; gap: 30px; margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.help-stats div { display: flex; flex-direction: column; gap: 4px; }
+.help-stats b { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--hot); }
+.help-stats span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
