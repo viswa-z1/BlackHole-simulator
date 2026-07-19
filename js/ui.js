@@ -313,6 +313,9 @@ function updateFavCount() {
     if (el)
         el.textContent = favs.size ? String(favs.size) : "";
 }
+export function getCatalogFavorites() {
+    return [...favs].map(name => REGISTRY.get(name)).filter(Boolean);
+}
 function toggleFav(name) {
     favs.has(name) ? favs.delete(name) : favs.add(name);
     try {

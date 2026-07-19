@@ -331,6 +331,7 @@
   <button id="tool-cinema" class="tool-btn" title="Cinematic mode (C)">🎬</button>
   <button id="tool-audio" class="tool-btn" title="Ambient audio">🔈</button>
   <button id="tool-share" class="tool-btn" title="Copy share link">🔗</button>
+  <button id="tool-collection" class="tool-btn" title="My Collection">★</button>
   <button id="tool-fs" class="tool-btn" title="Fullscreen (F)">⛶</button>
   <button id="tool-help" class="tool-btn" title="Help & shortcuts (?)">?</button>
 </div>
@@ -394,6 +395,23 @@
   <div class="compare-inner">
     <h2 class="compare-title">Side by <em>side</em></h2>
     <div class="compare-grid" id="compare-grid"></div>
+  </div>
+</div>
+
+<!-- My Collection: catalog + cosmos favorites in one place -->
+<div class="detail-modal" id="collection-modal">
+  <button class="detail-close" data-collection-close aria-label="Close">×</button>
+  <div class="collection-inner">
+    <h2 class="collection-title">My <em>Collection</em></h2>
+    <p class="collection-lede">Everything you've starred, from the Catalog and the Cosmos, in one place.</p>
+    <div class="collection-section">
+      <h4>Catalog favorites</h4>
+      <div class="collection-grid" id="collection-catalog-grid"></div>
+    </div>
+    <div class="collection-section">
+      <h4>Cosmos favorites</h4>
+      <div class="collection-grid" id="collection-cosmos-grid"></div>
+    </div>
   </div>
 </div>
 

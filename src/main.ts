@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -749,6 +749,50 @@ document.getElementById("tool-share")?.addEventListener("click", () => {
     () => toast(url),
   );
 });
+
+// ---------- "My Collection": catalog + cosmos favorites in one place ----------
+const collectionModal = document.getElementById("collection-modal");
+function renderCollection() {
+  const catGrid = document.getElementById("collection-catalog-grid");
+  const cosGrid = document.getElementById("collection-cosmos-grid");
+  const catFavs = getCatalogFavorites();
+  if (catGrid) {
+    catGrid.innerHTML = catFavs.length
+      ? catFavs.map(o => `<button class="collection-card" data-cat-name="${encodeURIComponent(o.name)}">${o.name}</button>`).join("")
+      : `<span class="collection-empty">No catalog favorites yet — tap ☆ on any object.</span>`;
+  }
+  if (cosGrid) {
+    const cosFavList = [...cosmosFavs].map(name => {
+      const idx = ANOMALIES.findIndex((a: any) => a.name === name);
+      return idx >= 0 ? { name, idx, color: ANOMALIES[idx].color } : null;
+    }).filter(Boolean) as { name: string; idx: number; color: number }[];
+    cosGrid.innerHTML = cosFavList.length
+      ? cosFavList.map(f => `<button class="collection-card" data-cos-idx="${f.idx}"><span class="cc-swatch" style="background:#${f.color.toString(16).padStart(6, "0")}"></span>${f.name}</button>`).join("")
+      : `<span class="collection-empty">No cosmos favorites yet — tap ☆ on any figure card.</span>`;
+  }
+}
+function toggleCollection(force?: boolean) {
+  const open = force !== undefined ? force : !collectionModal.classList.contains("open");
+  collectionModal.classList.toggle("open", open);
+  if (open) renderCollection();
+}
+document.getElementById("tool-collection")?.addEventListener("click", () => toggleCollection());
+collectionModal?.querySelector("[data-collection-close]")?.addEventListener("click", () => toggleCollection(false));
+collectionModal?.addEventListener("click", (e) => { if (e.target === collectionModal) toggleCollection(false); });
+document.getElementById("collection-catalog-grid")?.addEventListener("click", (e) => {
+  const btn = (e.target as HTMLElement).closest("[data-cat-name]") as HTMLElement | null;
+  if (!btn) return;
+  toggleCollection(false);
+  document.querySelector<HTMLElement>('.nav-pills button[data-view="catalog"]')?.click();
+  openObjectByName(decodeURIComponent(btn.dataset.catName));
+});
+document.getElementById("collection-cosmos-grid")?.addEventListener("click", (e) => {
+  const btn = (e.target as HTMLElement).closest("[data-cos-idx]") as HTMLElement | null;
+  if (!btn) return;
+  toggleCollection(false);
+  location.hash = "cosmos/" + btn.dataset.cosIdx;
+});
+window.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleCollection(false); });
 
 // ---------- auto-immersion: fade the chrome when idle during the journey ----------
 let idleTimer: any = null;

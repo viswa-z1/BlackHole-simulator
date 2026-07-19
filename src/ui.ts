@@ -260,6 +260,9 @@ function updateFavCount() {
   const el = document.getElementById("fav-count");
   if (el) el.textContent = favs.size ? String(favs.size) : "";
 }
+export function getCatalogFavorites(): any[] {
+  return [...favs].map(name => REGISTRY.get(name)).filter(Boolean);
+}
 function toggleFav(name: string) {
   favs.has(name) ? favs.delete(name) : favs.add(name);
   try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch (e) {}
