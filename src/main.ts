@@ -951,6 +951,7 @@ const SETTINGS_KEYS = [
   "singularity.prefs.v1", "singularity.favs", "singularity.cosmosFavs",
   "singularity.seen", "singularity.uiaccent",
   "singularity.stats.viewed", "singularity.stats.session",
+  "singularity.notes",
 ];
 
 // ---------- reset all saved settings ----------

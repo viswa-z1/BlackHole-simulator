@@ -52,6 +52,19 @@ export function recordObjectView(name: string) {
 }
 export function getViewedCount(): number { return viewedNames.size; }
 
+// personal notes on catalog objects, persisted locally, keyed by object name
+const NOTES_KEY = "singularity.notes";
+function loadNotes(): Record<string, string> {
+  try { return JSON.parse(localStorage.getItem(NOTES_KEY) || "{}") || {}; } catch (e) { return {}; }
+}
+function saveNote(name: string, text: string) {
+  try {
+    const notes = loadNotes();
+    if (text.trim()) notes[name] = text; else delete notes[name];
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  } catch (e) { /* storage unavailable */ }
+}
+
 function openDetail(o) {
   recordObjectView(o.name);
   const isPulsar = o.category === "pulsar";
@@ -95,6 +108,9 @@ function openDetail(o) {
     cosmosLink.dataset.cosmosIndex = cosmosIdx === null ? "" : String(cosmosIdx);
   }
 
+  const notesEl = document.getElementById("detail-notes") as HTMLTextAreaElement;
+  if (notesEl) notesEl.value = loadNotes()[o.name] || "";
+
   document.getElementById("detail-modal").classList.add("open");
   try { history.replaceState(null, "", "#object/" + encodeURIComponent(o.name)); } catch (e) {}
 }
@@ -135,6 +151,12 @@ function wireDetail() {
   document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
   document.getElementById("dn-next")?.addEventListener("click", () => stepDetail(1));
 
+  // personal notes: save as the user types
+  document.getElementById("detail-notes")?.addEventListener("input", (e) => {
+    const name = document.getElementById("detail-name").textContent;
+    if (name) saveNote(name, (e.target as HTMLTextAreaElement).value);
+  });
+
   // cross-link into the cosmos: close everything here, then hand off via the hash router
   document.getElementById("detail-cosmos-link")?.addEventListener("click", (e) => {
     const idx = (e.currentTarget as HTMLElement).dataset.cosmosIndex;
@@ -150,6 +172,7 @@ function wireDetail() {
   });
   document.addEventListener("keydown", (e) => {
     if (!modal.classList.contains("open")) return;
+    if ((e.target as HTMLElement)?.id === "detail-notes") return;   // let arrow keys move the cursor while typing a note
     if (e.key === "ArrowLeft") { e.stopPropagation(); stepDetail(-1); }
     else if (e.key === "ArrowRight") { e.stopPropagation(); stepDetail(1); }
   }, true);   // capture: runs before the journey's arrow-key handler

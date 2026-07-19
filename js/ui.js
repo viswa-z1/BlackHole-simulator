@@ -55,6 +55,27 @@ export function recordObjectView(name) {
     catch (e) { }
 }
 export function getViewedCount() { return viewedNames.size; }
+// personal notes on catalog objects, persisted locally, keyed by object name
+const NOTES_KEY = "singularity.notes";
+function loadNotes() {
+    try {
+        return JSON.parse(localStorage.getItem(NOTES_KEY) || "{}") || {};
+    }
+    catch (e) {
+        return {};
+    }
+}
+function saveNote(name, text) {
+    try {
+        const notes = loadNotes();
+        if (text.trim())
+            notes[name] = text;
+        else
+            delete notes[name];
+        localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+    }
+    catch (e) { /* storage unavailable */ }
+}
 function openDetail(o) {
     recordObjectView(o.name);
     const isPulsar = o.category === "pulsar";
@@ -94,6 +115,9 @@ function openDetail(o) {
         cosmosLink.style.display = cosmosIdx === null ? "none" : "";
         cosmosLink.dataset.cosmosIndex = cosmosIdx === null ? "" : String(cosmosIdx);
     }
+    const notesEl = document.getElementById("detail-notes");
+    if (notesEl)
+        notesEl.value = loadNotes()[o.name] || "";
     document.getElementById("detail-modal").classList.add("open");
     try {
         history.replaceState(null, "", "#object/" + encodeURIComponent(o.name));
@@ -142,6 +166,12 @@ function wireDetail() {
     };
     document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
     document.getElementById("dn-next")?.addEventListener("click", () => stepDetail(1));
+    // personal notes: save as the user types
+    document.getElementById("detail-notes")?.addEventListener("input", (e) => {
+        const name = document.getElementById("detail-name").textContent;
+        if (name)
+            saveNote(name, e.target.value);
+    });
     // cross-link into the cosmos: close everything here, then hand off via the hash router
     document.getElementById("detail-cosmos-link")?.addEventListener("click", (e) => {
         const idx = e.currentTarget.dataset.cosmosIndex;
@@ -160,6 +190,8 @@ function wireDetail() {
     document.addEventListener("keydown", (e) => {
         if (!modal.classList.contains("open"))
             return;
+        if (e.target?.id === "detail-notes")
+            return; // let arrow keys move the cursor while typing a note
         if (e.key === "ArrowLeft") {
             e.stopPropagation();
             stepDetail(-1);

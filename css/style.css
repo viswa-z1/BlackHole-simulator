@@ -1144,6 +1144,21 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 }
 .detail-cosmos-link:hover { background: rgba(77,181,255,0.22); border-color: var(--accent2); }
 
+/* personal notes on a catalog object, persisted locally */
+.detail-notes { margin-top: 14px; }
+.detail-notes label {
+  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.detail-notes textarea {
+  width: 100%; box-sizing: border-box; resize: vertical; min-height: 44px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--glass-brd); border-radius: 10px;
+  color: var(--fg); font-family: var(--font); font-size: 13px; padding: 10px 12px;
+  transition: border-color .2s;
+}
+.detail-notes textarea:focus { outline: none; border-color: var(--accent2); }
+.detail-notes textarea::placeholder { color: var(--muted); }
+
 /* captured-frame preview thumbnail (bottom-right, near the tools rail) */
 #capture-preview {
   position: fixed; right: 22px; bottom: 100px; z-index: 24;
