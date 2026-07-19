@@ -1234,6 +1234,21 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 .help-recent-list button:hover { border-color: var(--accent2); color: #cfeaff; }
 .help-recent-list .help-recent-empty { font-size: 12.5px; color: var(--muted); }
 
+/* achievements shelf in the help overlay */
+.help-achievements { margin-top: 18px; }
+.help-achievements h4 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent2); margin-bottom: 10px;
+}
+.help-achievements-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.ach {
+  display: flex; align-items: center; gap: 7px; font-size: 11.5px;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--muted);
+  padding: 7px 12px; border-radius: 999px; cursor: default;
+}
+.ach.unlocked { color: var(--hot); border-color: rgba(255,217,138,0.4); }
+.ach-icon { font-size: 13px; }
+
 /* ---------- anatomy card focus (expanded reading view) ---------- */
 .feature-focus-inner {
   display: grid; grid-template-columns: 1.15fr 1fr;

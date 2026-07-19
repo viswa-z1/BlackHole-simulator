@@ -44,6 +44,7 @@ export function buildUI(onStageJump) {
   wireCompare();
   wireFeatureFocus();
   updateFavCount();
+  renderAchievements();
   buildJourneyStops(onStageJump);
 }
 
@@ -56,6 +57,38 @@ const STAT_LABELS = {
   period: "Spin Period", field: "Magnetic Field", age: "Age",
 };
 
+// ---- achievements: small exploration milestones, persisted locally ----
+const ACH_KEY = "singularity.achievements";
+const ACHIEVEMENTS: Record<string, { label: string; desc: string }> = {
+  "first-contact":   { label: "First Contact",     desc: "Viewed your first object" },
+  "explorer":        { label: "Explorer",          desc: "Viewed 10 different objects" },
+  "cataloger":       { label: "Master Cataloger",  desc: "Viewed all 40 catalog objects" },
+  "collector":       { label: "Collector",         desc: "Favorited 5 objects" },
+  "horizon-crosser": { label: "Horizon Crosser",   desc: "Reached the event horizon" },
+  "time-traveler":   { label: "Time Traveler",     desc: "Explored for 5 minutes total" },
+  "deep-diver":      { label: "Deep Diver",        desc: "Dove 2 billion light-years into the cosmos" },
+  "note-taker":      { label: "Note Taker",        desc: "Wrote your first personal note" },
+};
+const unlockedAchievements = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(ACH_KEY) || "[]"); } catch (e) { return []; } })());
+function renderAchievements() {
+  const el = document.getElementById("help-achievements-list");
+  if (!el) return;
+  el.innerHTML = Object.entries(ACHIEVEMENTS).map(([id, a]) => {
+    const unlocked = unlockedAchievements.has(id);
+    return `<div class="ach${unlocked ? " unlocked" : ""}" title="${a.desc}">
+      <span class="ach-icon">${unlocked ? "🏆" : "🔒"}</span><span class="ach-label">${a.label}</span>
+    </div>`;
+  }).join("");
+}
+export function unlockAchievement(id: string) {
+  if (unlockedAchievements.has(id) || !ACHIEVEMENTS[id]) return;
+  unlockedAchievements.add(id);
+  try { localStorage.setItem(ACH_KEY, JSON.stringify([...unlockedAchievements])); } catch (e) {}
+  toast(`🏆 Achievement unlocked: ${ACHIEVEMENTS[id].label}`);
+  renderAchievements();
+}
+export function getAchievementCounts() { return { unlocked: unlockedAchievements.size, total: Object.keys(ACHIEVEMENTS).length }; }
+
 // distinct-objects-viewed tracker, shared between the catalog and cosmos figures
 const VIEWED_KEY = "singularity.stats.viewed";
 const viewedNames = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(VIEWED_KEY) || "[]"); } catch (e) { return []; } })());
@@ -67,6 +100,9 @@ export function recordObjectView(name: string) {
   if (!viewedNames.has(name)) {
     viewedNames.add(name);
     try { localStorage.setItem(VIEWED_KEY, JSON.stringify([...viewedNames])); } catch (e) {}
+    if (viewedNames.size >= 1) unlockAchievement("first-contact");
+    if (viewedNames.size >= 10) unlockAchievement("explorer");
+    if (viewedNames.size >= 40) unlockAchievement("cataloger");
   }
   recentViews = [name, ...recentViews.filter(n => n !== name)].slice(0, MAX_RECENT);
   try { localStorage.setItem(RECENT_KEY, JSON.stringify(recentViews)); } catch (e) {}
@@ -90,6 +126,7 @@ function saveNote(name: string, text: string) {
     const notes = loadNotes();
     if (text.trim()) notes[name] = text; else delete notes[name];
     localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+    if (text.trim()) unlockAchievement("note-taker");
   } catch (e) { /* storage unavailable */ }
 }
 
@@ -227,6 +264,7 @@ function toggleFav(name: string) {
   favs.has(name) ? favs.delete(name) : favs.add(name);
   try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch (e) {}
   updateFavCount();
+  if (favs.size >= 5) unlockAchievement("collector");
 }
 
 // the ordered list currently rendered in the grid (drives modal prev/next)

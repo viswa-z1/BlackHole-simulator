@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -511,6 +511,7 @@ document.getElementById("cc-fav")?.addEventListener("click", () => {
   if (!name) return;
   cosmosFavs.has(name) ? cosmosFavs.delete(name) : cosmosFavs.add(name);
   saveCosmosFavs();
+  if (cosmosFavs.size >= 5) unlockAchievement("collector");
   const favBtn = document.getElementById("cc-fav");
   favBtn.textContent = cosmosFavs.has(name) ? "★" : "☆";
   favBtn.classList.toggle("on", cosmosFavs.has(name));
@@ -970,7 +971,7 @@ const SETTINGS_KEYS = [
   "singularity.prefs.v1", "singularity.favs", "singularity.cosmosFavs",
   "singularity.seen", "singularity.uiaccent",
   "singularity.stats.viewed", "singularity.stats.session",
-  "singularity.notes",
+  "singularity.notes", "singularity.recent", "singularity.achievements",
 ];
 
 // ---------- reset all saved settings ----------
@@ -1289,6 +1290,9 @@ function tick() {
   if (revealed) statsTime += dt;
   if (page === "cosmos") statsDepth = Math.max(statsDepth, cosmos.zoom * 4.2);
   if (frame % 300 === 0) saveSessionStats();
+  if (statsTime >= 300) unlockAchievement("time-traveler");
+  if (statsDepth >= 2) unlockAchievement("deep-diver");
+  if (mode === "journey" && progress >= 0.999) unlockAchievement("horizon-crosser");
 
   // HUD
   frame++;
