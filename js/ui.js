@@ -336,6 +336,11 @@ function parseSci(s) {
         n *= 1e6;
     return n;
 }
+// pull a sortable 4-digit year out of free-text discovery notes ("1967 by Jocelyn Bell Burnell")
+function parseYear(s) {
+    const m = (s || "").match(/\d{4}/);
+    return m ? parseInt(m[0], 10) : 9999;
+}
 function buildCatalog() {
     const grid = document.getElementById("cat-grid");
     const search = document.getElementById("cat-search");
@@ -352,6 +357,8 @@ function buildCatalog() {
             list = [...list].sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
         else if (by === "mass")
             list = [...list].sort((a, b) => parseSci(a.mass || a.period || "") - parseSci(b.mass || b.period || ""));
+        else if (by === "discovered")
+            list = [...list].sort((a, b) => parseYear(a.discovered) - parseYear(b.discovered));
         currentList = list;
         grid.innerHTML = list.length
             ? list.map((o, i) => objCard(o, i + 1)).join("")
