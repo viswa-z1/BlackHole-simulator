@@ -399,6 +399,18 @@ function buildCatalog() {
             openDetail(list[Math.floor(Math.random() * list.length)]);
     });
     document.getElementById("cat-export-csv")?.addEventListener("click", exportCatalogCSV);
+    document.getElementById("cmp-random")?.addEventListener("click", () => {
+        const pool = listFor(cat === "fav" && !listFor("fav").length ? "all" : cat);
+        if (pool.length < 2) {
+            toast("Not enough objects to compare.");
+            return;
+        }
+        const i = Math.floor(Math.random() * pool.length);
+        let j = Math.floor(Math.random() * (pool.length - 1));
+        if (j >= i)
+            j++;
+        openCompare(pool[i], pool[j]);
+    });
 }
 // ---- export the full 40-object catalog as a downloadable CSV ----
 const CSV_COLUMNS = ["name", "alias", "category", "type", "mass", "distance", "period", "diameter", "spin", "field", "age", "discovered", "tag"];
