@@ -121,6 +121,12 @@ a { color: var(--accent2); text-decoration: none; }
 .hero-cta .ghost:hover { border-color: var(--accent2); color: var(--accent2); transform: translateY(-1px); }
 .hero-cta #enter-btn { margin-top: 0; }
 .hero-hint { margin-top: 24px; font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.05em; opacity: 0.7; }
+.hero-fact {
+  margin-top: 18px; max-width: 480px; font-size: 12.5px; color: var(--muted);
+  opacity: 0; transition: opacity .6s var(--ease-out);
+}
+.hero-fact.show { opacity: 1; }
+.hero-fact .hf-label { color: var(--accent2); font-weight: 600; margin-right: 6px; }
 
 /* ---------- Top bar ---------- */
 #topbar {

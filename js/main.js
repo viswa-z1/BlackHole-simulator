@@ -1329,6 +1329,31 @@ const bootTimer = setInterval(() => {
         reveal();
     }
 }, returning ? 90 : 420);
+// ---------- "did you know" fact rotator on the welcome screen ----------
+(function heroFactRotator() {
+    const el = document.getElementById("hero-fact");
+    const textEl = document.getElementById("hf-text");
+    if (!el || !textEl)
+        return;
+    const facts = ALL_OBJECTS.map((o) => o.fact).filter(Boolean);
+    if (!facts.length)
+        return;
+    let i = Math.floor(Math.random() * facts.length);
+    textEl.textContent = facts[i];
+    requestAnimationFrame(() => el.classList.add("show"));
+    const timer = setInterval(() => {
+        if (loader.classList.contains("hidden")) {
+            clearInterval(timer);
+            return;
+        }
+        el.classList.remove("show");
+        setTimeout(() => {
+            i = (i + 1) % facts.length;
+            textEl.textContent = facts[i];
+            el.classList.add("show");
+        }, 350);
+    }, 5000);
+})();
 function beginJourney() {
     if (started)
         return;
