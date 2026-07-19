@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -498,8 +498,14 @@ function openCosmosCard(d) {
   document.getElementById("cc-blurb").textContent = d.blurb;
   const favBtn = document.getElementById("cc-fav");
   if (favBtn) { favBtn.textContent = cosmosFavs.has(d.name) ? "★" : "☆"; favBtn.classList.toggle("on", cosmosFavs.has(d.name)); }
+  const compareBtn = document.getElementById("cc-compare") as HTMLElement;
+  if (compareBtn) compareBtn.style.display = cosmosEntityHasCatalogMatch(d.name) ? "" : "none";
   cosmosCard.classList.add("open");
 }
+document.getElementById("cc-compare")?.addEventListener("click", () => {
+  const name = document.getElementById("cc-name").textContent;
+  if (name) compareCosmosEntity(name);
+});
 document.getElementById("cc-fav")?.addEventListener("click", () => {
   const name = document.getElementById("cc-name").textContent;
   if (!name) return;

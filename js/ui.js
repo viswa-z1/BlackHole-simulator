@@ -20,6 +20,23 @@ function cosmosIndexFor(catalogName) {
     const i = COSMOS_INDEX_BY_NAME.get(normalizeName(catalogName));
     return i === undefined ? null : i;
 }
+// reverse of the above: a cosmos entity's matching catalog object, if any
+const CATALOG_BY_NORMALIZED_NAME = new Map();
+[...BLACK_HOLES, ...PULSARS].forEach(o => CATALOG_BY_NORMALIZED_NAME.set(normalizeName(o.name), o));
+function catalogObjectForCosmosName(name) {
+    return CATALOG_BY_NORMALIZED_NAME.get(normalizeName(name)) || null;
+}
+export function cosmosEntityHasCatalogMatch(name) {
+    return !!catalogObjectForCosmosName(name);
+}
+export function compareCosmosEntity(name) {
+    const o = catalogObjectForCosmosName(name);
+    if (!o) {
+        toast("No catalog match to compare.");
+        return;
+    }
+    pickCompare(o.name);
+}
 export function buildUI(onStageJump) {
     buildFeatures();
     buildCatalog();
