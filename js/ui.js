@@ -398,6 +398,26 @@ function buildCatalog() {
         if (list.length)
             openDetail(list[Math.floor(Math.random() * list.length)]);
     });
+    document.getElementById("cat-export-csv")?.addEventListener("click", exportCatalogCSV);
+}
+// ---- export the full 40-object catalog as a downloadable CSV ----
+const CSV_COLUMNS = ["name", "alias", "category", "type", "mass", "distance", "period", "diameter", "spin", "field", "age", "discovered", "tag"];
+function csvEscape(v) {
+    const s = String(v ?? "");
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function exportCatalogCSV() {
+    const rows = [CSV_COLUMNS.join(",")].concat([...BLACK_HOLES, ...PULSARS].map(o => CSV_COLUMNS.map(c => csvEscape(o[c])).join(",")));
+    const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "singularity-catalog.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("Catalog exported as CSV.");
 }
 function wireNav() {
     const pills = document.querySelectorAll(".nav-pills button[data-view]");
