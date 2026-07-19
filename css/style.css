@@ -1144,6 +1144,29 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 }
 .detail-cosmos-link:hover { background: rgba(77,181,255,0.22); border-color: var(--accent2); }
 
+/* print a clean fact sheet for the object on screen */
+.detail-print {
+  display: block; margin-top: 10px; font-family: var(--font); font-size: 12.5px;
+  cursor: pointer; background: var(--glass); border: 1px solid var(--glass-brd);
+  color: var(--fg); padding: 9px 16px; border-radius: 999px; transition: all .2s var(--ease);
+}
+.detail-print:hover { border-color: var(--accent2); color: #cfeaff; }
+@media print {
+  body * { visibility: hidden; }
+  .detail-modal.open, .detail-modal.open * { visibility: visible; }
+  .detail-modal.open {
+    position: absolute; inset: 0; background: #fff; color: #000; padding: 24px;
+    display: block; opacity: 1; overflow: visible;
+  }
+  .detail-modal.open .detail-inner { display: block; }
+  .detail-modal.open .detail-visual { max-width: 420px; }
+  .detail-close, .detail-nav, .detail-cosmos-link, .detail-print, .detail-source { display: none !important; }
+  .detail-modal.open .detail-desc, .detail-modal.open .detail-alias,
+  .detail-modal.open .dstat .val, .detail-modal.open .dstat .lab,
+  .detail-modal.open .detail-name, .detail-modal.open .detail-notes textarea { color: #000 !important; }
+  .detail-notes textarea { border: 1px solid #999; }
+}
+
 /* personal notes on a catalog object, persisted locally */
 .detail-notes { margin-top: 14px; }
 .detail-notes label {

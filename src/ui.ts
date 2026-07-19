@@ -157,6 +157,8 @@ function wireDetail() {
     if (name) saveNote(name, (e.target as HTMLTextAreaElement).value);
   });
 
+  document.getElementById("detail-print")?.addEventListener("click", () => window.print());
+
   // cross-link into the cosmos: close everything here, then hand off via the hash router
   document.getElementById("detail-cosmos-link")?.addEventListener("click", (e) => {
     const idx = (e.currentTarget as HTMLElement).dataset.cosmosIndex;
