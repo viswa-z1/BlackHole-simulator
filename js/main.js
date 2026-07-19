@@ -596,6 +596,8 @@ function stepAnomaly(dir) {
 document.getElementById("cc-prev")?.addEventListener("click", () => stepAnomaly(-1));
 document.getElementById("cc-next")?.addEventListener("click", () => stepAnomaly(1));
 document.getElementById("cos-random")?.addEventListener("click", () => showAnomaly(Math.floor(Math.random() * cosmos.anomalies.length)));
+document.getElementById("cos-zoom-in")?.addEventListener("click", () => cosmos.addZoom(0.08));
+document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.addZoom(-0.08));
 // cosmos entity search (datalist + Enter/pick jumps to the match)
 (function wireCosmosSearch() {
     const input = document.getElementById("cosmos-search");

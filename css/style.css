@@ -758,6 +758,14 @@ body.page-cosmos #cosmos-hud { opacity: 1; }
 .cos-tour-btn:hover { border-color: var(--accent2); color: #cfeaff; }
 .cos-tour-btn.active { background: rgba(77,181,255,0.18); border-color: var(--accent2); color: #cfeaff; }
 
+.cos-zoom-row { justify-content: center !important; gap: 10px !important; margin: 2px 0; }
+.cos-zoom-btn {
+  width: 30px; height: 26px; border-radius: 8px; font-family: var(--font); font-size: 15px;
+  line-height: 1; cursor: pointer; background: var(--glass); border: 1px solid var(--glass-brd);
+  color: var(--fg); transition: all .2s;
+}
+.cos-zoom-btn:hover { border-color: var(--accent2); color: #cfeaff; }
+
 /* cosmos kind filter */
 #cosmos-filter {
   position: fixed; top: 78px; left: 50%; transform: translateX(-50%); z-index: 18;
