@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -786,7 +786,20 @@ function updateStatsDisplay() {
   if (t) t.textContent = formatStatsTime(statsTime);
   if (d) d.textContent = statsDepth.toFixed(2) + " Bly";
   if (v) v.textContent = String(getViewedCount());
+  const list = document.getElementById("help-recent-list");
+  if (list) {
+    const recent = getRecentlyViewed();
+    list.innerHTML = recent.length
+      ? recent.map(name => `<button data-recent-name="${encodeURIComponent(name)}">${name}</button>`).join("")
+      : `<span class="help-recent-empty">Nothing viewed yet — open an object from the Catalog or Cosmos.</span>`;
+  }
 }
+document.getElementById("help-recent-list")?.addEventListener("click", (e) => {
+  const btn = (e.target as HTMLElement).closest("button[data-recent-name]") as HTMLElement | null;
+  if (!btn) return;
+  toggleHelp(false);
+  openRecentlyViewed(decodeURIComponent(btn.dataset.recentName));
+});
 
 // ---------- help / shortcuts overlay ----------
 const helpModal = document.getElementById("help-modal");

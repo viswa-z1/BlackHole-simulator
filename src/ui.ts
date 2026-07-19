@@ -45,12 +45,26 @@ const STAT_LABELS = {
 // distinct-objects-viewed tracker, shared between the catalog and cosmos figures
 const VIEWED_KEY = "singularity.stats.viewed";
 const viewedNames = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(VIEWED_KEY) || "[]"); } catch (e) { return []; } })());
+const RECENT_KEY = "singularity.recent";
+const MAX_RECENT = 5;
+let recentViews: string[] = (() => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch (e) { return []; } })();
 export function recordObjectView(name: string) {
-  if (!name || viewedNames.has(name)) return;
-  viewedNames.add(name);
-  try { localStorage.setItem(VIEWED_KEY, JSON.stringify([...viewedNames])); } catch (e) {}
+  if (!name) return;
+  if (!viewedNames.has(name)) {
+    viewedNames.add(name);
+    try { localStorage.setItem(VIEWED_KEY, JSON.stringify([...viewedNames])); } catch (e) {}
+  }
+  recentViews = [name, ...recentViews.filter(n => n !== name)].slice(0, MAX_RECENT);
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(recentViews)); } catch (e) {}
 }
 export function getViewedCount(): number { return viewedNames.size; }
+export function getRecentlyViewed(): string[] { return recentViews; }
+// jump back to a recently-viewed name, whether it's a catalog object or a cosmos-only entity
+export function openRecentlyViewed(name: string) {
+  if (openObjectByName(name)) return;
+  const idx = cosmosIndexFor(name);
+  if (idx !== null) location.hash = "cosmos/" + idx;
+}
 
 // personal notes on catalog objects, persisted locally, keyed by object name
 const NOTES_KEY = "singularity.notes";
