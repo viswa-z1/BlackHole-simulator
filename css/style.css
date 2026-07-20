@@ -355,6 +355,15 @@ a { color: var(--accent2); text-decoration: none; }
 }
 .cat-tabs button.active { background: rgba(255,157,60,0.16); border-color: var(--accent); color: var(--hot); }
 
+/* secondary distance-range filter row */
+.cat-dist-tabs { display: flex; gap: 8px; margin: -14px 0 24px; flex-wrap: wrap; }
+.cat-dist-tabs button {
+  font-family: var(--font); background: none; border: 1px solid var(--glass-brd); color: var(--muted);
+  padding: 6px 14px; border-radius: 999px; cursor: pointer; font-size: 11.5px; transition: .2s;
+}
+.cat-dist-tabs button:hover { color: var(--fg); border-color: var(--accent2); }
+.cat-dist-tabs button.active { background: rgba(77,181,255,0.14); border-color: var(--accent2); color: #cfeaff; }
+
 /* feature grid */
 .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
 .feature-card {

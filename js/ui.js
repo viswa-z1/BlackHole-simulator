@@ -533,15 +533,26 @@ function parseYear(s) {
     const m = (s || "").match(/\d{4}/);
     return m ? parseInt(m[0], 10) : 9999;
 }
+// bucket a distance-in-light-years value into a coarse proximity zone
+function distBucketFor(ly) {
+    if (ly < 1e6)
+        return "local"; // within the Milky Way
+    if (ly < 1e9)
+        return "galactic"; // other nearby galaxies
+    return "deep"; // billions of light-years out
+}
 function buildCatalog() {
     const grid = document.getElementById("cat-grid");
     const search = document.getElementById("cat-search");
     const sort = document.getElementById("cat-sort");
     let cat = "all";
+    let distBucket = "all";
     const render = () => {
         const q = (search?.value || "").trim().toLowerCase();
         currentQuery = q;
         let list = listFor(cat).filter(o => !q || o.name.toLowerCase().includes(q) || (o.alias || "").toLowerCase().includes(q));
+        if (distBucket !== "all")
+            list = list.filter(o => distBucketFor(parseSci(o.distance)) === distBucket);
         const by = sort?.value || "rank";
         if (by === "name")
             list = [...list].sort((a, b) => a.name.localeCompare(b.name));
@@ -554,7 +565,7 @@ function buildCatalog() {
         currentList = list;
         grid.innerHTML = list.length
             ? list.map((o, i) => objCard(o, i + 1)).join("")
-            : `<p class="cat-empty">${cat === "fav" && !q ? "No favorites yet — tap ☆ on any object to save it here." : `No objects match “${q}”.`}</p>`;
+            : `<p class="cat-empty">${cat === "fav" && !q ? "No favorites yet — tap ☆ on any object to save it here." : q ? `No objects match “${q}”.` : "No objects in this range."}</p>`;
     };
     render();
     // star toggles favorite (registered before the detail handler; stops it)
@@ -580,6 +591,14 @@ function buildCatalog() {
             cat = btn.dataset.cat;
             render();
             document.querySelector("#panel-catalog .panel-inner")?.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    });
+    document.querySelectorAll(".cat-dist-tabs button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".cat-dist-tabs button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            distBucket = btn.dataset.dist;
+            render();
         });
     });
     search?.addEventListener("input", render);
