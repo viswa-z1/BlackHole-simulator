@@ -86,6 +86,7 @@ export function unlockAchievement(id: string) {
   try { localStorage.setItem(ACH_KEY, JSON.stringify([...unlockedAchievements])); } catch (e) {}
   toast(`🏆 Achievement unlocked: ${ACHIEVEMENTS[id].label}`);
   renderAchievements();
+  window.dispatchEvent(new CustomEvent("singularity:achievement"));
 }
 export function getAchievementCounts() { return { unlocked: unlockedAchievements.size, total: Object.keys(ACHIEVEMENTS).length }; }
 

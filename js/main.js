@@ -1138,6 +1138,7 @@ window.addEventListener("keydown", (e) => {
 });
 // ---------- procedural ambient audio (swells near the horizon) ----------
 const audio = createAudio();
+window.addEventListener("singularity:achievement", () => audio.playChime());
 function toggleAudio() {
     const on = audio.toggle();
     const btn = document.getElementById("tool-audio");

@@ -48,6 +48,19 @@ export function createAudio() {
     toggle() { build(); resume(); muted = !muted; return !muted; },
     get on() { return built && !muted; },
     setVolume(v) { volume = Math.max(0, Math.min(2, v)); },
+    playChime() {                          // short two-note "ding" for achievement unlocks
+      if (!built || muted) return;
+      const t = ctx.currentTime;
+      [880, 1318.5].forEach((f, i) => {
+        const o = ctx.createOscillator(); o.type = "sine"; o.frequency.value = f;
+        const g = ctx.createGain(); g.gain.value = 0;
+        g.gain.setValueAtTime(0, t + i * 0.09);
+        g.gain.linearRampToValueAtTime(0.22 * volume, t + i * 0.09 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.09 + 0.35);
+        o.connect(g); g.connect(master);
+        o.start(t + i * 0.09); o.stop(t + i * 0.09 + 0.4);
+      });
+    },
     setIntensity(x) {
       if (!built || muted) { if (master) master.gain.setTargetAtTime(0, ctx.currentTime, 0.3); return; }
       const t = ctx.currentTime;

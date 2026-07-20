@@ -94,6 +94,7 @@ export function unlockAchievement(id) {
     catch (e) { }
     toast(`🏆 Achievement unlocked: ${ACHIEVEMENTS[id].label}`);
     renderAchievements();
+    window.dispatchEvent(new CustomEvent("singularity:achievement"));
 }
 export function getAchievementCounts() { return { unlocked: unlockedAchievements.size, total: Object.keys(ACHIEVEMENTS).length }; }
 // distinct-objects-viewed tracker, shared between the catalog and cosmos figures
