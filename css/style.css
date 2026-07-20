@@ -1068,6 +1068,14 @@ body.ui-idle #toolbar { opacity: 0; pointer-events: none; }
 .dock-reset:hover { color: #ff8a8a; border-color: rgba(255,90,90,0.5); }
 .dock-reset.armed { color: #fff; background: rgba(255,90,90,0.2); border-color: #ff5c6c; }
 
+/* randomize-parameters button in the dock */
+.dock-randomize {
+  width: 100%; margin: 10px 0; font-family: var(--font); font-size: 12px; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  padding: 9px 10px; border-radius: 999px; transition: all .2s var(--ease);
+}
+.dock-randomize:hover { border-color: var(--accent2); color: #cfeaff; }
+
 /* frame-time sparkline in the HUD */
 #hud-spark { display: block; width: 100%; height: 24px; margin: 4px 0 2px; opacity: 0.85; }
 

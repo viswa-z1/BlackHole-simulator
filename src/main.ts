@@ -413,6 +413,21 @@ bindRange("c-ring", "v-ring", v => v.toFixed(2) + "×", v => { lensing.uniforms.
 bindRange("c-bloom", "v-bloom", v => v.toFixed(2), v => { bloomPass.strength = v; });
 bindRange("c-vol", "v-vol", v => v.toFixed(2) + "×", v => { audio.setVolume(v); });
 
+// ---------- randomize simulator parameters (mass, spin, brightness, spectrum) ----------
+function randomizeParams() {
+  const setRange = (id: string, v: number) => { const el = document.getElementById(id) as HTMLInputElement; el.value = String(v); el.dispatchEvent(new Event("input")); };
+  setRange("c-mass", +(0.4 + Math.random() * 2.6).toFixed(2));
+  setRange("c-spin", +(Math.random() * 0.998).toFixed(3));
+  setRange("c-bright", +(Math.random() * 2.5).toFixed(2));
+  document.querySelector<HTMLElement>(`#c-spectrum .sw[data-pal="${Math.floor(Math.random() * 5)}"]`)?.click();
+  toast("Parameters randomized — a new black hole.");
+}
+document.getElementById("c-randomize")?.addEventListener("click", randomizeParams);
+window.addEventListener("keydown", (e) => {
+  if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey && page !== "cosmos"
+    && !document.querySelector(".panel.open, .detail-modal.open, .help-modal.open, input:focus, textarea:focus")) randomizeParams();
+});
+
 // real-object parameter presets
 const PRESETS: Record<string, { mass: number; spin: number; pal: number }> = {
   sgra: { mass: 1.6, spin: 0.90, pal: 0 }, m87: { mass: 2.6, spin: 0.94, pal: 4 },
