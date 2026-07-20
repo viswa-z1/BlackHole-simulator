@@ -240,6 +240,10 @@ function wireDetail() {
             }
             catch (e) { }
         }
+        window.speechSynthesis?.cancel();
+        const readBtn = document.getElementById("detail-read-aloud");
+        if (readBtn)
+            readBtn.textContent = "🔊 Read aloud";
     };
     document.getElementById("cat-grid").addEventListener("click", (e) => {
         const card = e.target.closest(".obj-card");
@@ -261,6 +265,10 @@ function wireDetail() {
             return;
         let i = currentList.findIndex(o => o.name === name);
         i = ((i + dir) % currentList.length + currentList.length) % currentList.length;
+        window.speechSynthesis?.cancel();
+        const readBtn = document.getElementById("detail-read-aloud");
+        if (readBtn)
+            readBtn.textContent = "🔊 Read aloud";
         openDetail(currentList[i]);
     };
     document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
@@ -272,6 +280,25 @@ function wireDetail() {
             saveNote(name, e.target.value);
     });
     document.getElementById("detail-print")?.addEventListener("click", () => window.print());
+    document.getElementById("detail-read-aloud")?.addEventListener("click", () => {
+        const btn = document.getElementById("detail-read-aloud");
+        if (!window.speechSynthesis) {
+            toast("Speech isn't supported in this browser.");
+            return;
+        }
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            btn.textContent = "🔊 Read aloud";
+            return;
+        }
+        const name = document.getElementById("detail-name").textContent || "";
+        const desc = (document.getElementById("detail-desc").textContent || "").trim();
+        const utter = new SpeechSynthesisUtterance(`${name}. ${desc}`);
+        utter.onend = () => { btn.textContent = "🔊 Read aloud"; };
+        utter.onerror = () => { btn.textContent = "🔊 Read aloud"; };
+        btn.textContent = "⏹ Stop reading";
+        window.speechSynthesis.speak(utter);
+    });
     document.getElementById("detail-share-text")?.addEventListener("click", () => {
         const name = document.getElementById("detail-name").textContent || "";
         const alias = document.getElementById("detail-alias").textContent || "";
