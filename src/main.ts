@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -1155,6 +1155,19 @@ function firstVisitTips() {                // shown once, on the first visit
   runTips();
 }
 document.getElementById("help-replay")?.addEventListener("click", () => { toggleHelp(false); runTips(300); });
+document.getElementById("help-share-stats")?.addEventListener("click", () => {
+  const ach = getAchievementCounts();
+  const text = `My SINGULARITY exploration:\n` +
+    `⏱ ${formatStatsTime(statsTime)} explored\n` +
+    `🌌 ${statsDepth.toFixed(2)} Bly deepest dive\n` +
+    `🔭 ${getViewedCount()} / 40 objects viewed\n` +
+    `🏆 ${ach.unlocked} / ${ach.total} achievements unlocked\n` +
+    `https://viswa-z1.github.io/BlackHole-simulator/`;
+  navigator.clipboard?.writeText(text).then(
+    () => toast("Stats copied to clipboard."),
+    () => toast(text),
+  );
+});
 function reveal() {                       // home scene becomes live + draggable
   if (revealed) return;
   revealed = true;
