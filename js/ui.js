@@ -46,7 +46,25 @@ export function buildUI(onStageJump) {
     wireFeatureFocus();
     updateFavCount();
     renderAchievements();
+    renderCatBreakdown();
     buildJourneyStops(onStageJump);
+}
+// category breakdown chart above the catalog tabs
+function renderCatBreakdown() {
+    const bar = document.getElementById("cat-breakdown-bar");
+    const legend = document.getElementById("cat-breakdown-legend");
+    if (!bar || !legend)
+        return;
+    const all = [...BLACK_HOLES, ...PULSARS];
+    const cats = [
+        ["blackhole", "Black Holes", "#ff9d3c"],
+        ["quasar", "Quasars", "#9d6eff"],
+        ["pulsar", "Pulsars", "#4db5ff"],
+    ];
+    const counts = cats.map(([key]) => all.filter(o => o.category === key).length);
+    const total = all.length || 1;
+    bar.innerHTML = cats.map(([, , color], i) => `<span style="width:${(counts[i] / total * 100).toFixed(2)}%; background:${color}"></span>`).join("");
+    legend.innerHTML = cats.map(([, label, color], i) => `<div><span class="dot" style="background:${color}"></span>${label} <b>${counts[i]}</b></div>`).join("");
 }
 // name -> object registry for the detail modal
 const REGISTRY = new Map([...BLACK_HOLES, ...PULSARS].map(o => [o.name, o]));
