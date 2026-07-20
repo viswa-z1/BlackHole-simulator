@@ -108,6 +108,12 @@ export function recordObjectView(name: string) {
   try { localStorage.setItem(RECENT_KEY, JSON.stringify(recentViews)); } catch (e) {}
 }
 export function getViewedCount(): number { return viewedNames.size; }
+export function openNextUnviewed(): boolean {
+  const next = [...BLACK_HOLES, ...PULSARS].find(o => !viewedNames.has(o.name));
+  if (!next) return false;
+  openDetail(next);
+  return true;
+}
 export function getRecentlyViewed(): string[] { return recentViews; }
 // jump back to a recently-viewed name, whether it's a catalog object or a cosmos-only entity
 export function openRecentlyViewed(name: string) {
@@ -450,6 +456,9 @@ function buildCatalog() {
     if (list.length) openDetail(list[Math.floor(Math.random() * list.length)]);
   });
   document.getElementById("cat-export-csv")?.addEventListener("click", exportCatalogCSV);
+  document.getElementById("cat-next-unviewed")?.addEventListener("click", () => {
+    if (!openNextUnviewed()) toast("You've viewed every object in the catalog! 🎉");
+  });
   document.getElementById("cmp-random")?.addEventListener("click", () => {
     const pool = listFor(cat === "fav" && !listFor("fav").length ? "all" : cat);
     if (pool.length < 2) { toast("Not enough objects to compare."); return; }
