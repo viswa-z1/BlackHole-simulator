@@ -676,6 +676,10 @@ function refreshCosmosFavCount() { const el = document.getElementById("cos-fav-c
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => { cosmosCard.classList.remove("open"); cosmos.spotlight(-1); });
 // ---------- cosmos auto-tour ----------
 let tour = false, tourI = 0, tourT = 0;
+let tourInterval = parseFloat(document.getElementById("cos-tour-speed")?.value || "5");
+document.getElementById("cos-tour-speed")?.addEventListener("change", (e) => {
+    tourInterval = parseFloat(e.target.value);
+});
 document.getElementById("cos-tour")?.addEventListener("click", () => {
     tour = !tour;
     tourT = 0;
@@ -1561,7 +1565,7 @@ function tick() {
         cosmos.update(dt, time);
         if (tour) {
             tourT += dt;
-            if (tourT > 5) {
+            if (tourT > tourInterval) {
                 tourT = 0;
                 tourI = (tourI + 1) % cosmos.anomalies.length;
                 openCosmosCard(cosmos.focus(tourI));

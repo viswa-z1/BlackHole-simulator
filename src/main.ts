@@ -596,6 +596,10 @@ cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => 
 
 // ---------- cosmos auto-tour ----------
 let tour = false, tourI = 0, tourT = 0;
+let tourInterval = parseFloat((document.getElementById("cos-tour-speed") as HTMLSelectElement)?.value || "5");
+document.getElementById("cos-tour-speed")?.addEventListener("change", (e) => {
+  tourInterval = parseFloat((e.target as HTMLSelectElement).value);
+});
 document.getElementById("cos-tour")?.addEventListener("click", () => {
   tour = !tour; tourT = 0; tourI = 0;
   document.getElementById("cos-tour")?.classList.toggle("active", tour);
@@ -1312,7 +1316,7 @@ function tick() {
 
   if (page === "cosmos") {
     cosmos.update(dt, time);
-    if (tour) { tourT += dt; if (tourT > 5) { tourT = 0; tourI = (tourI + 1) % cosmos.anomalies.length; openCosmosCard(cosmos.focus(tourI)); updateTourLabel(); } }
+    if (tour) { tourT += dt; if (tourT > tourInterval) { tourT = 0; tourI = (tourI + 1) % cosmos.anomalies.length; openCosmosCard(cosmos.focus(tourI)); updateTourLabel(); } }
     if (frame % 3 === 0) { drawCosmosMap(); updateCosmosHUD(); }
   } else {
     if (mode === "explore") {
