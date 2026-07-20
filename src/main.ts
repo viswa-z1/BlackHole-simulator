@@ -1219,6 +1219,21 @@ const bootTimer = setInterval(() => {
   }, 5000);
 })();
 
+// ---------- "object of the day" — a deterministic daily pick, shown on the welcome screen ----------
+(function objectOfTheDay() {
+  const btn = document.getElementById("hero-ootd");
+  const nameEl = document.getElementById("hero-ootd-name");
+  if (!btn || !nameEl) return;
+  const now = new Date();
+  const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+  const pick = ALL_OBJECTS[dayOfYear % ALL_OBJECTS.length];
+  nameEl.textContent = pick.name;
+  btn.addEventListener("click", () => {
+    document.querySelector<HTMLElement>('.nav-pills button[data-view="catalog"]')?.click();
+    openObjectByName(pick.name);
+  });
+})();
+
 function beginJourney() {                 // explicit Start → cinematic tracking shot
   if (started) return;
   started = true;
