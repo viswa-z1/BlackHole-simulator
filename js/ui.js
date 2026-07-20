@@ -271,6 +271,16 @@ function wireDetail() {
             saveNote(name, e.target.value);
     });
     document.getElementById("detail-print")?.addEventListener("click", () => window.print());
+    document.getElementById("detail-share-text")?.addEventListener("click", () => {
+        const name = document.getElementById("detail-name").textContent || "";
+        const alias = document.getElementById("detail-alias").textContent || "";
+        const stats = [...document.querySelectorAll("#detail-stats .dstat")]
+            .map(el => `${el.querySelector(".lab")?.textContent}: ${el.querySelector(".val")?.textContent}`)
+            .join("\n");
+        const desc = (document.getElementById("detail-desc").textContent || "").trim();
+        const text = `${name} — ${alias}\n${stats}\n\n${desc}`;
+        navigator.clipboard?.writeText(text).then(() => toast("Object details copied to clipboard."), () => toast(text));
+    });
     // cross-link into the cosmos: close everything here, then hand off via the hash router
     document.getElementById("detail-cosmos-link")?.addEventListener("click", (e) => {
         const idx = e.currentTarget.dataset.cosmosIndex;
