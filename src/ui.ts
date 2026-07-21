@@ -457,6 +457,14 @@ function parseYear(s: string): number {
   const m = (s || "").match(/\d{4}/);
   return m ? parseInt(m[0], 10) : 9999;
 }
+function shuffledCopy<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 // bucket a distance-in-light-years value into a coarse proximity zone
 function distBucketFor(ly: number): string {
   if (ly < 1e6) return "local";       // within the Milky Way
@@ -469,6 +477,7 @@ function buildCatalog() {
   const sort = document.getElementById("cat-sort") as HTMLSelectElement;
   let cat = "all";
   let distBucket = "all";
+  let shuffleSeed: string[] | null = null;
   const render = () => {
     const q = (search?.value || "").trim().toLowerCase();
     currentQuery = q;
@@ -479,6 +488,10 @@ function buildCatalog() {
     else if (by === "distance") list = [...list].sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
     else if (by === "mass") list = [...list].sort((a, b) => parseSci(a.mass || a.period || "") - parseSci(b.mass || b.period || ""));
     else if (by === "discovered") list = [...list].sort((a, b) => parseYear(a.discovered) - parseYear(b.discovered));
+    else if (by === "shuffle" && shuffleSeed) {
+      const order = new Map(shuffleSeed.map((n, i) => [n, i]));
+      list = [...list].sort((a, b) => (order.get(a.name) ?? 0) - (order.get(b.name) ?? 0));
+    }
     currentList = list;
     grid.innerHTML = list.length
       ? list.map((o, i) => objCard(o, i + 1)).join("")
@@ -519,7 +532,12 @@ function buildCatalog() {
     });
   });
   search?.addEventListener("input", render);
-  sort?.addEventListener("change", render);
+  sort?.addEventListener("change", () => {
+    if (sort.value === "shuffle") {
+      shuffleSeed = shuffledCopy([...BLACK_HOLES, ...PULSARS]).map(o => o.name);
+    }
+    render();
+  });
   // open a random object from the active tab
   document.getElementById("cat-random")?.addEventListener("click", () => {
     const list = listFor(cat === "fav" && !listFor("fav").length ? "all" : cat);
