@@ -134,8 +134,13 @@
       <option value="cyg">Cygnus X-1</option>
       <option value="ton">TON 618 (quasar)</option>
       <option value="gw">GW150914 merger</option>
+      <optgroup label="My Presets" id="my-presets-group"></optgroup>
     </select>
     <p class="closest-match" id="closest-match">Closest match: <b id="closest-match-name"></b></p>
+    <div class="my-preset-save">
+      <input type="text" id="my-preset-name" placeholder="Name this configuration…" maxlength="24" aria-label="Preset name" />
+      <button id="my-preset-save-btn" title="Save current mass, spin, brightness and spectrum as a preset">💾 Save</button>
+    </div>
   </div>
   <div class="ctrl">
     <label>Black Hole Mass <span id="v-mass">1.0 M</span></label>

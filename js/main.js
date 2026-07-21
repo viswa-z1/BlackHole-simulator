@@ -485,11 +485,62 @@ function updateClosestMatch() {
         el.textContent = PRESET_NAMES[best];
 }
 updateClosestMatch();
+const CUSTOM_PRESETS_KEY = "singularity.customPresets";
+function loadCustomPresets() {
+    try {
+        return JSON.parse(localStorage.getItem(CUSTOM_PRESETS_KEY) || "[]");
+    }
+    catch (e) {
+        return [];
+    }
+}
+function saveCustomPresets(list) {
+    try {
+        localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(list));
+    }
+    catch (e) { }
+}
+function renderCustomPresetOptions() {
+    const group = document.getElementById("my-presets-group");
+    if (!group)
+        return;
+    const list = loadCustomPresets();
+    group.innerHTML = list.map((p, i) => `<option value="custom:${i}">${p.name}</option>`).join("");
+    group.hidden = list.length === 0;
+}
+renderCustomPresetOptions();
+document.getElementById("my-preset-save-btn")?.addEventListener("click", () => {
+    const nameInput = document.getElementById("my-preset-name");
+    const name = (nameInput.value || "").trim().slice(0, 24);
+    if (!name) {
+        toast("Give your preset a name first.");
+        return;
+    }
+    const pal = parseInt(document.querySelector("#c-spectrum .sw.active")?.dataset.pal || "0", 10);
+    const list = loadCustomPresets();
+    list.push({ name, mass: params.mass, spin: params.spin, bright: params.bright, pal });
+    saveCustomPresets(list);
+    renderCustomPresetOptions();
+    nameInput.value = "";
+    toast(`Saved preset "${name}".`);
+});
 document.getElementById("c-preset")?.addEventListener("change", (e) => {
-    const p = PRESETS[e.target.value];
+    const val = e.target.value;
+    const setR = (id, v) => { const el = document.getElementById(id); el.value = String(v); el.dispatchEvent(new Event("input")); };
+    if (val.startsWith("custom:")) {
+        const p = loadCustomPresets()[parseInt(val.slice(7), 10)];
+        if (!p)
+            return;
+        setR("c-mass", p.mass);
+        setR("c-spin", p.spin);
+        setR("c-bright", p.bright);
+        document.querySelector(`#c-spectrum .sw[data-pal="${p.pal}"]`)?.click();
+        toast(`Preset "${p.name}" applied`);
+        return;
+    }
+    const p = PRESETS[val];
     if (!p)
         return;
-    const setR = (id, v) => { const el = document.getElementById(id); el.value = String(v); el.dispatchEvent(new Event("input")); };
     setR("c-mass", p.mass);
     setR("c-spin", p.spin);
     document.querySelector(`#c-spectrum .sw[data-pal="${p.pal}"]`)?.click();
@@ -1262,6 +1313,7 @@ const SETTINGS_KEYS = [
     "singularity.seen", "singularity.uiaccent",
     "singularity.stats.viewed", "singularity.stats.session",
     "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
+    "singularity.customPresets",
 ];
 // ---------- reset all saved settings ----------
 let resetArmed = false;
