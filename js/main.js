@@ -67,6 +67,18 @@ composer.addPass(renderPass);
 // ---------- Cosmos page (a separate explorable universe) ----------
 const cosmos = createCosmos(renderer);
 let page = "bh"; // "bh" (black hole) | "cosmos"
+// ---------- cosmos visited-trail: a breadcrumb line through explored entities ----------
+const trailIndices = [];
+const trailGeo = new THREE.BufferGeometry();
+const trailLine = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: 0x6fa8ff, transparent: true, opacity: 0.35 }));
+trailLine.frustumCulled = false;
+cosmos.scene.add(trailLine);
+function extendTrail(idx) {
+    if (trailIndices[trailIndices.length - 1] === idx)
+        return;
+    trailIndices.push(idx);
+    trailGeo.setFromPoints(trailIndices.map(i => cosmos.anomalies[i].group.position));
+}
 // smooth cross-fade around the scene swap (Vercel-style page transition)
 const pageFade = document.getElementById("page-fade");
 function crossfade(swap) {
@@ -666,6 +678,8 @@ function openCosmosCard(d) {
         nearEl.innerHTML = nearestAnomalies(idx, 3)
             .map(({ i, a }) => `<button class="cc-nearby-item" data-idx="${i}">${a.data.name}</button>`).join("");
     }
+    if (idx >= 0)
+        extendTrail(idx);
     cosmosCard.classList.add("open");
 }
 document.getElementById("cc-nearby")?.addEventListener("click", (e) => {
