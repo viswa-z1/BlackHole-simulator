@@ -1060,6 +1060,36 @@ body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !impor
 }
 .compare-history-item:hover { border-color: var(--accent2); color: #cfeaff; }
 
+/* ---------- cosmic trivia mini-quiz ---------- */
+.trivia-inner {
+  width: min(560px, 94vw); max-height: 86vh; overflow-y: auto;
+  background: var(--glass-strong); border: 1px solid var(--glass-brd);
+  border-radius: 20px; padding: 32px 34px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+}
+.trivia-title { font-size: 26px; margin-bottom: 4px; }
+.trivia-title em { font-style: normal; color: var(--accent); }
+.trivia-progress { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+.trivia-question { font-size: 17px; margin-bottom: 18px; line-height: 1.5; }
+.trivia-options { display: flex; flex-direction: column; gap: 10px; }
+.trivia-options button {
+  font-family: var(--font); font-size: 14px; text-align: left; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  padding: 12px 16px; border-radius: 12px; transition: all .2s;
+}
+.trivia-options button:hover:not(:disabled) { border-color: var(--accent2); color: #cfeaff; }
+.trivia-options button.correct { background: rgba(90,214,135,0.18); border-color: #5ad687; color: #d5ffe4; }
+.trivia-options button.wrong { background: rgba(255,90,90,0.14); border-color: #ff5c6c; color: #ffd5d5; }
+.trivia-options button:disabled { cursor: default; opacity: 0.75; }
+.trivia-result { min-height: 20px; margin-top: 16px; font-size: 14px; color: var(--hot); font-weight: 600; }
+.trivia-next {
+  margin-top: 8px; display: none; font-family: var(--font); font-size: 13px; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  padding: 9px 18px; border-radius: 999px; transition: all .2s;
+}
+.trivia-next:hover { border-color: var(--accent2); color: #cfeaff; }
+.trivia-next.show { display: inline-block; }
+
 /* ---------- "My Collection" modal ---------- */
 .collection-inner {
   width: min(760px, 94vw); max-height: 86vh; overflow-y: auto;

@@ -47,6 +47,7 @@ export function buildUI(onStageJump) {
     updateFavCount();
     renderAchievements();
     renderCatBreakdown();
+    wireTrivia();
     buildJourneyStops(onStageJump);
 }
 // category breakdown chart above the catalog tabs
@@ -570,6 +571,76 @@ function wireCompare() {
             openCompare(a, b);
     });
     renderCompareHistory();
+}
+// ---------- cosmic trivia mini-quiz ----------
+const TRIVIA = [
+    { q: "Which object was the first black hole ever directly imaged?", options: ["Sagittarius A*", "M87* (Pōwehi)", "TON 618"], correct: 1 },
+    { q: "Which famous physicist lost a wager over Cygnus X-1, conceding in 1990?", options: ["Einstein", "Feynman", "Hawking"], correct: 2 },
+    { q: "Roughly how many times the Sun's mass is TON 618?", options: ["40 thousand", "40 million", "40 billion"], correct: 2 },
+    { q: "About how many times per second does the Crab Pulsar spin?", options: ["3", "30", "300"], correct: 1 },
+    { q: "In what year did the Event Horizon Telescope image Sagittarius A*?", options: ["2019", "2022", "2025"], correct: 1 },
+];
+function wireTrivia() {
+    const modal = document.getElementById("trivia-modal");
+    if (!modal)
+        return;
+    let qi = 0, score = 0, finished = false;
+    const progressEl = document.getElementById("trivia-progress");
+    const qEl = document.getElementById("trivia-question");
+    const optsEl = document.getElementById("trivia-options");
+    const resultEl = document.getElementById("trivia-result");
+    const nextBtn = document.getElementById("trivia-next");
+    const showQuestion = () => {
+        const t = TRIVIA[qi];
+        progressEl.textContent = `Question ${qi + 1} of ${TRIVIA.length} · Score ${score}`;
+        qEl.textContent = t.q;
+        resultEl.textContent = "";
+        nextBtn.classList.remove("show");
+        optsEl.innerHTML = t.options.map((o, i) => `<button data-i="${i}">${o}</button>`).join("");
+    };
+    const start = () => { qi = 0; score = 0; finished = false; showQuestion(); modal.classList.add("open"); };
+    optsEl.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-i]");
+        if (!btn || btn.hasAttribute("disabled"))
+            return;
+        const t = TRIVIA[qi];
+        const chosen = parseInt(btn.dataset.i, 10);
+        optsEl.querySelectorAll("button").forEach(b => b.setAttribute("disabled", "true"));
+        btn.classList.add(chosen === t.correct ? "correct" : "wrong");
+        if (chosen === t.correct) {
+            score++;
+            resultEl.textContent = "Correct!";
+        }
+        else {
+            optsEl.querySelector(`button[data-i="${t.correct}"]`)?.classList.add("correct");
+            resultEl.textContent = `Not quite — it's "${t.options[t.correct]}".`;
+        }
+        progressEl.textContent = `Question ${qi + 1} of ${TRIVIA.length} · Score ${score}`;
+        nextBtn.classList.add("show");
+        nextBtn.textContent = qi < TRIVIA.length - 1 ? "Next ›" : "See result";
+    });
+    nextBtn.addEventListener("click", () => {
+        if (finished) {
+            start();
+            return;
+        }
+        qi++;
+        if (qi >= TRIVIA.length) {
+            finished = true;
+            progressEl.textContent = "Finished!";
+            qEl.textContent = `You scored ${score} / ${TRIVIA.length}.`;
+            optsEl.innerHTML = "";
+            resultEl.textContent = "";
+            nextBtn.textContent = "Play again";
+            nextBtn.classList.add("show");
+        }
+        else
+            showQuestion();
+    });
+    document.getElementById("help-trivia")?.addEventListener("click", start);
+    modal.querySelector("[data-trivia-close]")?.addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", (e) => { if (e.target === modal)
+        modal.classList.remove("open"); });
 }
 // ---- anatomy card focus: click a card to read it full-size ----
 const FEATURE_BY_ID = new Map(FEATURES.map(f => [f.id, f]));
