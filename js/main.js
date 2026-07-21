@@ -980,7 +980,16 @@ window.addEventListener("keydown", (e) => {
 });
 // ---------- copy share link ----------
 document.getElementById("tool-share")?.addEventListener("click", () => {
-    const url = location.href;
+    let url = location.href;
+    if (page === "bh") {
+        const pal = document.querySelector("#c-spectrum .sw.active")?.dataset.pal || "0";
+        const u = new URL(location.href);
+        u.searchParams.set("mass", params.mass.toFixed(2));
+        u.searchParams.set("spin", params.spin.toFixed(3));
+        u.searchParams.set("bright", params.bright.toFixed(2));
+        u.searchParams.set("pal", pal);
+        url = u.toString();
+    }
     navigator.clipboard?.writeText(url).then(() => toast("Share link copied to clipboard."), () => toast(url));
 });
 // ---------- "My Collection": catalog + cosmos favorites in one place ----------
@@ -1415,6 +1424,26 @@ catch (e) { }
 // ---------- UI build ----------
 buildUI(jumpToStage);
 loadPrefs();
+// ---------- restore a shared simulator configuration from the URL, if present ----------
+(function applySharedParams() {
+    const sp = new URLSearchParams(location.search);
+    if (!sp.has("mass") && !sp.has("spin") && !sp.has("bright") && !sp.has("pal"))
+        return;
+    const setR = (id, v) => { const el = document.getElementById(id); if (el) {
+        el.value = v;
+        el.dispatchEvent(new Event("input"));
+    } };
+    if (sp.has("mass"))
+        setR("c-mass", sp.get("mass"));
+    if (sp.has("spin"))
+        setR("c-spin", sp.get("spin"));
+    if (sp.has("bright"))
+        setR("c-bright", sp.get("bright"));
+    const pal = sp.get("pal");
+    if (pal && /^[0-4]$/.test(pal))
+        document.querySelector(`#c-spectrum .sw[data-pal="${pal}"]`)?.click();
+    toast("Loaded a shared black hole configuration.");
+})();
 // ---------- anime.js: buttery hero entrance ----------
 if (window.anime && !reduceMotion) {
     window.anime.timeline({ easing: "easeOutExpo" })
