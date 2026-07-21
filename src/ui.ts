@@ -157,6 +157,68 @@ function saveNote(name: string, text: string) {
   } catch (e) { /* storage unavailable */ }
 }
 
+// word-wrap plain text onto a canvas, returning the y position after the last line
+function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number): number {
+  const words = text.split(/\s+/);
+  let line = "";
+  for (const word of words) {
+    const test = line ? line + " " + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, y);
+      line = word;
+      y += lineHeight;
+    } else line = test;
+  }
+  if (line) { ctx.fillText(line, x, y); y += lineHeight; }
+  return y;
+}
+// composite the open object's portrait + stats into a downloadable PNG card
+function downloadObjectCard() {
+  const name = document.getElementById("detail-name").textContent || "Object";
+  const alias = document.getElementById("detail-alias").textContent || "";
+  const desc = (document.getElementById("detail-desc").textContent || "").trim();
+  const imgSrc = (document.getElementById("detail-img") as HTMLImageElement).src;
+  const stats = [...document.querySelectorAll("#detail-stats .dstat")].slice(0, 5)
+    .map(el => [el.querySelector(".lab")?.textContent || "", el.querySelector(".val")?.textContent || ""]);
+
+  const W = 900, imgH = 500, H = 1180;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const render = () => {
+    let y = imgH + 60;
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 44px sans-serif";
+    ctx.fillText(name, 40, y); y += 40;
+    if (alias) { ctx.fillStyle = "#ffb977"; ctx.font = "italic 22px sans-serif"; ctx.fillText(alias, 40, y); y += 44; }
+    ctx.font = "18px monospace";
+    stats.forEach(([lab, val]) => { ctx.fillStyle = "#7d8bb3"; ctx.fillText(lab + ":", 40, y); ctx.fillStyle = "#e8ecf7"; ctx.fillText(String(val), 220, y); y += 30; });
+    y += 16;
+    ctx.font = "17px sans-serif"; ctx.fillStyle = "#b9c2d9";
+    wrapText(ctx, desc, 40, y, W - 80, 26);
+    ctx.font = "13px sans-serif"; ctx.fillStyle = "#4a5578";
+    ctx.fillText("SINGULARITY — a real-time black hole simulator", 40, H - 26);
+
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() + "-card.png";
+    document.body.appendChild(a); a.click(); a.remove();
+    toast("Card downloaded.");
+  };
+
+  ctx.fillStyle = "#070914"; ctx.fillRect(0, 0, W, H);
+  const img = new Image();
+  img.onload = () => {
+    const scale = Math.max(W / img.width, imgH / img.height);
+    const dw = img.width * scale, dh = img.height * scale;
+    ctx.drawImage(img, (W - dw) / 2, (imgH - dh) / 2, dw, dh);
+    render();
+  };
+  img.onerror = render;
+  img.src = imgSrc;
+}
+
 function openDetail(o) {
   recordObjectView(o.name);
   const isPulsar = o.category === "pulsar";
@@ -269,6 +331,8 @@ function wireDetail() {
     btn.textContent = "⏹ Stop reading";
     window.speechSynthesis.speak(utter);
   });
+
+  document.getElementById("detail-download-card")?.addEventListener("click", () => downloadObjectCard());
 
   document.getElementById("detail-share-text")?.addEventListener("click", () => {
     const name = document.getElementById("detail-name").textContent || "";
