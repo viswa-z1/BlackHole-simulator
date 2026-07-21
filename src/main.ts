@@ -399,8 +399,8 @@ function bindRange(id, valId, fmt, set) {
   el.addEventListener("input", () => { const v = parseFloat(el.value); lbl.textContent = fmt(v); set(v); });
   lbl.textContent = fmt(parseFloat(el.value));
 }
-bindRange("c-mass", "v-mass", v => v.toFixed(2) + " M", v => { params.mass = v; applyDisk(); });
-bindRange("c-spin", "v-spin", v => v.toFixed(3), v => { params.spin = v; applyDisk(); });
+bindRange("c-mass", "v-mass", v => v.toFixed(2) + " M", v => { params.mass = v; applyDisk(); updateClosestMatch(); });
+bindRange("c-spin", "v-spin", v => v.toFixed(3), v => { params.spin = v; applyDisk(); updateClosestMatch(); });
 bindRange("c-bright", "v-bright", v => v.toFixed(2), v => {
   params.bright = v; lensing.uniforms.uBright.value = v; jets.setBright(v);
 });
@@ -434,6 +434,20 @@ const PRESETS: Record<string, { mass: number; spin: number; pal: number }> = {
   cyg: { mass: 0.7, spin: 0.97, pal: 1 }, ton: { mass: 3.0, spin: 0.50, pal: 2 },
   gw: { mass: 0.5, spin: 0.67, pal: 0 },
 };
+const PRESET_NAMES: Record<string, string> = {
+  sgra: "Sagittarius A*", m87: "M87*", cyg: "Cygnus X-1", ton: "TON 618", gw: "the GW150914 merger",
+};
+// find which real preset the current custom mass/spin most resembles
+function updateClosestMatch() {
+  let best = "sgra", bd = Infinity;
+  for (const [key, p] of Object.entries(PRESETS)) {
+    const d = Math.hypot((params.mass - p.mass) / 2.6, params.spin - p.spin);
+    if (d < bd) { bd = d; best = key; }
+  }
+  const el = document.getElementById("closest-match-name");
+  if (el) el.textContent = PRESET_NAMES[best];
+}
+updateClosestMatch();
 document.getElementById("c-preset")?.addEventListener("change", (e) => {
   const p = PRESETS[(e.target as HTMLSelectElement).value]; if (!p) return;
   const setR = (id: string, v: number) => { const el = document.getElementById(id) as HTMLInputElement; el.value = String(v); el.dispatchEvent(new Event("input")); };
