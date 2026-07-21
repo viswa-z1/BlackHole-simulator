@@ -1035,7 +1035,7 @@ const SETTINGS_KEYS = [
   "singularity.prefs.v1", "singularity.favs", "singularity.cosmosFavs",
   "singularity.seen", "singularity.uiaccent",
   "singularity.stats.viewed", "singularity.stats.session",
-  "singularity.notes", "singularity.recent", "singularity.achievements",
+  "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
 ];
 
 // ---------- reset all saved settings ----------
@@ -1185,6 +1185,14 @@ function reveal() {                       // home scene becomes live + draggable
 let boot = 0;
 // returning visitors skip the slow boot theatre and get straight in
 const returning = (() => { try { return !!localStorage.getItem("singularity.seen"); } catch (e) { return false; } })();
+// a simple visit counter, incremented once per page load
+const visitCount = (() => {
+  try {
+    const n = parseInt(localStorage.getItem("singularity.visits") || "0", 10) + 1;
+    localStorage.setItem("singularity.visits", String(n));
+    return n;
+  } catch (e) { return 1; }
+})();
 const bootTimer = setInterval(() => {
   loaderStatus.textContent = bootMsgs[boot];
   if (++boot >= bootMsgs.length) {
@@ -1193,7 +1201,7 @@ const bootTimer = setInterval(() => {
     ctaCatalog.classList.add("ready");
     ctaCosmos.classList.add("ready");
     ctaPhysics.classList.add("ready");
-    loaderStatus.textContent = returning ? "Welcome back." : "Drag to look around — then begin.";
+    loaderStatus.textContent = returning ? `Welcome back — visit #${visitCount}.` : "Drag to look around — then begin.";
     reveal();
   }
 }, returning ? 90 : 420);
