@@ -433,6 +433,35 @@ function pickCompare(name) {
     comparePin = null;
     updateComparePin();
 }
+// remembers the last few compared pairs so they can be reopened with one click
+const COMPARE_HISTORY_KEY = "singularity.compareHistory";
+const MAX_COMPARE_HISTORY = 5;
+function loadCompareHistory() {
+    try {
+        return JSON.parse(localStorage.getItem(COMPARE_HISTORY_KEY) || "[]");
+    }
+    catch (e) {
+        return [];
+    }
+}
+function renderCompareHistory() {
+    const list = document.getElementById("compare-history-list");
+    const wrap = document.getElementById("compare-history");
+    if (!list || !wrap)
+        return;
+    const hist = loadCompareHistory();
+    list.innerHTML = hist.map(([a, b]) => `<button class="compare-history-item" data-a="${encodeURIComponent(a)}" data-b="${encodeURIComponent(b)}">${a} vs ${b}</button>`).join("");
+    wrap.style.display = hist.length ? "block" : "none";
+}
+function recordCompareHistory(nameA, nameB) {
+    let hist = loadCompareHistory().filter(([a, b]) => !(a === nameA && b === nameB) && !(a === nameB && b === nameA));
+    hist = [[nameA, nameB], ...hist].slice(0, MAX_COMPARE_HISTORY);
+    try {
+        localStorage.setItem(COMPARE_HISTORY_KEY, JSON.stringify(hist));
+    }
+    catch (e) { }
+    renderCompareHistory();
+}
 function openCompare(a, b) {
     if (!a || !b)
         return;
@@ -445,6 +474,7 @@ function openCompare(a, b) {
     </div>`;
     grid.innerHTML = col(a) + col(b);
     document.getElementById("compare-modal").classList.add("open");
+    recordCompareHistory(a.name, b.name);
 }
 function wireCompare() {
     const modal = document.getElementById("compare-modal");
@@ -453,6 +483,16 @@ function wireCompare() {
         modal.classList.remove("open"); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape")
         modal.classList.remove("open"); });
+    document.getElementById("compare-history-list")?.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-a]");
+        if (!btn)
+            return;
+        const a = REGISTRY.get(decodeURIComponent(btn.dataset.a));
+        const b = REGISTRY.get(decodeURIComponent(btn.dataset.b));
+        if (a && b)
+            openCompare(a, b);
+    });
+    renderCompareHistory();
 }
 // ---- anatomy card focus: click a card to read it full-size ----
 const FEATURE_BY_ID = new Map(FEATURES.map(f => [f.id, f]));

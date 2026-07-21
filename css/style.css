@@ -1034,6 +1034,20 @@ body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !impor
 .cmp-row b { font-family: var(--mono); font-weight: 500; text-align: right; }
 @media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
 
+/* recent-comparisons shortcut list inside the compare modal */
+.compare-history { margin-top: 24px; display: none; }
+.compare-history h4 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent2); margin-bottom: 10px;
+}
+.compare-history-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.compare-history-item {
+  font-family: var(--font); font-size: 12px; cursor: pointer; color: var(--fg);
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  padding: 7px 14px; border-radius: 999px; transition: all .2s;
+}
+.compare-history-item:hover { border-color: var(--accent2); color: #cfeaff; }
+
 /* ---------- "My Collection" modal ---------- */
 .collection-inner {
   width: min(760px, 94vw); max-height: 86vh; overflow-y: auto;

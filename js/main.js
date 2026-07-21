@@ -1322,7 +1322,7 @@ const SETTINGS_KEYS = [
     "singularity.seen", "singularity.uiaccent",
     "singularity.stats.viewed", "singularity.stats.session",
     "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
-    "singularity.customPresets",
+    "singularity.customPresets", "singularity.compareHistory",
 ];
 // ---------- reset all saved settings ----------
 let resetArmed = false;
