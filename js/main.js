@@ -629,6 +629,17 @@ function saveCosmosFavs() { try {
     localStorage.setItem(COS_FAV_KEY, JSON.stringify([...cosmosFavs]));
 }
 catch (e) { } }
+// the 2-3 other cosmos entities physically closest to the one at `idx`
+function nearestAnomalies(idx, n = 3) {
+    const me = cosmos.anomalies[idx];
+    if (!me)
+        return [];
+    return cosmos.anomalies
+        .map((a, i) => ({ i, a, d: a.group.position.distanceTo(me.group.position) }))
+        .filter((x) => x.i !== idx)
+        .sort((a, b) => a.d - b.d)
+        .slice(0, n);
+}
 function openCosmosCard(d) {
     recordObjectView(d.name);
     cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
@@ -649,8 +660,19 @@ function openCosmosCard(d) {
     const compareBtn = document.getElementById("cc-compare");
     if (compareBtn)
         compareBtn.style.display = cosmosEntityHasCatalogMatch(d.name) ? "" : "none";
+    const nearEl = document.getElementById("cc-nearby");
+    const idx = cosmos.anomalies.findIndex((a) => a.data.name === d.name);
+    if (nearEl && idx >= 0) {
+        nearEl.innerHTML = nearestAnomalies(idx, 3)
+            .map(({ i, a }) => `<button class="cc-nearby-item" data-idx="${i}">${a.data.name}</button>`).join("");
+    }
     cosmosCard.classList.add("open");
 }
+document.getElementById("cc-nearby")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-idx]");
+    if (btn)
+        showAnomaly(parseInt(btn.dataset.idx, 10));
+});
 document.getElementById("cc-compare")?.addEventListener("click", () => {
     const name = document.getElementById("cc-name").textContent;
     if (name)

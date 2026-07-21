@@ -873,6 +873,18 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 .cosmos-card h3 { font-size: 21px; margin: 8px 0 2px; }
 .cc-dist { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 12px; }
 .cosmos-card p { font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+.cc-nearby-wrap { margin-top: 14px; }
+.cc-nearby-wrap h4 {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--accent2); margin-bottom: 8px;
+}
+.cc-nearby { display: flex; flex-wrap: wrap; gap: 6px; }
+.cc-nearby-item {
+  font-family: var(--font); font-size: 11.5px; cursor: pointer; color: var(--fg);
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  padding: 6px 12px; border-radius: 999px; transition: all .2s;
+}
+.cc-nearby-item:hover { border-color: var(--cc-accent, var(--accent)); color: #fff; }
 .cc-nav { display: flex; gap: 8px; margin-top: 14px; }
 .cc-nav button {
   flex: 1; font-family: var(--font); font-size: 12px; cursor: pointer;
