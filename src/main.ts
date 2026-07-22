@@ -1178,6 +1178,7 @@ const SETTINGS_KEYS = [
   "singularity.stats.viewed", "singularity.stats.session",
   "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
   "singularity.customPresets", "singularity.compareHistory",
+  "singularity.streak", "singularity.lastVisitDate",
 ];
 
 // ---------- reset all saved settings ----------
@@ -1361,6 +1362,20 @@ const visitCount = (() => {
     return n;
   } catch (e) { return 1; }
 })();
+// consecutive-day visit streak: bumps once per new day, resets if a day is skipped
+const visitStreak = (() => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const last = localStorage.getItem("singularity.lastVisitDate");
+    let streak = parseInt(localStorage.getItem("singularity.streak") || "0", 10) || 0;
+    if (last === today) return streak || 1;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    streak = last === yesterday ? streak + 1 : 1;
+    localStorage.setItem("singularity.streak", String(streak));
+    localStorage.setItem("singularity.lastVisitDate", today);
+    return streak;
+  } catch (e) { return 1; }
+})();
 const bootTimer = setInterval(() => {
   loaderStatus.textContent = bootMsgs[boot];
   if (++boot >= bootMsgs.length) {
@@ -1369,7 +1384,8 @@ const bootTimer = setInterval(() => {
     ctaCatalog.classList.add("ready");
     ctaCosmos.classList.add("ready");
     ctaPhysics.classList.add("ready");
-    loaderStatus.textContent = returning ? `Welcome back — visit #${visitCount}.` : "Drag to look around — then begin.";
+    const streakSuffix = visitStreak >= 2 ? ` · 🔥 ${visitStreak}-day streak` : "";
+    loaderStatus.textContent = returning ? `Welcome back — visit #${visitCount}${streakSuffix}.` : "Drag to look around — then begin.";
     reveal();
   }
 }, returning ? 90 : 420);
