@@ -508,6 +508,25 @@ document.getElementById("c-preset")?.addEventListener("change", (e) => {
   toast("Preset applied");
 });
 
+// ---------- mass unit converter (solar masses -> kg / Earth masses) ----------
+function formatBigNumber(n: number): string {
+  if (!isFinite(n)) return "—";
+  if (Math.abs(n) >= 1e6 || (Math.abs(n) > 0 && Math.abs(n) < 1e-3)) return n.toExponential(3);
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+function updateMassConverter() {
+  const input = document.getElementById("mc-input") as HTMLInputElement;
+  const out = document.getElementById("mc-output");
+  if (!input || !out) return;
+  const solar = parseFloat(input.value);
+  if (!isFinite(solar) || solar < 0) { out.innerHTML = ""; return; }
+  const kg = solar * 1.98892e30;         // solar mass in kilograms
+  const earths = solar * 333000;          // Earth masses per solar mass
+  out.innerHTML = `≈ <b>${formatBigNumber(kg)} kg</b><br>≈ <b>${formatBigNumber(earths)}</b> Earth masses`;
+}
+document.getElementById("mc-input")?.addEventListener("input", updateMassConverter);
+updateMassConverter();
+
 // quality presets (manual override of the adaptive scaler)
 const QUALITY: Record<string, { pr: number; steps: number; bloom: number }> = {
   low: { pr: 1, steps: 90, bloom: 0.3 }, med: { pr: 1.25, steps: 140, bloom: 0.5 },
