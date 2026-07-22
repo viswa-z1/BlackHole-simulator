@@ -1140,7 +1140,34 @@ function updateStatsDisplay() {
             ? recent.map(name => `<button data-recent-name="${encodeURIComponent(name)}">${name}</button>`).join("")
             : `<span class="help-recent-empty">Nothing viewed yet — open an object from the Catalog or Cosmos.</span>`;
     }
+    renderNotesSearch();
 }
+function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function renderNotesSearch() {
+    const list = document.getElementById("help-notes-list");
+    if (!list)
+        return;
+    const q = (document.getElementById("help-notes-search")?.value || "").trim().toLowerCase();
+    const notes = getAllNotes();
+    const entries = Object.entries(notes).filter(([name, text]) => !q || name.toLowerCase().includes(q) || text.toLowerCase().includes(q));
+    list.innerHTML = entries.length
+        ? entries.map(([name, text]) => {
+            const snippet = text.length > 60 ? text.slice(0, 60) + "…" : text;
+            return `<button class="help-notes-item" data-note-name="${encodeURIComponent(name)}"><b>${escapeHtml(name)}</b><span>${escapeHtml(snippet)}</span></button>`;
+        }).join("")
+        : `<span class="help-notes-empty">${Object.keys(notes).length ? "No notes match your search." : "No notes saved yet."}</span>`;
+}
+document.getElementById("help-notes-search")?.addEventListener("input", renderNotesSearch);
+document.getElementById("help-notes-list")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-note-name]");
+    if (!btn)
+        return;
+    toggleHelp(false);
+    document.querySelector('.nav-pills button[data-view="catalog"]')?.click();
+    openObjectByName(decodeURIComponent(btn.dataset.noteName));
+});
 document.getElementById("help-recent-list")?.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-recent-name]");
     if (!btn)
