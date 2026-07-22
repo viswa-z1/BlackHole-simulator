@@ -1100,6 +1100,71 @@ document.getElementById("collection-cosmos-grid")?.addEventListener("click", (e)
 });
 window.addEventListener("keydown", (e) => { if (e.key === "Escape")
     toggleCollection(false); });
+// composite every favorited portrait (catalog + cosmos) into one downloadable poster
+document.getElementById("collection-poster-btn")?.addEventListener("click", () => {
+    const catFavs = getCatalogFavorites();
+    const cosFavs = [...cosmosFavs].map(name => {
+        const idx = ANOMALIES.findIndex((a) => a.name === name);
+        return idx >= 0 ? { name, kind: KIND_TO_PORTRAIT[ANOMALIES[idx].kind] || "stellar" } : null;
+    }).filter(Boolean);
+    const items = [...catFavs, ...cosFavs].map(o => ({ name: o.name, portrait: portraitDataURL(o, 400, 260) }));
+    if (!items.length) {
+        toast("Favorite some objects first — tap ☆ on any card.");
+        return;
+    }
+    const cols = Math.min(3, items.length);
+    const rows = Math.ceil(items.length / cols);
+    const cellW = 400, cellH = 320, pad = 20, headerH = 80;
+    const W = cols * cellW + pad * (cols + 1);
+    const H = headerH + rows * cellH + pad * (rows + 1);
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx)
+        return;
+    ctx.fillStyle = "#070914";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 36px sans-serif";
+    ctx.fillText("My Collection", pad, 50);
+    ctx.font = "16px sans-serif";
+    ctx.fillStyle = "#7d8bb3";
+    ctx.fillText(`${items.length} favorite${items.length === 1 ? "" : "s"} · SINGULARITY`, pad, 72);
+    let loaded = 0;
+    items.forEach((item, i) => {
+        const img = new Image();
+        img.onload = img.onerror = () => {
+            const col = i % cols, row = Math.floor(i / cols);
+            const x = pad + col * (cellW + pad), y = headerH + pad + row * (cellH + pad);
+            if (img.complete && img.naturalWidth) {
+                const scale = Math.max(cellW / img.width, (cellH - 36) / img.height);
+                const dw = img.width * scale, dh = img.height * scale;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(x, y, cellW, cellH - 36);
+                ctx.clip();
+                ctx.drawImage(img, x + (cellW - dw) / 2, y + (cellH - 36 - dh) / 2, dw, dh);
+                ctx.restore();
+            }
+            ctx.fillStyle = "#e8ecf7";
+            ctx.font = "15px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(item.name, x + cellW / 2, y + cellH - 12);
+            ctx.textAlign = "left";
+            if (++loaded === items.length) {
+                const a = document.createElement("a");
+                a.href = canvas.toDataURL("image/png");
+                a.download = "my-collection-poster.png";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                toast("Poster downloaded.");
+            }
+        };
+        img.src = item.portrait;
+    });
+});
 // ---------- auto-immersion: fade the chrome when idle during the journey ----------
 let idleTimer = null;
 function pokeIdle() {
