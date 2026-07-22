@@ -181,6 +181,7 @@ function loadNotes() {
         return {};
     }
 }
+export function getAllNotes() { return loadNotes(); }
 function saveNote(name, text) {
     try {
         const notes = loadNotes();

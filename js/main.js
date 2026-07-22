@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -1535,6 +1535,25 @@ document.getElementById("help-share-stats")?.addEventListener("click", () => {
         `🏆 ${ach.unlocked} / ${ach.total} achievements unlocked\n` +
         `https://viswa-z1.github.io/BlackHole-simulator/`;
     navigator.clipboard?.writeText(text).then(() => toast("Stats copied to clipboard."), () => toast(text));
+});
+document.getElementById("help-export-notes")?.addEventListener("click", () => {
+    const notes = getAllNotes();
+    const names = Object.keys(notes);
+    if (!names.length) {
+        toast("No notes saved yet — jot one on any object's detail page.");
+        return;
+    }
+    const text = names.map(name => `${name}\n${"-".repeat(name.length)}\n${notes[name]}`).join("\n\n");
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "singularity-notes.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast(`Exported ${names.length} note${names.length === 1 ? "" : "s"}.`);
 });
 function reveal() {
     if (revealed)
