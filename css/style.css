@@ -1372,6 +1372,15 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 .help-stats span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* recently-viewed shortcut list in the help overlay */
+.help-pb { margin-top: 18px; }
+.help-pb h4 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent2); margin-bottom: 10px;
+}
+.help-pb-list { display: flex; gap: 24px; flex-wrap: wrap; }
+.help-pb-list div { display: flex; flex-direction: column; gap: 4px; }
+.help-pb-list b { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--hot); }
+.help-pb-list span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .help-recent { margin-top: 18px; }
 .help-recent h4 {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;

@@ -1136,10 +1136,36 @@ const sessionStats = (() => {
 })();
 let statsTime = sessionStats.time || 0;
 let statsDepth = sessionStats.depth || 0;
-function saveSessionStats() { try {
-    localStorage.setItem(STATS_KEY, JSON.stringify({ time: statsTime, depth: statsDepth }));
+function saveSessionStats() {
+    try {
+        localStorage.setItem(STATS_KEY, JSON.stringify({ time: statsTime, depth: statsDepth }));
+    }
+    catch (e) { }
+    recordPersonalBest("longestSession", statsTime, { higherIsBetter: true });
 }
-catch (e) { } }
+// personal bests: smallest/largest recorded value per named metric, persisted locally
+function recordPersonalBest(key, value, opts = {}) {
+    try {
+        const pbKey = "singularity.pb." + key;
+        const existing = parseFloat(localStorage.getItem(pbKey) || "");
+        const isBetter = isNaN(existing) || (opts.higherIsBetter ? value > existing : value < existing);
+        if (isBetter) {
+            localStorage.setItem(pbKey, String(value));
+            if (opts.announce)
+                toast(opts.announce);
+        }
+    }
+    catch (e) { /* storage unavailable */ }
+}
+function getPersonalBest(key) {
+    try {
+        const v = parseFloat(localStorage.getItem("singularity.pb." + key) || "");
+        return isNaN(v) ? null : v;
+    }
+    catch (e) {
+        return null;
+    }
+}
 function formatStatsTime(sec) {
     const m = Math.floor(sec / 60), h = Math.floor(m / 60);
     if (h > 0)
@@ -1149,6 +1175,21 @@ function formatStatsTime(sec) {
     return `${Math.floor(sec)}s`;
 }
 window.addEventListener("pagehide", saveSessionStats);
+function renderPersonalBests() {
+    const list = document.getElementById("help-pb-list");
+    if (!list)
+        return;
+    const fastest = getPersonalBest("fastestHorizon");
+    const longest = getPersonalBest("longestSession");
+    if (fastest === null && longest === null) {
+        list.innerHTML = `<span class="help-recent-empty">None yet — begin a journey or keep exploring to set your first record.</span>`;
+        return;
+    }
+    list.innerHTML = [
+        fastest !== null ? `<div><b>${fastest.toFixed(1)}s</b><span>Fastest to horizon</span></div>` : "",
+        longest !== null ? `<div><b>${formatStatsTime(longest)}</b><span>Longest session</span></div>` : "",
+    ].join("");
+}
 function updateStatsDisplay() {
     const t = document.getElementById("stat-time"), d = document.getElementById("stat-depth"), v = document.getElementById("stat-viewed");
     if (t)
@@ -1157,6 +1198,7 @@ function updateStatsDisplay() {
         d.textContent = statsDepth.toFixed(2) + " Bly";
     if (v)
         v.textContent = String(getViewedCount());
+    renderPersonalBests();
     const list = document.getElementById("help-recent-list");
     if (list) {
         const recent = getRecentlyViewed();
@@ -1411,6 +1453,7 @@ const SETTINGS_KEYS = [
     "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
     "singularity.customPresets", "singularity.compareHistory",
     "singularity.streak", "singularity.lastVisitDate",
+    "singularity.pb.fastestHorizon", "singularity.pb.longestSession",
 ];
 // ---------- reset all saved settings ----------
 let resetArmed = false;
@@ -1707,6 +1750,7 @@ const bootTimer = setInterval(() => {
         openObjectByName(pick.name);
     });
 })();
+let journeyStartTime = null;
 function beginJourney() {
     if (started)
         return;
@@ -1719,6 +1763,7 @@ function beginJourney() {
     progress = 0;
     targetProgress = 0;
     autoCruise = true;
+    journeyStartTime = performance.now();
     toast("Launching… scroll or ← → to steer · Space to pause.");
     pokeIdle();
 }
@@ -1885,8 +1930,13 @@ function tick() {
         unlockAchievement("time-traveler");
     if (statsDepth >= 2)
         unlockAchievement("deep-diver");
-    if (mode === "journey" && progress >= 0.999)
+    if (mode === "journey" && progress >= 0.999) {
         unlockAchievement("horizon-crosser");
+        if (journeyStartTime !== null) {
+            recordPersonalBest("fastestHorizon", (performance.now() - journeyStartTime) / 1000, { announce: "🏅 New personal best — fastest to the horizon!" });
+            journeyStartTime = null;
+        }
+    }
     // HUD
     frame++;
     pushSpark(dt);
