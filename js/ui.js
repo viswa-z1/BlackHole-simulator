@@ -809,6 +809,29 @@ function buildCatalog() {
             pickCompare(decodeURIComponent(c.dataset.cmpname));
         }
     });
+    // hover a card to preview its fact in a floating tooltip
+    const tooltip = document.getElementById("cat-tooltip");
+    grid.addEventListener("mouseover", (e) => {
+        const card = e.target.closest(".obj-card");
+        if (!tooltip || !card)
+            return;
+        const o = REGISTRY.get(decodeURIComponent(card.dataset.name));
+        if (o)
+            tooltip.innerHTML = `<b>${o.tag}</b> ${o.fact}`;
+    });
+    grid.addEventListener("mousemove", (e) => {
+        const card = e.target.closest(".obj-card");
+        if (!tooltip)
+            return;
+        if (!card) {
+            tooltip.classList.remove("show");
+            return;
+        }
+        tooltip.style.left = e.clientX + "px";
+        tooltip.style.top = e.clientY + "px";
+        tooltip.classList.add("show");
+    });
+    grid.addEventListener("mouseleave", () => tooltip?.classList.remove("show"));
     document.querySelectorAll(".cat-tabs button").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".cat-tabs button").forEach(b => b.classList.remove("active"));

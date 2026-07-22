@@ -852,6 +852,17 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 #cosmos-label b { font-size: 13.5px; color: var(--fg); }
 #cosmos-label span { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; color: var(--accent2); text-transform: uppercase; }
 
+/* catalog card hover preview */
+#cat-tooltip {
+  position: fixed; z-index: 150; pointer-events: none;
+  transform: translate(-50%, calc(-100% - 14px)); padding: 10px 14px; border-radius: 12px;
+  background: var(--glass-strong); border: 1px solid var(--glass-brd);
+  backdrop-filter: blur(12px); opacity: 0; transition: opacity .18s ease;
+  max-width: 260px; font-size: 12.5px; line-height: 1.5; color: var(--fg);
+}
+#cat-tooltip.show { opacity: 1; }
+#cat-tooltip b { color: var(--hot); }
+
 /* cosmos anomaly info card */
 .cosmos-card {
   position: fixed; left: 24px; bottom: 36px; z-index: 26; width: 330px;
