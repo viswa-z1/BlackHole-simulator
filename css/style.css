@@ -493,6 +493,8 @@ a { color: var(--accent2); text-decoration: none; }
 .dstat .val { color: var(--fg); font-family: var(--mono); font-size: 14px; }
 .detail-desc { color: var(--fg); font-size: 14.5px; line-height: 1.7; margin-bottom: 24px; }
 .detail-desc b { color: var(--hot); font-weight: 600; }
+.detail-scale { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin: -8px 0 18px; }
+.detail-scale b { color: var(--accent2); font-weight: 600; }
 .detail-source {
   display: inline-block; font-size: 13px; font-weight: 500;
   color: var(--accent2); border: 1px solid rgba(77,181,255,0.35);
@@ -1317,7 +1319,8 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
   .detail-close, .detail-nav, .detail-cosmos-link, .detail-print, .detail-source { display: none !important; }
   .detail-modal.open .detail-desc, .detail-modal.open .detail-alias,
   .detail-modal.open .dstat .val, .detail-modal.open .dstat .lab,
-  .detail-modal.open .detail-name, .detail-modal.open .detail-notes textarea { color: #000 !important; }
+  .detail-modal.open .detail-name, .detail-modal.open .detail-notes textarea,
+  .detail-modal.open .detail-scale { color: #000 !important; }
   .detail-notes textarea { border: 1px solid #999; }
 }
 
