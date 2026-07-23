@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -687,6 +687,12 @@ function openCosmosCard(d) {
     document.getElementById("cc-kind").textContent = d.kind;
     document.getElementById("cc-name").textContent = d.name;
     document.getElementById("cc-dist").textContent = "Distance · " + d.dist;
+    const scaleEl = document.getElementById("cc-scale");
+    const ly = parseSci(d.dist || "");
+    if (scaleEl) {
+        scaleEl.innerHTML = ly > 0 ? distancePerspective(ly) : "";
+        scaleEl.style.display = ly > 0 ? "" : "none";
+    }
     document.getElementById("cc-blurb").textContent = d.blurb;
     const favBtn = document.getElementById("cc-fav");
     if (favBtn) {

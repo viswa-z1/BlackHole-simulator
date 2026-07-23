@@ -885,6 +885,8 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 .cc-kind { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--cc-accent, var(--accent2)); }
 .cosmos-card h3 { font-size: 21px; margin: 8px 0 2px; }
 .cc-dist { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.cc-scale { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin: -6px 0 12px; }
+.cc-scale b { color: var(--cc-accent, var(--accent2)); font-weight: 600; }
 .cosmos-card p { font-size: 13.5px; line-height: 1.6; color: var(--muted); }
 .cc-nearby-wrap { margin-top: 14px; }
 .cc-nearby-wrap h4 {

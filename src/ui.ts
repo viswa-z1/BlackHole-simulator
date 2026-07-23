@@ -262,18 +262,8 @@ function openDetail(o) {
   // distance in human terms: light-travel time + a relatable age comparison
   const scaleEl = document.getElementById("detail-scale");
   const ly = parseSci(o.distance || "");
-  if (scaleEl && ly > 0) {
-    const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    let analogy: string;
-    if (ly < 100) analogy = "light left there within a human lifetime.";
-    else if (ly < 5000) analogy = "about as long ago as the Great Pyramid of Giza was built (~4,500 years).";
-    else if (ly < 300000) analogy = "longer than Homo sapiens has existed as a species (~300,000 years).";
-    else if (ly < 66000000) analogy = "longer ago than the dinosaurs went extinct (~66 million years).";
-    else if (ly < 4600000000) analogy = "a meaningful fraction of Earth's entire age (~4.6 billion years).";
-    else analogy = "close to the age of the universe itself (~13.8 billion years).";
-    scaleEl.innerHTML = `Light takes <b>${fmt(ly)} years</b> to reach us from here — ${analogy}`;
-    scaleEl.style.display = "";
-  } else if (scaleEl) scaleEl.style.display = "none";
+  if (scaleEl && ly > 0) { scaleEl.innerHTML = distancePerspective(ly); scaleEl.style.display = ""; }
+  else if (scaleEl) scaleEl.style.display = "none";
 
   document.getElementById("detail-desc").innerHTML = `<b>${o.tag}</b> ${o.fact}`;
   (document.getElementById("detail-source") as HTMLAnchorElement).href = o.source;
@@ -626,13 +616,25 @@ function listFor(cat) {
 }
 
 // parse "53.5 million ly" / "6.5 billion M☉" / "7,200 ly" → comparable number
-function parseSci(s: string): number {
+export function parseSci(s: string): number {
   if (!s) return 0;
   const m = s.replace(/,/g, "").match(/([\d.]+)/);
   let n = m ? parseFloat(m[1]) : 0;
   if (/billion|Bly/i.test(s)) n *= 1e9;
   else if (/million|Mly/i.test(s)) n *= 1e6;
   return n;
+}
+// distance in human terms: light-travel time + a relatable age comparison
+export function distancePerspective(ly: number): string {
+  const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  let analogy: string;
+  if (ly < 100) analogy = "light left there within a human lifetime.";
+  else if (ly < 5000) analogy = "about as long ago as the Great Pyramid of Giza was built (~4,500 years).";
+  else if (ly < 300000) analogy = "longer than Homo sapiens has existed as a species (~300,000 years).";
+  else if (ly < 66000000) analogy = "longer ago than the dinosaurs went extinct (~66 million years).";
+  else if (ly < 4600000000) analogy = "a meaningful fraction of Earth's entire age (~4.6 billion years).";
+  else analogy = "close to the age of the universe itself (~13.8 billion years).";
+  return `Light takes <b>${fmt(ly)} years</b> to reach us from here — ${analogy}`;
 }
 // pull a sortable 4-digit year out of free-text discovery notes ("1967 by Jocelyn Bell Burnell")
 function parseYear(s: string): number {
