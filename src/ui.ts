@@ -100,6 +100,11 @@ function renderAchievements() {
       <span class="ach-icon">${unlocked ? "🏆" : "🔒"}</span><span class="ach-label">${a.label}</span>
     </div>`;
   }).join("");
+  const total = Object.keys(ACHIEVEMENTS).length;
+  const fill = document.getElementById("ach-progress-fill") as HTMLElement | null;
+  const label = document.getElementById("ach-progress-label");
+  if (fill) fill.style.width = (unlockedAchievements.size / total * 100).toFixed(1) + "%";
+  if (label) label.textContent = `${unlockedAchievements.size} / ${total}`;
 }
 export function unlockAchievement(id: string) {
   if (unlockedAchievements.has(id) || !ACHIEVEMENTS[id]) return;
