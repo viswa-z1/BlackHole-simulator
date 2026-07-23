@@ -77,6 +77,18 @@ const STAT_LABELS = {
   spin: "Spin (a)", constellation: "Constellation", discovered: "Discovered",
   period: "Spin Period", field: "Magnetic Field", age: "Age",
 };
+const STAT_EXPLANATIONS: Record<string, string> = {
+  type: "The broad category or subtype this object belongs to.",
+  mass: "How much matter the object contains, measured in solar masses (M☉) — one Sun's worth.",
+  distance: "How far away the object is from Earth, in light-years.",
+  diameter: "The width of the event horizon — the point of no return where nothing, not even light, can escape.",
+  spin: "The object's spin parameter (a), from 0 (non-rotating) to just under 1 (spinning near the theoretical maximum).",
+  constellation: "The constellation this object appears within, as seen from Earth.",
+  discovered: "When this object was first identified or confirmed by astronomers.",
+  period: "How long it takes the object to complete one full rotation.",
+  field: "The strength of the object's magnetic field, measured in gauss (G).",
+  age: "The estimated age of the object since it formed.",
+};
 
 // ---- achievements: small exploration milestones, persisted locally ----
 const ACH_KEY = "singularity.achievements";
@@ -245,7 +257,7 @@ function openDetail(o) {
   document.getElementById("detail-alias").textContent = o.alias;
   document.getElementById("detail-stats").innerHTML = keys
     .filter(k => o[k])
-    .map(k => `<div class="dstat"><span class="lab">${STAT_LABELS[k]}</span><span class="val">${o[k]}</span></div>`)
+    .map(k => `<div class="dstat"><span class="lab" data-stat-key="${k}">${STAT_LABELS[k]}</span><span class="val">${o[k]}</span></div>`)
     .join("");
   // mass scale bar (log₁₀ vs the Sun); hidden when the object has no mass
   const ms = document.getElementById("mass-scale");
@@ -309,6 +321,25 @@ function wireDetail() {
   modal.querySelector("[data-detail-close]").addEventListener("click", close);
   modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+
+  // hover a stat label to see a plain-English explanation, reusing the catalog card tooltip
+  const statTooltip = document.getElementById("cat-tooltip");
+  const statsEl = document.getElementById("detail-stats");
+  statsEl?.addEventListener("mouseover", (e) => {
+    const lab = (e.target as HTMLElement).closest(".lab") as HTMLElement | null;
+    if (!statTooltip || !lab) return;
+    const explain = STAT_EXPLANATIONS[lab.dataset.statKey || ""];
+    if (explain) statTooltip.textContent = explain;
+  });
+  statsEl?.addEventListener("mousemove", (e) => {
+    const lab = (e.target as HTMLElement).closest(".lab");
+    if (!statTooltip) return;
+    if (!lab) { statTooltip.classList.remove("show"); return; }
+    statTooltip.style.left = (e as MouseEvent).clientX + "px";
+    statTooltip.style.top = (e as MouseEvent).clientY + "px";
+    statTooltip.classList.add("show");
+  });
+  statsEl?.addEventListener("mouseleave", () => statTooltip?.classList.remove("show"));
 
   // step through the currently rendered list from inside the modal
   const stepDetail = (dir: number) => {
