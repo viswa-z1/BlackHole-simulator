@@ -1324,6 +1324,16 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 }
 .cc-compare:hover { transform: scale(1.15); color: #fff; border-color: var(--accent); }
 
+/* measure-distance pin button on the cosmos figure card */
+.cc-measure {
+  position: absolute; top: 12px; right: 166px; z-index: 2;
+  width: 28px; height: 28px; border-radius: 50%; font-size: 13px; line-height: 1;
+  background: none; border: 1px solid var(--glass-brd); color: rgba(255,255,255,0.6);
+  cursor: pointer; transition: all .2s var(--ease-spring);
+}
+.cc-measure:hover { transform: scale(1.15); color: #fff; border-color: var(--accent); }
+.cc-measure.pinned { background: rgba(77,181,255,0.22); border-color: var(--accent2); color: #cfeaff; }
+
 /* cross-link button: catalog detail -> matching cosmos entity */
 .detail-cosmos-link {
   display: block; margin-top: 10px; font-family: var(--font); font-size: 12.5px;

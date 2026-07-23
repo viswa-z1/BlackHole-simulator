@@ -597,6 +597,12 @@ function nearestAnomalies(idx: number, n = 3) {
     .sort((a: any, b: any) => a.d - b.d)
     .slice(0, n);
 }
+let measurePin: string | null = null;
+function formatLy(n: number): string {
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + " billion ly";
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + " million ly";
+  return Math.round(n).toLocaleString() + " ly";
+}
 function openCosmosCard(d) {
   recordObjectView(d.name);
   cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
@@ -613,6 +619,7 @@ function openCosmosCard(d) {
   if (favBtn) { favBtn.textContent = cosmosFavs.has(d.name) ? "★" : "☆"; favBtn.classList.toggle("on", cosmosFavs.has(d.name)); }
   const compareBtn = document.getElementById("cc-compare") as HTMLElement;
   if (compareBtn) compareBtn.style.display = cosmosEntityHasCatalogMatch(d.name) ? "" : "none";
+  document.getElementById("cc-measure")?.classList.toggle("pinned", measurePin === d.name);
   const nearEl = document.getElementById("cc-nearby");
   const idx = cosmos.anomalies.findIndex((a: any) => a.data.name === d.name);
   if (nearEl && idx >= 0) {
@@ -629,6 +636,32 @@ document.getElementById("cc-nearby")?.addEventListener("click", (e) => {
 document.getElementById("cc-compare")?.addEventListener("click", () => {
   const name = document.getElementById("cc-name").textContent;
   if (name) compareCosmosEntity(name);
+});
+document.getElementById("cc-measure")?.addEventListener("click", () => {
+  const name = document.getElementById("cc-name").textContent;
+  const btn = document.getElementById("cc-measure");
+  if (!name) return;
+  if (!measurePin) {
+    measurePin = name;
+    btn?.classList.add("pinned");
+    toast(`Pinned ${name} — open another entity and tap 📏 to compare distances.`);
+    return;
+  }
+  if (measurePin === name) {
+    measurePin = null;
+    btn?.classList.remove("pinned");
+    toast("Measurement pin cleared.");
+    return;
+  }
+  const a = ANOMALIES.find((x: any) => x.name === measurePin);
+  const b = ANOMALIES.find((x: any) => x.name === name);
+  measurePin = null;
+  btn?.classList.remove("pinned");
+  if (!a || !b) return;
+  const lyA = parseSci(a.dist), lyB = parseSci(b.dist);
+  const diff = Math.abs(lyA - lyB);
+  const farther = lyA > lyB ? a.name : b.name;
+  toast(`${a.name}: ${formatLy(lyA)} · ${b.name}: ${formatLy(lyB)} · ${farther} is ${formatLy(diff)} farther from Earth`);
 });
 document.getElementById("cc-fav")?.addEventListener("click", () => {
   const name = document.getElementById("cc-name").textContent;
