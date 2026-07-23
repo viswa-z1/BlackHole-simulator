@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -927,6 +927,28 @@ document.getElementById("collection-cosmos-grid")?.addEventListener("click", (e)
   location.hash = "cosmos/" + btn.dataset.cosIdx;
 });
 window.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleCollection(false); });
+
+// clear every favorite (catalog + cosmos), two-step arm/confirm to avoid accidental data loss
+let clearFavsArmed = false;
+document.getElementById("collection-clear-btn")?.addEventListener("click", (e) => {
+  const btn = e.target as HTMLElement;
+  if (!clearFavsArmed) {
+    clearFavsArmed = true;
+    btn.textContent = "Tap again to confirm";
+    btn.classList.add("armed");
+    setTimeout(() => { clearFavsArmed = false; btn.textContent = "🗑 Clear all"; btn.classList.remove("armed"); }, 3000);
+    return;
+  }
+  clearFavsArmed = false;
+  btn.textContent = "🗑 Clear all";
+  btn.classList.remove("armed");
+  clearCatalogFavorites();
+  cosmosFavs.clear();
+  saveCosmosFavs();
+  refreshCosmosFavCount();
+  renderCollection();
+  toast("All favorites cleared.");
+});
 
 // composite every favorited portrait (catalog + cosmos) into one downloadable poster
 document.getElementById("collection-poster-btn")?.addEventListener("click", () => {

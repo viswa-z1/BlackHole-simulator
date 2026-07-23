@@ -405,6 +405,11 @@ function updateFavCount() {
 export function getCatalogFavorites(): any[] {
   return [...favs].map(name => REGISTRY.get(name)).filter(Boolean);
 }
+export function clearCatalogFavorites() {
+  favs.clear();
+  try { localStorage.setItem(FAV_KEY, JSON.stringify([])); } catch (e) {}
+  updateFavCount();
+}
 function toggleFav(name: string) {
   favs.has(name) ? favs.delete(name) : favs.add(name);
   try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch (e) {}
