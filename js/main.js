@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -1742,6 +1742,84 @@ document.getElementById("help-export-notes")?.addEventListener("click", () => {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast(`Exported ${names.length} note${names.length === 1 ? "" : "s"}.`);
 });
+document.getElementById("help-download-badge")?.addEventListener("click", () => {
+    const list = getAchievementsList();
+    const unlockedN = list.filter(a => a.unlocked).length;
+    const cols = 2, cellW = 380, cellH = 90, pad = 24, headerH = 100;
+    const rows = Math.ceil(list.length / cols);
+    const W = cols * cellW + pad * (cols + 1);
+    const H = headerH + rows * cellH + pad * (rows + 1);
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx)
+        return;
+    ctx.fillStyle = "#070914";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 32px sans-serif";
+    ctx.fillText("My Achievements", pad, 46);
+    ctx.font = "16px sans-serif";
+    ctx.fillStyle = "#ffd98a";
+    ctx.fillText(`${unlockedN} / ${list.length} unlocked — SINGULARITY`, pad, 72);
+    list.forEach((a, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = pad + col * (cellW + pad), y = headerH + pad + row * (cellH + pad);
+        ctx.fillStyle = a.unlocked ? "rgba(255,217,138,0.14)" : "rgba(255,255,255,0.04)";
+        ctx.strokeStyle = a.unlocked ? "rgba(255,217,138,0.5)" : "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, x, y, cellW - pad, cellH, 14);
+        ctx.fill();
+        ctx.stroke();
+        ctx.font = "30px sans-serif";
+        ctx.fillStyle = a.unlocked ? "#ffd98a" : "#5a6280";
+        ctx.fillText(a.unlocked ? "🏆" : "🔒", x + 16, y + 46);
+        ctx.font = "bold 15px sans-serif";
+        ctx.fillStyle = a.unlocked ? "#ffffff" : "#7d8bb3";
+        ctx.fillText(a.label, x + 60, y + 34);
+        ctx.font = "12.5px sans-serif";
+        ctx.fillStyle = "#8b96b8";
+        wrapCanvasText(ctx, a.desc, x + 60, y + 54, cellW - pad - 76, 16);
+    });
+    const a2 = document.createElement("a");
+    a2.href = canvas.toDataURL("image/png");
+    a2.download = "my-achievements.png";
+    document.body.appendChild(a2);
+    a2.click();
+    a2.remove();
+    toast("Achievements badge downloaded.");
+});
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 2) {
+    const words = text.split(/\s+/);
+    let line = "", lines = 0;
+    for (const word of words) {
+        const test = line ? line + " " + word : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+            ctx.fillText(line, x, y);
+            y += lineHeight;
+            line = word;
+            lines++;
+            if (lines >= maxLines - 1) {
+                ctx.fillText(words.slice(words.indexOf(word)).join(" "), x, y);
+                return;
+            }
+        }
+        else
+            line = test;
+    }
+    if (line)
+        ctx.fillText(line, x, y);
+}
 function reveal() {
     if (revealed)
         return;

@@ -135,6 +135,9 @@ export function unlockAchievement(id) {
     window.dispatchEvent(new CustomEvent("singularity:achievement"));
 }
 export function getAchievementCounts() { return { unlocked: unlockedAchievements.size, total: Object.keys(ACHIEVEMENTS).length }; }
+export function getAchievementsList() {
+    return Object.entries(ACHIEVEMENTS).map(([id, a]) => ({ id, label: a.label, desc: a.desc, unlocked: unlockedAchievements.has(id) }));
+}
 // distinct-objects-viewed tracker, shared between the catalog and cosmos figures
 const VIEWED_KEY = "singularity.stats.viewed";
 const viewedNames = new Set((() => { try {
