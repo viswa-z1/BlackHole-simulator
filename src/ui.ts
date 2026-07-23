@@ -147,6 +147,11 @@ export function recordObjectView(name: string) {
   try { localStorage.setItem(RECENT_KEY, JSON.stringify(recentViews)); } catch (e) {}
 }
 export function getViewedCount(): number { return viewedNames.size; }
+export function getCatalogChecklist(): Array<{ name: string; category: string; viewed: boolean; favorited: boolean }> {
+  return [...BLACK_HOLES, ...PULSARS].map(o => ({
+    name: o.name, category: o.category, viewed: viewedNames.has(o.name), favorited: favs.has(o.name),
+  }));
+}
 export function openNextUnviewed(): boolean {
   const next = [...BLACK_HOLES, ...PULSARS].find(o => !viewedNames.has(o.name));
   if (!next) return false;
@@ -779,6 +784,25 @@ function buildCatalog() {
   document.getElementById("cat-next-unviewed")?.addEventListener("click", () => {
     if (!openNextUnviewed()) toast("You've viewed every object in the catalog! 🎉");
   });
+  document.getElementById("cat-print-checklist")?.addEventListener("click", () => {
+    const items = getCatalogChecklist();
+    const sheet = document.getElementById("cat-print-sheet");
+    if (!sheet) return;
+    const viewedN = items.filter(i => i.viewed).length;
+    sheet.innerHTML = `
+      <div class="cps-title">The Cosmic Catalog — Field Checklist</div>
+      <div class="cps-sub">${viewedN} / ${items.length} viewed · printed ${new Date().toLocaleDateString()}</div>
+      ${items.map(i => `
+        <div class="cps-row${i.viewed ? " cps-viewed" : ""}">
+          <span class="cps-check"></span>
+          <span class="cps-name">${i.name}</span>
+          <span class="cps-cat">${i.category}</span>
+          ${i.favorited ? `<span class="cps-star">★</span>` : ""}
+        </div>`).join("")}`;
+    document.body.classList.add("printing-catalog");
+    window.print();
+  });
+  window.addEventListener("afterprint", () => document.body.classList.remove("printing-catalog"));
   document.getElementById("cmp-random")?.addEventListener("click", () => {
     const pool = listFor(cat === "fav" && !listFor("fav").length ? "all" : cat);
     if (pool.length < 2) { toast("Not enough objects to compare."); return; }
