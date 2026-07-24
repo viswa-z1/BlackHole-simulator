@@ -508,6 +508,23 @@ document.getElementById("c-preset")?.addEventListener("change", (e) => {
   toast("Preset applied");
 });
 
+// ---------- [ / ] cycle through presets without opening the dropdown ----------
+function cyclePreset(dir: number) {
+  const select = document.getElementById("c-preset") as HTMLSelectElement;
+  if (!select) return;
+  const options = [...select.options];
+  if (!options.length) return;
+  const i = ((select.selectedIndex + dir) % options.length + options.length) % options.length;
+  select.selectedIndex = i;
+  select.dispatchEvent(new Event("change"));
+}
+window.addEventListener("keydown", (e) => {
+  if ((e.key === "[" || e.key === "]") && !e.metaKey && !e.ctrlKey && page !== "cosmos"
+    && !document.querySelector(".panel.open, .detail-modal.open, .help-modal.open, input:focus, textarea:focus")) {
+    cyclePreset(e.key === "]" ? 1 : -1);
+  }
+});
+
 // ---------- mass unit converter (solar masses -> kg / Earth masses) ----------
 function formatBigNumber(n: number): string {
   if (!isFinite(n)) return "—";
