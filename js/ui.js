@@ -86,6 +86,11 @@ const STAT_EXPLANATIONS = {
     field: "The strength of the object's magnetic field, measured in gauss (G).",
     age: "The estimated age of the object since it formed.",
 };
+const CATEGORY_GLOSSARY = {
+    blackhole: "An object so dense that nothing, not even light, can escape its gravity once past the event horizon.",
+    quasar: "A supermassive black hole actively feeding on surrounding gas, outshining every star in its galaxy combined.",
+    pulsar: "A rapidly rotating neutron star that sweeps a beam of radiation past Earth like a lighthouse.",
+};
 // ---- achievements: small exploration milestones, persisted locally ----
 const ACH_KEY = "singularity.achievements";
 const ACHIEVEMENTS = {
@@ -918,6 +923,29 @@ function buildCatalog() {
             document.querySelector("#panel-catalog .panel-inner")?.scrollTo({ top: 0, behavior: "smooth" });
         });
     });
+    // hover a category tab to see a plain-English explanation of the term
+    const catTabsEl = document.querySelector(".cat-tabs");
+    catTabsEl?.addEventListener("mouseover", (e) => {
+        const btn = e.target.closest("button[data-cat]");
+        if (!tooltip || !btn)
+            return;
+        const explain = CATEGORY_GLOSSARY[btn.dataset.cat || ""];
+        if (explain)
+            tooltip.textContent = explain;
+    });
+    catTabsEl?.addEventListener("mousemove", (e) => {
+        const btn = e.target.closest("button[data-cat]");
+        if (!tooltip)
+            return;
+        if (!btn || !CATEGORY_GLOSSARY[btn.dataset.cat || ""]) {
+            tooltip.classList.remove("show");
+            return;
+        }
+        tooltip.style.left = e.clientX + "px";
+        tooltip.style.top = e.clientY + "px";
+        tooltip.classList.add("show");
+    });
+    catTabsEl?.addEventListener("mouseleave", () => tooltip?.classList.remove("show"));
     document.querySelectorAll(".cat-dist-tabs button").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".cat-dist-tabs button").forEach(b => b.classList.remove("active"));
