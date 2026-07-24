@@ -377,6 +377,20 @@ function wireDetail() {
         if (readBtn)
             readBtn.textContent = "🔊 Read aloud";
     };
+    // click a portrait to see it larger in a lightbox
+    const lightbox = document.getElementById("portrait-lightbox");
+    const lightboxImg = document.getElementById("portrait-lightbox-img");
+    document.getElementById("detail-img")?.addEventListener("click", () => {
+        const src = document.getElementById("detail-img")?.src;
+        if (!src || !lightbox || !lightboxImg)
+            return;
+        lightboxImg.src = src;
+        lightboxImg.alt = document.getElementById("detail-img").alt;
+        lightbox.classList.add("open");
+    });
+    lightbox?.addEventListener("click", () => lightbox.classList.remove("open"));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape")
+        lightbox?.classList.remove("open"); });
     document.getElementById("cat-grid").addEventListener("click", (e) => {
         const card = e.target.closest(".obj-card");
         if (!card)

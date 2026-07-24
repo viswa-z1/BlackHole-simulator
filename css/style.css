@@ -470,7 +470,7 @@ a { color: var(--accent2); text-decoration: none; }
 }
 .detail-modal.open .detail-inner { transform: translateY(0) scale(1); }
 .detail-visual { position: relative; background: #02030a; min-height: 320px; }
-.detail-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.detail-visual img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
 .detail-visual-tag {
   position: absolute; bottom: 12px; left: 14px;
   font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.04em;
@@ -1518,3 +1518,15 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
   padding: 8px 10px; border-radius: 999px; transition: all .2s var(--ease);
 }
 .dock-io-btn:hover { border-color: var(--accent2); color: #cfeaff; }
+
+/* portrait lightbox: click a detail-modal portrait to see it larger */
+.portrait-lightbox {
+  position: fixed; inset: 0; z-index: 170; display: flex; align-items: center; justify-content: center;
+  background: rgba(2,3,10,0.9); backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity .25s ease; padding: 40px;
+}
+.portrait-lightbox.open { opacity: 1; pointer-events: auto; }
+.portrait-lightbox img {
+  max-width: 100%; max-height: 100%; border-radius: 14px; cursor: zoom-out;
+  box-shadow: 0 30px 100px rgba(0,0,0,0.8);
+}
