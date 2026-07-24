@@ -1265,12 +1265,13 @@ const sessionStats = (() => {
 })();
 let statsTime = sessionStats.time || 0;
 let statsDepth = sessionStats.depth || 0;
+let currentSessionTime = 0; // this-visit-only elapsed time, unlike statsTime which is cumulative forever
 function saveSessionStats() {
     try {
         localStorage.setItem(STATS_KEY, JSON.stringify({ time: statsTime, depth: statsDepth }));
     }
     catch (e) { }
-    recordPersonalBest("longestSession", statsTime, { higherIsBetter: true });
+    recordPersonalBest("longestSession", currentSessionTime, { higherIsBetter: true });
 }
 // personal bests: smallest/largest recorded value per named metric, persisted locally
 function recordPersonalBest(key, value, opts = {}) {
@@ -2127,8 +2128,10 @@ function tick() {
     if (page !== "cosmos")
         audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
     // session stats: real wall-clock time explored + deepest cosmos dive, persisted periodically
-    if (revealed)
+    if (revealed) {
         statsTime += dt;
+        currentSessionTime += dt;
+    }
     if (page === "cosmos")
         statsDepth = Math.max(statsDepth, cosmos.zoom * 4.2);
     if (frame % 300 === 0)
