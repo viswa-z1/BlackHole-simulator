@@ -327,6 +327,10 @@ function refreshStage() {
   const idx = stageForProgress(progress);
   if (idx !== currentStage) {
     currentStage = idx;
+    try {
+      const stored = parseInt(localStorage.getItem("singularity.furthestStage") || "-1", 10);
+      if (idx > stored) localStorage.setItem("singularity.furthestStage", String(idx));
+    } catch (e) { /* storage unavailable */ }
     const s = STAGES[idx];
     stageEl.classList.remove("show");
     void stageEl.offsetWidth;
@@ -1146,13 +1150,16 @@ function renderPersonalBests() {
   if (!list) return;
   const fastest = getPersonalBest("fastestHorizon");
   const longest = getPersonalBest("longestSession");
-  if (fastest === null && longest === null) {
+  const stageIdx = (() => { try { return parseInt(localStorage.getItem("singularity.furthestStage") || "", 10); } catch (e) { return NaN; } })();
+  const furthestStage = !isNaN(stageIdx) && STAGES[stageIdx] ? STAGES[stageIdx].label : null;
+  if (fastest === null && longest === null && furthestStage === null) {
     list.innerHTML = `<span class="help-recent-empty">None yet — begin a journey or keep exploring to set your first record.</span>`;
     return;
   }
   list.innerHTML = [
     fastest !== null ? `<div><b>${fastest.toFixed(1)}s</b><span>Fastest to horizon</span></div>` : "",
     longest !== null ? `<div><b>${formatStatsTime(longest)}</b><span>Longest session</span></div>` : "",
+    furthestStage !== null ? `<div><b>${furthestStage}</b><span>Furthest stage reached</span></div>` : "",
   ].join("");
 }
 function updateStatsDisplay() {
@@ -1369,7 +1376,7 @@ const SETTINGS_KEYS = [
   "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
   "singularity.customPresets", "singularity.compareHistory",
   "singularity.streak", "singularity.lastVisitDate",
-  "singularity.pb.fastestHorizon", "singularity.pb.longestSession",
+  "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
 
 // ---------- reset all saved settings ----------
