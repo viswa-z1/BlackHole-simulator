@@ -671,6 +671,16 @@ const KIND_TO_PORTRAIT = {
     "Magnetar": "magnetar", "Neutron Star": "neutron", "Nebula": "supermassive",
     "Merger": "binary", "Wormhole": "supermassive",
 };
+const COSMOS_KIND_GLOSSARY = {
+    "Black Hole": "An object so dense that nothing, not even light, can escape its gravity once past the event horizon.",
+    "Quasar": "A supermassive black hole actively feeding on surrounding gas, outshining every star in its galaxy combined.",
+    "Pulsar": "A rapidly rotating neutron star that sweeps a beam of radiation past Earth like a lighthouse.",
+    "Magnetar": "A neutron star with an extraordinarily powerful magnetic field, trillions of times stronger than Earth's.",
+    "Neutron Star": "The ultra-dense collapsed core of a massive star, packing more mass than the Sun into a city-sized sphere.",
+    "Nebula": "A vast cloud of gas and dust in space, often the remnant of a dying star or a nursery for new ones.",
+    "Merger": "The violent collision and combination of two massive objects, like colliding black holes, releasing immense energy.",
+    "Wormhole": "A theoretical tunnel through spacetime that could connect two distant points — allowed by relativity, never observed.",
+};
 // cosmos favorites (persisted), independent of the catalog's favorites
 const COS_FAV_KEY = "singularity.cosmosFavs";
 const cosmosFavs = new Set((() => { try {
@@ -860,6 +870,29 @@ document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.
         else
             cosmos.filterKind(kind);
     }));
+    // hover a kind chip to see a plain-English explanation of the term
+    const kindTooltip = document.getElementById("cat-tooltip");
+    bar.addEventListener("mouseover", (e) => {
+        const b = e.target.closest(".cfilter");
+        if (!kindTooltip || !b)
+            return;
+        const explain = COSMOS_KIND_GLOSSARY[b.dataset.kind || ""];
+        if (explain)
+            kindTooltip.textContent = explain;
+    });
+    bar.addEventListener("mousemove", (e) => {
+        const b = e.target.closest(".cfilter");
+        if (!kindTooltip)
+            return;
+        if (!b || !COSMOS_KIND_GLOSSARY[b.dataset.kind || ""]) {
+            kindTooltip.classList.remove("show");
+            return;
+        }
+        kindTooltip.style.left = e.clientX + "px";
+        kindTooltip.style.top = e.clientY + "px";
+        kindTooltip.classList.add("show");
+    });
+    bar.addEventListener("mouseleave", () => kindTooltip?.classList.remove("show"));
 })();
 function refreshCosmosFavCount() { const el = document.getElementById("cos-fav-count"); if (el)
     el.textContent = String(cosmosFavs.size); }
