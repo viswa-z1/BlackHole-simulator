@@ -102,7 +102,7 @@ geodesic integration and the million-particle physics both run on the Mac's GPU.
 Everything in the vision is preserved — per-pixel light bending, RK4,
 Schwarzschild geodesics, ISCO, the glowing lensed ring. A true compute-shader
 1M-particle pipeline is a drop-in upgrade via **WebGPU** (Three's
-`WebGPURenderer` + TSL); the architecture is structured for it.
+`WebGPURenderer` + TSL); the architecture is structured for it. so it can run on browsers
 
 ## Physically modeled vs. artistic
 
