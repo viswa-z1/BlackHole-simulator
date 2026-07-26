@@ -306,6 +306,82 @@ function downloadObjectCard() {
     img.onerror = render;
     img.src = imgSrc;
 }
+function downloadCompareCard() {
+    const cols = [...document.querySelectorAll("#compare-grid .cmp-col")];
+    if (cols.length < 2)
+        return;
+    const data = cols.map(col => ({
+        name: col.querySelector("h3")?.textContent || "",
+        img: col.querySelector("img")?.src || "",
+        rows: [...col.querySelectorAll(".cmp-row")].map(r => [r.querySelector("span")?.textContent || "", r.querySelector("b")?.textContent || ""]),
+    }));
+    const colW = 460, imgH = 240, pad = 40, gap = 40;
+    const W = colW * 2 + gap + pad * 2;
+    const rowsMax = Math.max(...data.map(d => d.rows.length));
+    const H = imgH + 70 + rowsMax * 28 + 90;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx)
+        return;
+    ctx.fillStyle = "#070914";
+    ctx.fillRect(0, 0, W, H);
+    const imgs = [];
+    const renderAll = () => {
+        data.forEach((d, i) => {
+            const x = pad + i * (colW + gap);
+            const im = imgs[i];
+            if (im) {
+                const scale = Math.max(colW / im.width, imgH / im.height);
+                const dw = im.width * scale, dh = im.height * scale;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(x, 0, colW, imgH);
+                ctx.clip();
+                ctx.drawImage(im, x + (colW - dw) / 2, (imgH - dh) / 2, dw, dh);
+                ctx.restore();
+            }
+            let y = imgH + 46;
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 26px sans-serif";
+            ctx.fillText(d.name, x, y);
+            y += 34;
+            ctx.font = "14px monospace";
+            d.rows.forEach(([lab, val]) => {
+                ctx.fillStyle = "#7d8bb3";
+                ctx.fillText(String(lab), x, y);
+                ctx.fillStyle = "#e8ecf7";
+                ctx.fillText(String(val), x + 170, y);
+                y += 28;
+            });
+        });
+        ctx.strokeStyle = "rgba(120,150,220,0.25)";
+        ctx.beginPath();
+        ctx.moveTo(pad + colW + gap / 2, 20);
+        ctx.lineTo(pad + colW + gap / 2, H - 40);
+        ctx.stroke();
+        ctx.font = "13px sans-serif";
+        ctx.fillStyle = "#4a5578";
+        ctx.fillText("SINGULARITY — side by side", pad, H - 20);
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = `${data[0].name}-vs-${data[1].name}`.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() + ".png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast("Comparison card downloaded.");
+    };
+    let remaining = data.length;
+    data.forEach((d, i) => {
+        const im = new Image();
+        im.onload = () => { imgs[i] = im; if (--remaining === 0)
+            renderAll(); };
+        im.onerror = () => { if (--remaining === 0)
+            renderAll(); };
+        im.src = d.img;
+    });
+}
 function openDetail(o) {
     recordObjectView(o.name);
     const isPulsar = o.category === "pulsar";
@@ -667,6 +743,7 @@ function wireCompare() {
         modal.classList.remove("open"); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape")
         modal.classList.remove("open"); });
+    document.getElementById("compare-download-btn")?.addEventListener("click", () => downloadCompareCard());
     document.getElementById("compare-history-list")?.addEventListener("click", (e) => {
         const btn = e.target.closest("[data-a]");
         if (!btn)
