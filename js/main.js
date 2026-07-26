@@ -1563,6 +1563,19 @@ window.addEventListener("keydown", (e) => {
 // ---------- procedural ambient audio (swells near the horizon) ----------
 const audio = createAudio();
 window.addEventListener("singularity:achievement", () => audio.playChime());
+window.addEventListener("singularity:allachievements", () => {
+    document.getElementById("all-ach-modal")?.classList.add("open");
+    audio.playChime();
+});
+(function wireAllAchModal() {
+    const modal = document.getElementById("all-ach-modal");
+    const close = () => modal?.classList.remove("open");
+    document.getElementById("all-ach-close")?.addEventListener("click", close);
+    modal?.addEventListener("click", (e) => { if (e.target === modal)
+        close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape")
+        close(); });
+})();
 function toggleAudio() {
     const on = audio.toggle();
     const btn = document.getElementById("tool-audio");

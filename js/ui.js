@@ -138,6 +138,9 @@ export function unlockAchievement(id) {
     toast(`🏆 Achievement unlocked: ${ACHIEVEMENTS[id].label}`);
     renderAchievements();
     window.dispatchEvent(new CustomEvent("singularity:achievement"));
+    if (unlockedAchievements.size === Object.keys(ACHIEVEMENTS).length) {
+        window.dispatchEvent(new CustomEvent("singularity:allachievements"));
+    }
 }
 export function getAchievementCounts() { return { unlocked: unlockedAchievements.size, total: Object.keys(ACHIEVEMENTS).length }; }
 export function getAchievementsList() {
