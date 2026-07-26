@@ -79,6 +79,16 @@ function extendTrail(idx) {
     trailIndices.push(idx);
     trailGeo.setFromPoints(trailIndices.map(i => cosmos.anomalies[i].group.position));
 }
+// ---------- cosmos favorites-only trail: a distinct line through just your starred entities ----------
+const favTrailGeo = new THREE.BufferGeometry();
+const favTrailLine = new THREE.Line(favTrailGeo, new THREE.LineBasicMaterial({ color: 0xffd766, transparent: true, opacity: 0.55 }));
+favTrailLine.frustumCulled = false;
+favTrailLine.visible = false;
+cosmos.scene.add(favTrailLine);
+function updateFavTrail() {
+    const pts = cosmos.anomalies.filter((a) => cosmosFavs.has(a.data.name)).map((a) => a.group.position);
+    favTrailGeo.setFromPoints(pts.length ? pts : [new THREE.Vector3()]);
+}
 // smooth cross-fade around the scene swap (Vercel-style page transition)
 const pageFade = document.getElementById("page-fade");
 function crossfade(swap) {
@@ -805,6 +815,7 @@ document.getElementById("cc-fav")?.addEventListener("click", () => {
     favBtn.textContent = cosmosFavs.has(name) ? "★" : "☆";
     favBtn.classList.toggle("on", cosmosFavs.has(name));
     refreshCosmosFavCount();
+    updateFavTrail();
     toast(cosmosFavs.has(name) ? `${name} added to cosmos favorites` : `${name} removed from favorites`);
 });
 document.getElementById("cc-link")?.addEventListener("click", () => {
@@ -920,6 +931,12 @@ document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.
 })();
 function refreshCosmosFavCount() { const el = document.getElementById("cos-fav-count"); if (el)
     el.textContent = String(cosmosFavs.size); }
+updateFavTrail();
+document.getElementById("cos-fav-trail-toggle")?.addEventListener("click", (e) => {
+    favTrailLine.visible = !favTrailLine.visible;
+    e.currentTarget.classList.toggle("active", favTrailLine.visible);
+    toast(favTrailLine.visible ? "Favorites trail shown." : "Favorites trail hidden.");
+});
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => { cosmosCard.classList.remove("open"); cosmos.spotlight(-1); });
 // ---------- cosmos auto-tour ----------
 let tour = false, tourI = 0, tourT = 0;
@@ -1236,6 +1253,7 @@ document.getElementById("collection-clear-btn")?.addEventListener("click", (e) =
     cosmosFavs.clear();
     saveCosmosFavs();
     refreshCosmosFavCount();
+    updateFavTrail();
     renderCollection();
     toast("All favorites cleared.");
 });
