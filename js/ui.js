@@ -485,6 +485,21 @@ function wireDetail() {
         const text = `${name} — ${alias}\n${stats}\n\n${desc}`;
         navigator.clipboard?.writeText(text).then(() => toast("Object details copied to clipboard."), () => toast(text));
     });
+    document.getElementById("detail-native-share")?.addEventListener("click", async () => {
+        const name = document.getElementById("detail-name").textContent || "";
+        const alias = document.getElementById("detail-alias").textContent || "";
+        const url = `${location.origin}${location.pathname}#object/${encodeURIComponent(name)}`;
+        const shareData = { title: name, text: alias ? `${name} — ${alias}` : name, url };
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            }
+            catch (e) { /* user cancelled */ }
+        }
+        else {
+            navigator.clipboard?.writeText(url).then(() => toast("Link copied — your browser doesn't support the native share sheet."), () => toast(url));
+        }
+    });
     // cross-link into the cosmos: close everything here, then hand off via the hash router
     document.getElementById("detail-cosmos-link")?.addEventListener("click", (e) => {
         const idx = e.currentTarget.dataset.cosmosIndex;
