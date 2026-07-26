@@ -833,6 +833,24 @@ function stepAnomaly(dir) {
 document.getElementById("cc-prev")?.addEventListener("click", () => stepAnomaly(-1));
 document.getElementById("cc-next")?.addEventListener("click", () => stepAnomaly(1));
 document.getElementById("cos-random")?.addEventListener("click", () => showAnomaly(Math.floor(Math.random() * cosmos.anomalies.length)));
+document.getElementById("cos-fly-fav")?.addEventListener("click", () => {
+    if (!cosmosFavs.size) {
+        toast("No cosmos favorites yet — star an entity first.");
+        return;
+    }
+    let bestIdx = -1, bestDist = Infinity;
+    cosmos.anomalies.forEach((a, i) => {
+        if (!cosmosFavs.has(a.data.name))
+            return;
+        const d = a.group.position.distanceTo(cosmos.camera.position);
+        if (d < bestDist) {
+            bestDist = d;
+            bestIdx = i;
+        }
+    });
+    if (bestIdx >= 0)
+        showAnomaly(bestIdx);
+});
 document.getElementById("cos-zoom-in")?.addEventListener("click", () => cosmos.addZoom(0.08));
 document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.addZoom(-0.08));
 // cosmos entity search (datalist + Enter/pick jumps to the match)
