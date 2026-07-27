@@ -265,6 +265,16 @@ export function createCosmos(renderer) {
     toggleGrid() { grid.visible = !grid.visible; return grid.visible; },
     spotlight(i) { spotlightIndex = i; },  // dim all but anomaly i (i<0 clears); applied per-frame
     flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); },   // dive toward a depth
+    frameNames(names: Set<string>) {      // centre the view on the centroid of a group of named entities
+      const matched = anomalies.filter(a => names.has(a.data.name));
+      if (!matched.length) return 0;
+      const cx = matched.reduce((s, a) => s + a.group.position.x, 0) / matched.length;
+      const cy = matched.reduce((s, a) => s + a.group.position.y, 0) / matched.length;
+      const cz = matched.reduce((s, a) => s + a.group.position.z, 0) / matched.length;
+      zoomTarget = Math.max(0, Math.min(1, -cz / 1500));
+      pan.set(Math.max(-1.6, Math.min(1.6, cx / 70)), Math.max(-1.6, Math.min(1.6, -cy / 45)));
+      return matched.length;
+    },
     update(dt, time = 0) {
       zoom += (zoomTarget - zoom) * Math.min(1, dt * 2.2);
       scene.rotation.y += dt * 0.003;                          // slow ambient drift

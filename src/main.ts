@@ -776,6 +776,13 @@ document.getElementById("cos-fly-fav")?.addEventListener("click", () => {
   });
   if (bestIdx >= 0) showAnomaly(bestIdx);
 });
+document.getElementById("cos-frame-fav")?.addEventListener("click", () => {
+  if (!cosmosFavs.size) { toast("No cosmos favorites yet — star an entity first."); return; }
+  const n = cosmos.frameNames(cosmosFavs);
+  cosmos.spotlight(-1);
+  cosmosCard.classList.remove("open");
+  toast(n ? `Framing ${n} favorite${n === 1 ? "" : "s"} at once.` : "No cosmos favorites yet — star an entity first.");
+});
 document.getElementById("cos-zoom-in")?.addEventListener("click", () => cosmos.addZoom(0.08));
 document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.addZoom(-0.08));
 
