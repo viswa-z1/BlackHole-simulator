@@ -1446,6 +1446,18 @@ window.addEventListener("singularity:allachievements", () => {
   modal?.addEventListener("click", (e) => { if (e.target === modal) close(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 })();
+
+// ---------- secret achievement: the classic Konami code ----------
+(function konamiEasterEgg() {
+  const seq = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
+  let i = 0;
+  window.addEventListener("keydown", (e) => {
+    const key = e.key.toLowerCase();
+    i = key === seq[i] ? i + 1 : (key === seq[0] ? 1 : 0);
+    if (i === seq.length) { i = 0; unlockAchievement("konami"); }
+  });
+})();
+
 function toggleAudio() {
   const on = audio.toggle();
   const btn = document.getElementById("tool-audio");

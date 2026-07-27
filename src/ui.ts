@@ -97,7 +97,7 @@ const CATEGORY_GLOSSARY: Record<string, string> = {
 
 // ---- achievements: small exploration milestones, persisted locally ----
 const ACH_KEY = "singularity.achievements";
-const ACHIEVEMENTS: Record<string, { label: string; desc: string }> = {
+const ACHIEVEMENTS: Record<string, { label: string; desc: string; secret?: boolean }> = {
   "first-contact":   { label: "First Contact",     desc: "Viewed your first object" },
   "explorer":        { label: "Explorer",          desc: "Viewed 10 different objects" },
   "cataloger":       { label: "Master Cataloger",  desc: "Viewed all 40 catalog objects" },
@@ -106,18 +106,24 @@ const ACHIEVEMENTS: Record<string, { label: string; desc: string }> = {
   "time-traveler":   { label: "Time Traveler",     desc: "Explored for 5 minutes total" },
   "deep-diver":      { label: "Deep Diver",        desc: "Dove 2 billion light-years into the cosmos" },
   "note-taker":      { label: "Note Taker",        desc: "Wrote your first personal note" },
+  "konami":          { label: "Konami Cosmonaut",  desc: "Entered the classic cheat code", secret: true },
 };
 const unlockedAchievements = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(ACH_KEY) || "[]"); } catch (e) { return []; } })());
+// secret achievements stay entirely out of the list, counts, and exports until unlocked
+function visibleAchievementEntries() {
+  return Object.entries(ACHIEVEMENTS).filter(([id, a]) => !a.secret || unlockedAchievements.has(id));
+}
 function renderAchievements() {
   const el = document.getElementById("help-achievements-list");
   if (!el) return;
-  el.innerHTML = Object.entries(ACHIEVEMENTS).map(([id, a]) => {
+  const entries = visibleAchievementEntries();
+  el.innerHTML = entries.map(([id, a]) => {
     const unlocked = unlockedAchievements.has(id);
     return `<div class="ach${unlocked ? " unlocked" : ""}" data-ach-desc="${a.desc}">
       <span class="ach-icon">${unlocked ? "🏆" : "🔒"}</span><span class="ach-label">${a.label}</span>
     </div>`;
   }).join("");
-  const total = Object.keys(ACHIEVEMENTS).length;
+  const total = entries.length;
   const fill = document.getElementById("ach-progress-fill") as HTMLElement | null;
   const label = document.getElementById("ach-progress-label");
   if (fill) fill.style.width = (unlockedAchievements.size / total * 100).toFixed(1) + "%";
@@ -155,9 +161,9 @@ export function unlockAchievement(id: string) {
     window.dispatchEvent(new CustomEvent("singularity:allachievements"));
   }
 }
-export function getAchievementCounts() { return { unlocked: unlockedAchievements.size, total: Object.keys(ACHIEVEMENTS).length }; }
+export function getAchievementCounts() { const entries = visibleAchievementEntries(); return { unlocked: unlockedAchievements.size, total: entries.length }; }
 export function getAchievementsList(): Array<{ id: string; label: string; desc: string; unlocked: boolean }> {
-  return Object.entries(ACHIEVEMENTS).map(([id, a]) => ({ id, label: a.label, desc: a.desc, unlocked: unlockedAchievements.has(id) }));
+  return visibleAchievementEntries().map(([id, a]) => ({ id, label: a.label, desc: a.desc, unlocked: unlockedAchievements.has(id) }));
 }
 
 // distinct-objects-viewed tracker, shared between the catalog and cosmos figures
