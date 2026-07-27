@@ -1589,6 +1589,19 @@ document.getElementById("help-export-notes")?.addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast(`Exported ${names.length} note${names.length === 1 ? "" : "s"}.`);
 });
+document.getElementById("help-export-achievements")?.addEventListener("click", () => {
+  const list = getAchievementsList();
+  const unlockedN = list.filter(a => a.unlocked).length;
+  const text = `My SINGULARITY achievements — ${unlockedN} / ${list.length} unlocked\n\n` +
+    list.map(a => `${a.unlocked ? "[x]" : "[ ]"} ${a.label} — ${a.desc}`).join("\n");
+  const blob = new Blob([text], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "singularity-achievements.txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(`Exported ${unlockedN} / ${list.length} achievements.`);
+});
 document.getElementById("help-download-badge")?.addEventListener("click", () => {
   const list = getAchievementsList();
   const unlockedN = list.filter(a => a.unlocked).length;
