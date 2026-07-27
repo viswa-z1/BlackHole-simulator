@@ -1280,12 +1280,34 @@ function renderPersonalBests() {
     furthestStage !== null ? `<div><b>${furthestStage}</b><span>Furthest stage reached</span></div>` : "",
   ].join("");
 }
+// GitHub-style calendar heatmap of visited days, from the persisted visit-date history
+function renderVisitHeatmap() {
+  const grid = document.getElementById("heatmap-grid");
+  if (!grid) return;
+  let dates: Set<string>;
+  try { dates = new Set(JSON.parse(localStorage.getItem("singularity.visitDates") || "[]")); } catch (e) { dates = new Set(); }
+  const days = 84;
+  // everything here works in UTC ms, matching the plain toISOString() keys used for storage —
+  // mixing in local-time Date methods (setDate/getDay) would shift "today" by a day near midnight
+  // in timezones behind UTC.
+  const todayUTC = Date.parse(new Date().toISOString().slice(0, 10) + "T00:00:00Z");
+  const todayDow = new Date(todayUTC).getUTCDay();
+  const startUTC = todayUTC - (days - 1 + todayDow) * 86400000;
+  const cells: string[] = [];
+  for (let t = startUTC; t <= todayUTC; t += 86400000) {
+    const key = new Date(t).toISOString().slice(0, 10);
+    const visited = dates.has(key);
+    cells.push(`<div class="hm-cell${visited ? " visited" : ""}" title="${key}${visited ? " — visited" : ""}"></div>`);
+  }
+  grid.innerHTML = cells.join("");
+}
 function updateStatsDisplay() {
   const t = document.getElementById("stat-time"), d = document.getElementById("stat-depth"), v = document.getElementById("stat-viewed");
   if (t) t.textContent = formatStatsTime(statsTime);
   if (d) d.textContent = statsDepth.toFixed(2) + " Bly";
   if (v) v.textContent = String(getViewedCount());
   renderPersonalBests();
+  renderVisitHeatmap();
   const list = document.getElementById("help-recent-list");
   if (list) {
     const recent = getRecentlyViewed();
@@ -1504,7 +1526,7 @@ const SETTINGS_KEYS = [
   "singularity.stats.viewed", "singularity.stats.session",
   "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
   "singularity.customPresets", "singularity.compareHistory",
-  "singularity.streak", "singularity.lastVisitDate",
+  "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates",
   "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
 
@@ -1765,6 +1787,10 @@ const visitCount = (() => {
 const visitStreak = (() => {
   try {
     const today = new Date().toISOString().slice(0, 10);
+    // full visit-date history, for the calendar heatmap (capped so it can't grow forever)
+    const datesSet = new Set<string>(JSON.parse(localStorage.getItem("singularity.visitDates") || "[]"));
+    datesSet.add(today);
+    localStorage.setItem("singularity.visitDates", JSON.stringify([...datesSet].slice(-365)));
     const last = localStorage.getItem("singularity.lastVisitDate");
     let streak = parseInt(localStorage.getItem("singularity.streak") || "0", 10) || 0;
     if (last === today) return streak || 1;

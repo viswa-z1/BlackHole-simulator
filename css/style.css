@@ -1446,6 +1446,20 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 .help-pb-list div { display: flex; flex-direction: column; gap: 4px; }
 .help-pb-list b { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--hot); }
 .help-pb-list span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.help-heatmap { margin-top: 18px; }
+.help-heatmap h4 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent2); margin-bottom: 10px;
+}
+.heatmap-grid {
+  display: grid; grid-template-rows: repeat(7, 10px); grid-auto-flow: column; gap: 3px;
+  overflow-x: auto; padding-bottom: 2px;
+}
+.heatmap-grid .hm-cell {
+  width: 10px; height: 10px; border-radius: 2px; background: var(--glass);
+  border: 1px solid var(--glass-brd);
+}
+.heatmap-grid .hm-cell.visited { background: var(--accent2); border-color: var(--accent2); }
 .help-recent { margin-top: 18px; }
 .help-recent h4 {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
