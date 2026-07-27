@@ -115,7 +115,7 @@ function renderAchievements() {
         return;
     el.innerHTML = Object.entries(ACHIEVEMENTS).map(([id, a]) => {
         const unlocked = unlockedAchievements.has(id);
-        return `<div class="ach${unlocked ? " unlocked" : ""}" title="${a.desc}">
+        return `<div class="ach${unlocked ? " unlocked" : ""}" data-ach-desc="${a.desc}">
       <span class="ach-icon">${unlocked ? "🏆" : "🔒"}</span><span class="ach-label">${a.label}</span>
     </div>`;
     }).join("");
@@ -127,6 +127,32 @@ function renderAchievements() {
     if (label)
         label.textContent = `${unlockedAchievements.size} / ${total}`;
 }
+// styled hover tooltip for achievement badges, replacing the plain native title
+(function wireAchievementTooltip() {
+    const list = document.getElementById("help-achievements-list");
+    const tooltip = document.getElementById("cat-tooltip");
+    if (!list || !tooltip)
+        return;
+    list.addEventListener("mouseover", (e) => {
+        const badge = e.target.closest(".ach");
+        if (!badge)
+            return;
+        const desc = badge.dataset.achDesc || "";
+        const locked = !badge.classList.contains("unlocked");
+        tooltip.textContent = locked ? `🔒 ${desc}` : desc;
+    });
+    list.addEventListener("mousemove", (e) => {
+        const badge = e.target.closest(".ach");
+        if (!badge) {
+            tooltip.classList.remove("show");
+            return;
+        }
+        tooltip.style.left = e.clientX + "px";
+        tooltip.style.top = e.clientY + "px";
+        tooltip.classList.add("show");
+    });
+    list.addEventListener("mouseleave", () => tooltip.classList.remove("show"));
+})();
 export function unlockAchievement(id) {
     if (unlockedAchievements.has(id) || !ACHIEVEMENTS[id])
         return;
