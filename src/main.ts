@@ -454,6 +454,15 @@ window.addEventListener("keydown", (e) => {
   if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey && page !== "cosmos"
     && !document.querySelector(".panel.open, .detail-modal.open, .help-modal.open, input:focus, textarea:focus")) randomizeParams();
 });
+// "/" jumps straight to the catalog search box, like many sites' quick-find
+window.addEventListener("keydown", (e) => {
+  if (e.key === "/" && !e.metaKey && !e.ctrlKey
+    && document.getElementById("panel-catalog")?.classList.contains("open")
+    && !document.querySelector("input:focus, textarea:focus")) {
+    e.preventDefault();
+    (document.getElementById("cat-search") as HTMLInputElement | null)?.focus();
+  }
+});
 
 // real-object parameter presets
 const PRESETS: Record<string, { mass: number; spin: number; pal: number }> = {

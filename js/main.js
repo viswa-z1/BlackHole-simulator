@@ -489,6 +489,15 @@ window.addEventListener("keydown", (e) => {
         && !document.querySelector(".panel.open, .detail-modal.open, .help-modal.open, input:focus, textarea:focus"))
         randomizeParams();
 });
+// "/" jumps straight to the catalog search box, like many sites' quick-find
+window.addEventListener("keydown", (e) => {
+    if (e.key === "/" && !e.metaKey && !e.ctrlKey
+        && document.getElementById("panel-catalog")?.classList.contains("open")
+        && !document.querySelector("input:focus, textarea:focus")) {
+        e.preventDefault();
+        document.getElementById("cat-search")?.focus();
+    }
+});
 // real-object parameter presets
 const PRESETS = {
     sgra: { mass: 1.6, spin: 0.90, pal: 0 }, m87: { mass: 2.6, spin: 0.94, pal: 4 },
