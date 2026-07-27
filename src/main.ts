@@ -485,6 +485,20 @@ function updateClosestMatch() {
 }
 updateClosestMatch();
 
+// detail modal: show how this object's spin compares to the simulator's current live spin slider
+window.addEventListener("singularity:detailopen", (e: any) => {
+  const el = document.getElementById("detail-sim-compare");
+  if (!el) return;
+  const m = /([\d.]+)/.exec(e.detail?.spin || "");
+  const objSpin = m ? parseFloat(m[1]) : NaN;
+  if (!isFinite(objSpin)) { el.innerHTML = ""; return; }
+  const simSpin = params.spin;
+  const pct = Math.abs((simSpin - objSpin) / objSpin * 100);
+  el.innerHTML = pct < 3
+    ? `Your simulator's spin (<b>a≈${simSpin.toFixed(2)}</b>) is almost identical to ${e.detail.name}'s.`
+    : `Your simulator's black hole spins <b>a≈${simSpin.toFixed(2)}</b> — ${pct.toFixed(0)}% ${simSpin > objSpin ? "faster" : "slower"} than ${e.detail.name} (a≈${objSpin.toFixed(2)}).`;
+});
+
 // ---------- user-saved custom presets (mass/spin/brightness/spectrum) ----------
 type CustomPreset = { name: string; mass: number; spin: number; bright: number; pal: number };
 const CUSTOM_PRESETS_KEY = "singularity.customPresets";

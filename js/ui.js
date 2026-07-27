@@ -464,6 +464,7 @@ function openDetail(o) {
         history.replaceState(null, "", "#object/" + encodeURIComponent(o.name));
     }
     catch (e) { }
+    window.dispatchEvent(new CustomEvent("singularity:detailopen", { detail: { name: o.name, spin: o.spin } }));
 }
 // open an object's detail modal by name (used by the #object/<name> deep link)
 export function openObjectByName(name) {

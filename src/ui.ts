@@ -392,6 +392,7 @@ function openDetail(o) {
 
   document.getElementById("detail-modal").classList.add("open");
   try { history.replaceState(null, "", "#object/" + encodeURIComponent(o.name)); } catch (e) {}
+  window.dispatchEvent(new CustomEvent("singularity:detailopen", { detail: { name: o.name, spin: o.spin } }));
 }
 
 // open an object's detail modal by name (used by the #object/<name> deep link)

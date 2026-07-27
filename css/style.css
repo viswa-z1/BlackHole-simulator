@@ -495,6 +495,9 @@ a { color: var(--accent2); text-decoration: none; }
 .detail-desc b { color: var(--hot); font-weight: 600; }
 .detail-scale { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin: -8px 0 18px; }
 .detail-scale b { color: var(--accent2); font-weight: 600; }
+.detail-sim-compare { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin: -8px 0 18px; }
+.detail-sim-compare b { color: var(--accent); font-weight: 600; }
+.detail-sim-compare:empty { display: none; margin: 0; }
 .detail-source {
   display: inline-block; font-size: 13px; font-weight: 500;
   color: var(--accent2); border: 1px solid rgba(77,181,255,0.35);
