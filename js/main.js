@@ -127,6 +127,11 @@ function exitCosmos() {
     const tourBtn = document.getElementById("cos-tour");
     if (tourBtn)
         tourBtn.textContent = "▶ Auto-tour";
+    favTour = false;
+    document.getElementById("cos-fav-tour")?.classList.remove("active");
+    const favTourBtn = document.getElementById("cos-fav-tour");
+    if (favTourBtn)
+        favTourBtn.textContent = "★ Tour my favorites";
     setHash("");
 }
 // ---------- shareable deep links via the URL hash ----------
@@ -994,6 +999,8 @@ document.getElementById("cos-tour-speed")?.addEventListener("change", (e) => {
     tourInterval = parseFloat(e.target.value);
 });
 document.getElementById("cos-tour")?.addEventListener("click", () => {
+    if (favTour)
+        stopFavTour();
     tour = !tour;
     tourT = 0;
     tourI = 0;
@@ -1009,12 +1016,14 @@ document.getElementById("cos-tour")?.addEventListener("click", () => {
     toast(tour ? "Auto-tour started — sit back and drift." : "Auto-tour stopped");
 });
 function stopTourForManualControl() {
-    if (!tour)
-        return;
-    tour = false;
-    document.getElementById("cos-tour")?.classList.remove("active");
-    updateTourLabel();
-    toast("Auto-tour paused — you have the controls.");
+    if (tour) {
+        tour = false;
+        document.getElementById("cos-tour")?.classList.remove("active");
+        updateTourLabel();
+        toast("Auto-tour paused — you have the controls.");
+    }
+    if (favTour)
+        stopFavTour(true);
 }
 canvas.addEventListener("pointerdown", () => { if (page === "cosmos")
     stopTourForManualControl(); });
@@ -1026,6 +1035,51 @@ function updateTourLabel() {
         ? `◼ ${tourI + 1} / ${cosmos.anomalies.length} · ${cosmos.anomalies[tourI].data.name}`
         : "▶ Auto-tour";
 }
+// ---------- cosmos favorites tour: like auto-tour, but visits only starred entities ----------
+let favTour = false, favTourI = 0;
+function favTourIndices() {
+    return cosmos.anomalies.map((a, i) => i).filter((i) => cosmosFavs.has(cosmos.anomalies[i].data.name));
+}
+function updateFavTourLabel(idxs) {
+    const btn = document.getElementById("cos-fav-tour");
+    if (!btn)
+        return;
+    btn.textContent = favTour && idxs.length
+        ? `◼ ${favTourI + 1} / ${idxs.length} · ${cosmos.anomalies[idxs[favTourI]].data.name}`
+        : "★ Tour my favorites";
+}
+function stopFavTour(paused = false) {
+    favTour = false;
+    document.getElementById("cos-fav-tour")?.classList.remove("active");
+    updateFavTourLabel([]);
+    if (paused)
+        toast("Favorites tour paused — you have the controls.");
+}
+document.getElementById("cos-fav-tour")?.addEventListener("click", () => {
+    const idxs = favTourIndices();
+    if (!idxs.length) {
+        toast("No cosmos favorites yet — star an entity first.");
+        return;
+    }
+    if (tour) {
+        tour = false;
+        document.getElementById("cos-tour")?.classList.remove("active");
+        updateTourLabel();
+    }
+    favTour = !favTour;
+    tourT = 0;
+    favTourI = 0;
+    document.getElementById("cos-fav-tour")?.classList.toggle("active", favTour);
+    if (favTour) {
+        openCosmosCard(cosmos.focus(idxs[0]));
+        updateFavTourLabel(idxs);
+    }
+    else {
+        cosmosCard.classList.remove("open");
+        updateFavTourLabel(idxs);
+    }
+    toast(favTour ? "Favorites tour started — sit back and drift." : "Favorites tour stopped");
+});
 canvas.addEventListener("click", (e) => {
     if (page !== "cosmos")
         return;
@@ -2298,6 +2352,21 @@ function tick() {
                 tourI = (tourI + 1) % cosmos.anomalies.length;
                 openCosmosCard(cosmos.focus(tourI));
                 updateTourLabel();
+            }
+        }
+        if (favTour) {
+            tourT += dt;
+            if (tourT > tourInterval) {
+                tourT = 0;
+                const idxs = favTourIndices();
+                if (!idxs.length) {
+                    stopFavTour();
+                }
+                else {
+                    favTourI = (favTourI + 1) % idxs.length;
+                    openCosmosCard(cosmos.focus(idxs[favTourI]));
+                    updateFavTourLabel(idxs);
+                }
             }
         }
         if (frame % 3 === 0) {
