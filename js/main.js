@@ -963,6 +963,29 @@ document.getElementById("cos-fav-trail-toggle")?.addEventListener("click", (e) =
     e.currentTarget.classList.toggle("active", favTrailLine.visible);
     toast(favTrailLine.visible ? "Favorites trail shown." : "Favorites trail hidden.");
 });
+// ---------- cosmos distance-scale rings: depth markers at round billion-ly milestones ----------
+const DEPTH_RINGS_BLY = [1, 2, 3, 4];
+const depthRingGroup = new THREE.Group();
+depthRingGroup.visible = false;
+DEPTH_RINGS_BLY.forEach((bly) => {
+    const z = -(bly / 4.2) * 1500;
+    const radius = 1200;
+    const segs = 96;
+    const pts = [];
+    for (let s = 0; s <= segs; s++) {
+        const a = (s / segs) * Math.PI * 2;
+        pts.push(new THREE.Vector3(Math.cos(a) * radius, Math.sin(a) * radius * 0.7, z));
+    }
+    const ringGeo = new THREE.BufferGeometry().setFromPoints(pts);
+    const ringMat = new THREE.LineBasicMaterial({ color: 0x4db5ff, transparent: true, opacity: 0.22 });
+    depthRingGroup.add(new THREE.LineLoop(ringGeo, ringMat));
+});
+cosmos.scene.add(depthRingGroup);
+document.getElementById("cos-rings-toggle")?.addEventListener("click", (e) => {
+    depthRingGroup.visible = !depthRingGroup.visible;
+    e.currentTarget.classList.toggle("active", depthRingGroup.visible);
+    toast(depthRingGroup.visible ? "Distance rings shown — 1/2/3/4 billion ly." : "Distance rings hidden.");
+});
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => { cosmosCard.classList.remove("open"); cosmos.spotlight(-1); });
 // ---------- cosmos auto-tour ----------
 let tour = false, tourI = 0, tourT = 0;
