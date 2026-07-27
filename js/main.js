@@ -2099,6 +2099,51 @@ const bootTimer = setInterval(() => {
         }, 350);
     }, 5000);
 })();
+// ---------- catalog "by the numbers" — computed aggregate facts about the 40-object dataset ----------
+(function catalogFactBanner() {
+    const el = document.getElementById("cat-fact-banner");
+    const textEl = document.getElementById("cfb-text");
+    if (!el || !textEl)
+        return;
+    const yearOf = (s) => { const m = /\b(1[5-9]\d{2}|20\d{2})\b/.exec(s || ""); return m ? parseInt(m[0], 10) : NaN; };
+    const spinOf = (s) => { const m = /([\d.]+)/.exec(s || ""); return m ? parseFloat(m[1]) : NaN; };
+    const byMass = [...ALL_OBJECTS].filter((o) => parseSci(o.mass || "") > 0).sort((a, b) => parseSci(b.mass) - parseSci(a.mass));
+    const byDist = [...ALL_OBJECTS].filter((o) => parseSci(o.distance || "") > 0).sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
+    const byYear = [...ALL_OBJECTS].map((o) => ({ o, y: yearOf(o.discovered) })).filter(x => !isNaN(x.y)).sort((a, b) => a.y - b.y);
+    const bySpin = [...ALL_OBJECTS].map((o) => ({ o, s: spinOf(o.spin) })).filter(x => !isNaN(x.s)).sort((a, b) => b.s - a.s);
+    const nQuasar = ALL_OBJECTS.filter((o) => o.category === "quasar").length;
+    const nPulsar = ALL_OBJECTS.filter((o) => o.category === "pulsar").length;
+    const nBlackhole = ALL_OBJECTS.filter((o) => o.category === "blackhole").length;
+    const nConstellations = new Set(ALL_OBJECTS.map((o) => o.constellation).filter(Boolean)).size;
+    const facts = [];
+    if (byMass.length)
+        facts.push(`The heaviest object here is <b>${byMass[0].name}</b>, at ${byMass[0].mass}.`);
+    if (byDist.length)
+        facts.push(`The nearest object is <b>${byDist[0].name}</b>, ${byDist[0].distance} away.`);
+    if (byDist.length)
+        facts.push(`The most distant object is <b>${byDist[byDist.length - 1].name}</b>, ${byDist[byDist.length - 1].distance} away.`);
+    if (byYear.length)
+        facts.push(`The oldest discovery is <b>${byYear[0].o.name}</b>, identified in ${byYear[0].y}.`);
+    if (byYear.length)
+        facts.push(`The most recent discovery is <b>${byYear[byYear.length - 1].o.name}</b>, from ${byYear[byYear.length - 1].y}.`);
+    if (bySpin.length)
+        facts.push(`The fastest-spinning object is <b>${bySpin[0].o.name}</b>, at a≈${bySpin[0].s.toFixed(2)}.`);
+    facts.push(`Of these ${ALL_OBJECTS.length} objects, <b>${nBlackhole}</b> are black holes, <b>${nQuasar}</b> are quasars, and <b>${nPulsar}</b> are pulsars.`);
+    facts.push(`They span <b>${nConstellations}</b> different constellations.`);
+    if (!facts.length)
+        return;
+    let i = Math.floor(Math.random() * facts.length);
+    textEl.innerHTML = facts[i];
+    requestAnimationFrame(() => el.classList.add("show"));
+    setInterval(() => {
+        el.classList.remove("show");
+        setTimeout(() => {
+            i = (i + 1) % facts.length;
+            textEl.innerHTML = facts[i];
+            el.classList.add("show");
+        }, 350);
+    }, 6000);
+})();
 // ---------- "object of the day" — a deterministic daily pick, shown on the welcome screen ----------
 (function objectOfTheDay() {
     const btn = document.getElementById("hero-ootd");
