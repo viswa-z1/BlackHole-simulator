@@ -940,6 +940,7 @@ function buildCatalog() {
     if (list.length) openDetail(list[Math.floor(Math.random() * list.length)]);
   });
   document.getElementById("cat-export-csv")?.addEventListener("click", exportCatalogCSV);
+  document.getElementById("cat-export-fav-csv")?.addEventListener("click", exportFavoritesCSV);
   document.getElementById("cat-next-unviewed")?.addEventListener("click", () => {
     if (!openNextUnviewed()) toast("You've viewed every object in the catalog! 🎉");
   });
@@ -989,6 +990,20 @@ function exportCatalogCSV() {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast("Catalog exported as CSV.");
+}
+function exportFavoritesCSV() {
+  const favorites = getCatalogFavorites();
+  if (!favorites.length) { toast("No catalog favorites yet — star an object first."); return; }
+  const rows = [CSV_COLUMNS.join(",")].concat(
+    favorites.map(o => CSV_COLUMNS.map(c => csvEscape(o[c])).join(","))
+  );
+  const blob = new Blob([rows.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "singularity-favorites.csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(`Exported ${favorites.length} favorite${favorites.length === 1 ? "" : "s"} as CSV.`);
 }
 
 function wireNav() {
