@@ -1848,6 +1848,35 @@ const bootTimer = setInterval(() => {
   }, 5000);
 })();
 
+// ---------- "pro tip" rotator on the welcome screen — surfaces easy-to-miss shortcuts ----------
+(function heroTipRotator() {
+  const el = document.getElementById("hero-tip");
+  const textEl = document.getElementById("hero-tip-text");
+  if (!el || !textEl) return;
+  const tips = [
+    "Press [ or ] to cycle through simulator presets without opening the dropdown.",
+    "While the Catalog is open, press / to jump straight to the search box.",
+    "Press R to randomize the simulator's mass, spin, and color.",
+    "Press ⌘/Ctrl K to open the command palette from anywhere.",
+    "Star a few objects in the Cosmos, then try \"Tour my favorites\" for a custom auto-tour.",
+    "Click an object's portrait in its detail page to see it larger.",
+    "Compare two objects, then download the comparison as a shareable image.",
+    "Open Help (?) any time to see your stats, personal bests, and achievements.",
+  ];
+  let i = Math.floor(Math.random() * tips.length);
+  textEl.textContent = tips[i];
+  requestAnimationFrame(() => el.classList.add("show"));
+  const timer = setInterval(() => {
+    if (loader.classList.contains("hidden")) { clearInterval(timer); return; }
+    el.classList.remove("show");
+    setTimeout(() => {
+      i = (i + 1) % tips.length;
+      textEl.textContent = tips[i];
+      el.classList.add("show");
+    }, 350);
+  }, 5500);
+})();
+
 // ---------- catalog "by the numbers" — computed aggregate facts about the 40-object dataset ----------
 (function catalogFactBanner() {
   const el = document.getElementById("cat-fact-banner");
