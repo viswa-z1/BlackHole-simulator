@@ -465,6 +465,14 @@ window.addEventListener("keydown", (e) => {
     (document.getElementById("cat-search") as HTMLInputElement | null)?.focus();
   }
 });
+// 1/2/3/4 switch catalog category tabs (All / Black Holes / Quasars / Pulsars) while the catalog is open
+const CAT_TAB_KEYS: Record<string, string> = { "1": "all", "2": "blackhole", "3": "quasar", "4": "pulsar" };
+window.addEventListener("keydown", (e) => {
+  if (!(e.key in CAT_TAB_KEYS) || e.metaKey || e.ctrlKey
+    || !document.getElementById("panel-catalog")?.classList.contains("open")
+    || document.querySelector("input:focus, textarea:focus")) return;
+  document.querySelector<HTMLElement>(`.cat-tabs button[data-cat="${CAT_TAB_KEYS[e.key]}"]`)?.click();
+});
 
 // real-object parameter presets
 const PRESETS: Record<string, { mass: number; spin: number; pal: number }> = {
