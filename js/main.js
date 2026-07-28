@@ -883,6 +883,14 @@ function stepAnomaly(dir) {
 }
 document.getElementById("cc-prev")?.addEventListener("click", () => stepAnomaly(-1));
 document.getElementById("cc-next")?.addEventListener("click", () => stepAnomaly(1));
+// , and . step to the previous/next visible cosmos entity, mirroring the card's Prev/Next buttons
+window.addEventListener("keydown", (e) => {
+    if ((e.key !== "," && e.key !== ".") || e.metaKey || e.ctrlKey
+        || page !== "cosmos" || !cosmosCard.classList.contains("open")
+        || document.querySelector("input:focus, textarea:focus"))
+        return;
+    stepAnomaly(e.key === "." ? 1 : -1);
+});
 document.getElementById("cos-random")?.addEventListener("click", () => showAnomaly(Math.floor(Math.random() * cosmos.anomalies.length)));
 document.getElementById("cos-fly-fav")?.addEventListener("click", () => {
     if (!cosmosFavs.size) {
