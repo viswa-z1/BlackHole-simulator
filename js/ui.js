@@ -612,6 +612,13 @@ function wireDetail() {
             navigator.clipboard?.writeText(url).then(() => toast("Link copied — your browser doesn't support the native share sheet."), () => toast(url));
         }
     });
+    document.getElementById("detail-copy-citation")?.addEventListener("click", () => {
+        const name = document.getElementById("detail-name").textContent || "";
+        const source = document.getElementById("detail-source")?.href || "";
+        const accessed = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+        const citation = `"${name}." SINGULARITY: A Real-Time Black Hole Simulator. Source: ${source}. Accessed ${accessed}.`;
+        navigator.clipboard?.writeText(citation).then(() => toast("Citation copied to clipboard."), () => toast(citation));
+    });
     // cross-link into the cosmos: close everything here, then hand off via the hash router
     document.getElementById("detail-cosmos-link")?.addEventListener("click", (e) => {
         const idx = e.currentTarget.dataset.cosmosIndex;
