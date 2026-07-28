@@ -277,6 +277,29 @@ const hud = {
 };
 if (hud.particles)
     hud.particles.textContent = "volumetric";
+// styled tooltip explaining each HUD stat, reusing the shared floating tooltip element
+(function wireHudTooltips() {
+    const hudEl = document.getElementById("hud");
+    const tooltip = document.getElementById("cat-tooltip");
+    if (!hudEl || !tooltip)
+        return;
+    hudEl.addEventListener("mouseover", (e) => {
+        const label = e.target.closest("[data-hud-tip]");
+        if (label)
+            tooltip.textContent = label.dataset.hudTip || "";
+    });
+    hudEl.addEventListener("mousemove", (e) => {
+        const label = e.target.closest("[data-hud-tip]");
+        if (!label) {
+            tooltip.classList.remove("show");
+            return;
+        }
+        tooltip.style.left = e.clientX + "px";
+        tooltip.style.top = e.clientY + "px";
+        tooltip.classList.add("show");
+    });
+    hudEl.addEventListener("mouseleave", () => tooltip.classList.remove("show"));
+})();
 // frame-time sparkline (last ~120 frames)
 const sparkCanvas = document.getElementById("hud-spark");
 const sparkCtx = sparkCanvas?.getContext("2d");

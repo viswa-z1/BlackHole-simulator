@@ -98,11 +98,11 @@
   <div class="row"><span>FPS</span><b id="hud-fps">—</b></div>
   <canvas id="hud-spark" width="168" height="24"></canvas>
   <div class="row"><span>Render</span><b id="hud-particles">—</b></div>
-  <div class="row"><span class="k">r / Rₛ</span><b id="hud-radius">—</b></div>
-  <div class="row"><span class="k">Stage</span><b id="hud-stage">Approach</b></div>
-  <div class="row" id="hud-eta-row"><span>ETA to horizon</span><b id="hud-eta">—</b></div>
-  <div class="row"><span>Time dilation</span><b id="hud-dilation">1.00×</b></div>
-  <div class="row"><span>Redshift z</span><b id="hud-redshift">0.00</b></div>
+  <div class="row"><span class="k" data-hud-tip="Your current distance from the black hole, in multiples of the Schwarzschild radius — the point of no return.">r / Rₛ</span><b id="hud-radius">—</b></div>
+  <div class="row"><span class="k" data-hud-tip="Which phase of the descent you're in, from initial approach to falling past the horizon.">Stage</span><b id="hud-stage">Approach</b></div>
+  <div class="row" id="hud-eta-row"><span data-hud-tip="Estimated time, at your current speed, until you cross the event horizon.">ETA to horizon</span><b id="hud-eta">—</b></div>
+  <div class="row"><span data-hud-tip="How much slower time passes for you relative to a distant observer, due to the black hole's gravity.">Time dilation</span><b id="hud-dilation">1.00×</b></div>
+  <div class="row"><span data-hud-tip="How much light from behind you is stretched to longer, redder wavelengths by gravity and your speed.">Redshift z</span><b id="hud-redshift">0.00</b></div>
   <div class="row"><span id="hud-zone" class="warn"></span></div>
 </div>
 

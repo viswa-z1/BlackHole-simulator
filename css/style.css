@@ -275,6 +275,7 @@ a { color: var(--accent2); text-decoration: none; }
 #hud .row { display: flex; justify-content: space-between; gap: 18px; }
 #hud .row b { color: var(--fg); font-weight: 500; }
 #hud .k { color: var(--accent); }
+#hud [data-hud-tip] { cursor: help; text-decoration: underline dotted; text-underline-offset: 2px; }
 #hud .warn { color: #ff5c6c; }
 
 /* ---------- Control dock ---------- */
