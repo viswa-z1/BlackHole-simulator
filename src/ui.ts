@@ -185,6 +185,7 @@ export function recordObjectView(name: string) {
   try { localStorage.setItem(RECENT_KEY, JSON.stringify(recentViews)); } catch (e) {}
 }
 export function getViewedCount(): number { return viewedNames.size; }
+export function hasViewedObject(name: string): boolean { return viewedNames.has(name); }
 export function getCatalogChecklist(): Array<{ name: string; category: string; viewed: boolean; favorited: boolean }> {
   return [...BLACK_HOLES, ...PULSARS].map(o => ({
     name: o.name, category: o.category, viewed: viewedNames.has(o.name), favorited: favs.has(o.name),

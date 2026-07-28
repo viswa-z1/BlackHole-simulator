@@ -217,6 +217,7 @@ export function recordObjectView(name) {
     catch (e) { }
 }
 export function getViewedCount() { return viewedNames.size; }
+export function hasViewedObject(name) { return viewedNames.has(name); }
 export function getCatalogChecklist() {
     return [...BLACK_HOLES, ...PULSARS].map(o => ({
         name: o.name, category: o.category, viewed: viewedNames.has(o.name), favorited: favs.has(o.name),

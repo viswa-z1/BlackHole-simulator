@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -797,6 +797,16 @@ document.getElementById("cos-frame-fav")?.addEventListener("click", () => {
   cosmos.spotlight(-1);
   cosmosCard.classList.remove("open");
   toast(n ? `Framing ${n} favorite${n === 1 ? "" : "s"} at once.` : "No cosmos favorites yet — star an entity first.");
+});
+document.getElementById("cos-next-unviewed")?.addEventListener("click", () => {
+  let bestIdx = -1, bestDist = Infinity;
+  cosmos.anomalies.forEach((a: any, i: number) => {
+    if (hasViewedObject(a.data.name)) return;
+    const d = a.group.position.distanceTo(cosmos.camera.position);
+    if (d < bestDist) { bestDist = d; bestIdx = i; }
+  });
+  if (bestIdx >= 0) showAnomaly(bestIdx);
+  else toast("You've explored every entity in the cosmos!");
 });
 document.getElementById("cos-zoom-in")?.addEventListener("click", () => cosmos.addZoom(0.08));
 document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.addZoom(-0.08));
