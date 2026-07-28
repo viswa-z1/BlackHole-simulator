@@ -1776,6 +1776,17 @@ document.getElementById("help-export-achievements")?.addEventListener("click", (
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast(`Exported ${unlockedN} / ${list.length} achievements.`);
 });
+document.getElementById("help-share-achievements")?.addEventListener("click", () => {
+  const list = getAchievementsList();
+  const unlocked = list.filter(a => a.unlocked);
+  if (!unlocked.length) { toast("No achievements unlocked yet — go explore!"); return; }
+  const text = `🏆 My SINGULARITY achievements (${unlocked.length} / ${list.length}): ${unlocked.map(a => a.label).join(", ")}\n` +
+    `https://viswa-z1.github.io/BlackHole-simulator/`;
+  navigator.clipboard?.writeText(text).then(
+    () => toast("Achievements copied to clipboard."),
+    () => toast(text),
+  );
+});
 document.getElementById("help-download-badge")?.addEventListener("click", () => {
   const list = getAchievementsList();
   const unlockedN = list.filter(a => a.unlocked).length;
