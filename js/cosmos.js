@@ -300,6 +300,11 @@ export function createCosmos(renderer) {
         toggleGrid() { grid.visible = !grid.visible; return grid.visible; },
         spotlight(i) { spotlightIndex = i; }, // dim all but anomaly i (i<0 clears); applied per-frame
         flyToZ(z) { zoomTarget = Math.max(0, Math.min(1, -z / 1500)); }, // dive toward a depth
+        getViewpoint() { return { zoom: zoomTarget, panX: pan.x, panY: pan.y }; }, // capture the current camera aim, for bookmarking
+        gotoViewpoint(v) {
+            zoomTarget = Math.max(0, Math.min(1, v.zoom));
+            pan.set(Math.max(-1.6, Math.min(1.6, v.panX)), Math.max(-1.6, Math.min(1.6, v.panY)));
+        },
         frameNames(names) {
             const matched = anomalies.filter(a => names.has(a.data.name));
             if (!matched.length)

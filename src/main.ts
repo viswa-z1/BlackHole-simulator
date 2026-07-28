@@ -892,6 +892,22 @@ document.getElementById("cos-rings-toggle")?.addEventListener("click", (e) => {
   toast(depthRingGroup.visible ? "Distance rings shown — 1/2/3/4 billion ly." : "Distance rings hidden.");
 });
 
+// ---------- cosmos camera bookmark: save/restore a custom viewpoint, distinct from favoriting an entity ----------
+const COS_BOOKMARK_KEY = "singularity.cosmosBookmark";
+document.getElementById("cos-bookmark-save")?.addEventListener("click", () => {
+  try { localStorage.setItem(COS_BOOKMARK_KEY, JSON.stringify(cosmos.getViewpoint())); } catch (e) {}
+  toast("View bookmarked.");
+});
+document.getElementById("cos-bookmark-goto")?.addEventListener("click", () => {
+  let v: any = null;
+  try { v = JSON.parse(localStorage.getItem(COS_BOOKMARK_KEY) || "null"); } catch (e) {}
+  if (!v) { toast("No bookmarked view yet — save one first."); return; }
+  cosmosCard.classList.remove("open");
+  cosmos.spotlight(-1);
+  cosmos.gotoViewpoint(v);
+  toast("Returning to your bookmarked view.");
+});
+
 cosmosCard.querySelector("[data-cosmos-close]").addEventListener("click", () => { cosmosCard.classList.remove("open"); cosmos.spotlight(-1); });
 
 // ---------- cosmos auto-tour ----------
@@ -1563,7 +1579,7 @@ const SETTINGS_KEYS = [
   "singularity.stats.viewed", "singularity.stats.session",
   "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.visits",
   "singularity.customPresets", "singularity.compareHistory",
-  "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates",
+  "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
   "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
 
