@@ -997,6 +997,8 @@ function buildCatalog() {
           <span class="cps-cat">${i.category}</span>
           ${i.favorited ? `<span class="cps-star">★</span>` : ""}
         </div>`).join("")}`;
+    const notesSheet = document.getElementById("notes-print-sheet");
+    if (notesSheet) notesSheet.innerHTML = "";
     document.body.classList.add("printing-catalog");
     window.print();
   });

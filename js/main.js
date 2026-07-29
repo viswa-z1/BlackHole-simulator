@@ -2136,6 +2136,26 @@ document.getElementById("help-export-notes")?.addEventListener("click", () => {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast(`Exported ${names.length} note${names.length === 1 ? "" : "s"}.`);
 });
+document.getElementById("help-print-notes")?.addEventListener("click", () => {
+    const notes = getAllNotes();
+    const names = Object.keys(notes);
+    if (!names.length) {
+        toast("No notes saved yet — jot one on any object's detail page.");
+        return;
+    }
+    const sheet = document.getElementById("notes-print-sheet");
+    if (!sheet)
+        return;
+    sheet.innerHTML = `
+    <div class="cps-title">My SINGULARITY Notes</div>
+    <div class="cps-sub">${names.length} note${names.length === 1 ? "" : "s"} · printed ${new Date().toLocaleDateString()}</div>
+    ${names.map(name => `<div class="nps-entry"><h3>${escapeHtml(name)}</h3><p>${escapeHtml(notes[name])}</p></div>`).join("")}`;
+    const checklistSheet = document.getElementById("cat-print-sheet");
+    if (checklistSheet)
+        checklistSheet.innerHTML = "";
+    document.body.classList.add("printing-catalog");
+    window.print();
+});
 document.getElementById("help-export-achievements")?.addEventListener("click", () => {
     const list = getAchievementsList();
     const unlockedN = list.filter(a => a.unlocked).length;
