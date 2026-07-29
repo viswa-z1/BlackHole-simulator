@@ -770,6 +770,14 @@ document.getElementById("cc-fav")?.addEventListener("click", () => {
   updateFavTrail();
   toast(cosmosFavs.has(name) ? `${name} added to cosmos favorites` : `${name} removed from favorites`);
 });
+// S favorites the cosmos card currently open, mirroring the detail modal's own S shortcut
+window.addEventListener("keydown", (e) => {
+  if ((e.key === "s" || e.key === "S") && !e.metaKey && !e.ctrlKey
+    && page === "cosmos" && cosmosCard.classList.contains("open")
+    && !document.querySelector("input:focus, textarea:focus")) {
+    document.getElementById("cc-fav")?.click();
+  }
+});
 document.getElementById("cc-link")?.addEventListener("click", () => {
   const url = location.href;   // showAnomaly() keeps the hash in sync, so this already points at the open entity
   navigator.clipboard?.writeText(url).then(
