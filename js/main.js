@@ -132,6 +132,8 @@ function exitCosmos() {
     const favTourBtn = document.getElementById("cos-fav-tour");
     if (favTourBtn)
         favTourBtn.textContent = "★ Tour my favorites";
+    ambientDrift = false;
+    document.getElementById("cos-ambient-drift")?.classList.remove("active");
     setHash("");
 }
 // ---------- shareable deep links via the URL hash ----------
@@ -1122,7 +1124,18 @@ function stopTourForManualControl() {
     }
     if (favTour)
         stopFavTour(true);
+    if (ambientDrift) {
+        ambientDrift = false;
+        document.getElementById("cos-ambient-drift")?.classList.remove("active");
+    }
 }
+// ---------- cosmos ambient drift: a slow, meandering camera pan, no jumps between entities ----------
+let ambientDrift = false;
+document.getElementById("cos-ambient-drift")?.addEventListener("click", (e) => {
+    ambientDrift = !ambientDrift;
+    e.currentTarget.classList.toggle("active", ambientDrift);
+    toast(ambientDrift ? "Ambient drift started — sit back and watch it wander." : "Ambient drift stopped.");
+});
 canvas.addEventListener("pointerdown", () => { if (page === "cosmos")
     stopTourForManualControl(); });
 function updateTourLabel() {
@@ -2634,6 +2647,8 @@ function tick() {
                 }
             }
         }
+        if (ambientDrift)
+            cosmos.panBy(Math.sin(time * 0.15) * dt * 0.05, Math.cos(time * 0.11) * dt * 0.05);
         if (frame % 3 === 0) {
             drawCosmosMap();
             updateCosmosHUD();
