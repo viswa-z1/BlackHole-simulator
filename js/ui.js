@@ -457,6 +457,11 @@ function openDetail(o) {
         scaleEl.style.display = "none";
     document.getElementById("detail-desc").innerHTML = `<b>${o.tag}</b> ${o.fact}`;
     document.getElementById("detail-source").href = o.source;
+    const favBtn = document.getElementById("detail-fav");
+    if (favBtn) {
+        favBtn.textContent = isFavorited(o.name) ? "★" : "☆";
+        favBtn.classList.toggle("on", isFavorited(o.name));
+    }
     const cosmosLink = document.getElementById("detail-cosmos-link");
     const cosmosIdx = cosmosIndexFor(o.name);
     if (cosmosLink) {
@@ -495,6 +500,26 @@ function wireDetail() {
         if (readBtn)
             readBtn.textContent = "🔊 Read aloud";
     };
+    // star icon (and S key) favorites the object currently open in the detail modal
+    const toggleDetailFav = () => {
+        const name = document.getElementById("detail-name").textContent;
+        if (!name)
+            return;
+        toggleFav(name);
+        const favBtn = document.getElementById("detail-fav");
+        if (favBtn) {
+            favBtn.textContent = isFavorited(name) ? "★" : "☆";
+            favBtn.classList.toggle("on", isFavorited(name));
+        }
+        toast(isFavorited(name) ? `${name} added to favorites` : `${name} removed from favorites`);
+    };
+    document.getElementById("detail-fav")?.addEventListener("click", toggleDetailFav);
+    window.addEventListener("keydown", (e) => {
+        if ((e.key === "s" || e.key === "S") && !e.metaKey && !e.ctrlKey
+            && modal.classList.contains("open")
+            && !document.querySelector("input:focus, textarea:focus"))
+            toggleDetailFav();
+    });
     // click a portrait to see it larger in a lightbox
     const lightbox = document.getElementById("portrait-lightbox");
     const lightboxImg = document.getElementById("portrait-lightbox-img");
@@ -689,7 +714,9 @@ function toggleFav(name) {
     updateFavCount();
     if (favs.size >= 5)
         unlockAchievement("collector");
+    window.dispatchEvent(new CustomEvent("singularity:favtoggle"));
 }
+function isFavorited(name) { return favs.has(name); }
 // the ordered list currently rendered in the grid (drives modal prev/next)
 let currentList = [];
 // the active search query (drives match highlighting on cards)
@@ -1011,6 +1038,7 @@ function buildCatalog() {
             : `<p class="cat-empty">${cat === "fav" && !q ? "No favorites yet — tap ☆ on any object to save it here." : q ? `No objects match “${q}”.` : "No objects in this range."}</p>`;
     };
     render();
+    window.addEventListener("singularity:favtoggle", render);
     // star toggles favorite (registered before the detail handler; stops it)
     grid.addEventListener("click", (e) => {
         const t = e.target;

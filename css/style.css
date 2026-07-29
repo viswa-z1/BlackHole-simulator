@@ -527,6 +527,15 @@ a { color: var(--accent2); text-decoration: none; }
   backdrop-filter: blur(12px); transition: .25s;
 }
 .detail-close:hover { border-color: var(--accent); color: var(--hot); transform: rotate(90deg); }
+.detail-fav {
+  position: fixed; top: 26px; right: 86px; z-index: 131;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  color: var(--fg); font-size: 20px; cursor: pointer;
+  backdrop-filter: blur(12px); transition: .25s;
+}
+.detail-fav:hover { border-color: var(--hot); color: var(--hot); }
+.detail-fav.on { color: var(--hot); border-color: var(--hot); background: rgba(255, 217, 138, 0.12); }
 @media (max-width: 760px) {
   .detail-inner { grid-template-columns: 1fr; max-height: 90vh; }
   .detail-visual { min-height: 220px; max-height: 38vh; }
