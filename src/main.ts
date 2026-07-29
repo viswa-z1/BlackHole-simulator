@@ -1810,6 +1810,55 @@ document.getElementById("help-share-achievements")?.addEventListener("click", ()
     () => toast(text),
   );
 });
+document.getElementById("help-download-shortcuts")?.addEventListener("click", () => {
+  const groups = [...document.querySelectorAll(".help-group")]
+    .map(g => ({
+      title: g.querySelector("h4")?.textContent || "",
+      rows: [...g.querySelectorAll("li")]
+        .filter(li => li.querySelector("kbd"))
+        .map(li => ({
+          key: [...li.querySelectorAll("kbd")].map(k => k.textContent).join(" "),
+          desc: li.querySelector("span")?.textContent || "",
+        })),
+    }))
+    .filter(g => g.rows.length);
+  if (!groups.length) return;
+
+  const W = 720, pad = 40, rowH = 30, groupTitleH = 24, groupGap = 16, headerH = 90, footerH = 30;
+  const H = headerH + groups.reduce((s, g) => s + groupTitleH + g.rows.length * rowH, 0) + (groups.length - 1) * groupGap + footerH;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.fillStyle = "#070914"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#ffffff"; ctx.font = "bold 26px sans-serif";
+  ctx.fillText("SINGULARITY — Keyboard Shortcuts", pad, 44);
+  ctx.font = "13px sans-serif"; ctx.fillStyle = "#7d8bb3";
+  ctx.fillText("A real-time black hole simulator", pad, 66);
+
+  let y = headerH;
+  groups.forEach((g, gi) => {
+    ctx.font = "bold 12px sans-serif"; ctx.fillStyle = "#4db5ff";
+    ctx.fillText(g.title.toUpperCase(), pad, y);
+    y += groupTitleH;
+    g.rows.forEach(r => {
+      ctx.font = "bold 13px monospace"; ctx.fillStyle = "#ffd766";
+      ctx.fillText(r.key, pad, y);
+      ctx.font = "13px sans-serif"; ctx.fillStyle = "#e8ecf7";
+      ctx.fillText(r.desc, pad + 150, y);
+      y += rowH;
+    });
+    if (gi < groups.length - 1) y += groupGap;
+  });
+  ctx.font = "12px sans-serif"; ctx.fillStyle = "#4a5578";
+  ctx.fillText("SINGULARITY — a real-time black hole simulator", pad, H - 14);
+
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = "singularity-shortcuts.png";
+  document.body.appendChild(a); a.click(); a.remove();
+  toast("Cheat sheet downloaded.");
+});
 document.getElementById("help-download-badge")?.addEventListener("click", () => {
   const list = getAchievementsList();
   const unlockedN = list.filter(a => a.unlocked).length;
