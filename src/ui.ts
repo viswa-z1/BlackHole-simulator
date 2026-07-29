@@ -30,6 +30,10 @@ function catalogObjectForCosmosName(name: string): any {
 export function cosmosEntityHasCatalogMatch(name: string): boolean {
   return !!catalogObjectForCosmosName(name);
 }
+export function getCosmosEntitySource(name: string): string | null {
+  const o = catalogObjectForCosmosName(name);
+  return o ? o.source : null;
+}
 export function compareCosmosEntity(name: string) {
   const o = catalogObjectForCosmosName(name);
   if (!o) { toast("No catalog match to compare."); return; }

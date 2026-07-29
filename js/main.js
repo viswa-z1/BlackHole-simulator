@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -894,6 +894,17 @@ window.addEventListener("keydown", (e) => {
 document.getElementById("cc-link")?.addEventListener("click", () => {
     const url = location.href; // showAnomaly() keeps the hash in sync, so this already points at the open entity
     navigator.clipboard?.writeText(url).then(() => toast("Link to this entity copied to clipboard."), () => toast(url));
+});
+document.getElementById("cc-citation")?.addEventListener("click", () => {
+    const name = document.getElementById("cc-name").textContent;
+    if (!name)
+        return;
+    const source = getCosmosEntitySource(name);
+    const accessed = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    const citation = source
+        ? `"${name}." SINGULARITY: A Real-Time Black Hole Simulator. Source: ${source}. Accessed ${accessed}.`
+        : `"${name}." SINGULARITY: A Real-Time Black Hole Simulator. Accessed ${accessed}.`;
+    navigator.clipboard?.writeText(citation).then(() => toast("Citation copied to clipboard."), () => toast(citation));
 });
 let cardIndex = 0;
 function showAnomaly(i) {

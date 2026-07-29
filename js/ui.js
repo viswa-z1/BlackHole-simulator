@@ -29,6 +29,10 @@ function catalogObjectForCosmosName(name) {
 export function cosmosEntityHasCatalogMatch(name) {
     return !!catalogObjectForCosmosName(name);
 }
+export function getCosmosEntitySource(name) {
+    const o = catalogObjectForCosmosName(name);
+    return o ? o.source : null;
+}
 export function compareCosmosEntity(name) {
     const o = catalogObjectForCosmosName(name);
     if (!o) {
