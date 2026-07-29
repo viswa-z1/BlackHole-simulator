@@ -109,6 +109,8 @@ const ACHIEVEMENTS: Record<string, { label: string; desc: string; secret?: boole
   "konami":          { label: "Konami Cosmonaut",  desc: "Entered the classic cheat code", secret: true },
 };
 const unlockedAchievements = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(ACH_KEY) || "[]"); } catch (e) { return []; } })());
+const ACH_DATES_KEY = "singularity.achievementDates";
+const achievementDates: Record<string, string> = (() => { try { return JSON.parse(localStorage.getItem(ACH_DATES_KEY) || "{}"); } catch (e) { return {}; } })();
 // secret achievements stay entirely out of the list, counts, and exports until unlocked
 function visibleAchievementEntries() {
   return Object.entries(ACHIEVEMENTS).filter(([id, a]) => !a.secret || unlockedAchievements.has(id));
@@ -119,7 +121,10 @@ function renderAchievements() {
   const entries = visibleAchievementEntries();
   el.innerHTML = entries.map(([id, a]) => {
     const unlocked = unlockedAchievements.has(id);
-    return `<div class="ach${unlocked ? " unlocked" : ""}" data-ach-desc="${a.desc}">
+    const dateStr = unlocked && achievementDates[id]
+      ? new Date(achievementDates[id]).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+      : "";
+    return `<div class="ach${unlocked ? " unlocked" : ""}" data-ach-desc="${a.desc}" data-ach-unlocked-date="${dateStr}">
       <span class="ach-icon">${unlocked ? "🏆" : "🔒"}</span><span class="ach-label">${a.label}</span>
     </div>`;
   }).join("");
@@ -139,7 +144,8 @@ function renderAchievements() {
     if (!badge) return;
     const desc = badge.dataset.achDesc || "";
     const locked = !badge.classList.contains("unlocked");
-    tooltip.textContent = locked ? `🔒 ${desc}` : desc;
+    const dateStr = badge.dataset.achUnlockedDate || "";
+    tooltip.textContent = locked ? `🔒 ${desc}` : dateStr ? `${desc} — Unlocked ${dateStr}` : desc;
   });
   list.addEventListener("mousemove", (e) => {
     const badge = (e.target as HTMLElement).closest(".ach") as HTMLElement | null;
@@ -154,6 +160,8 @@ export function unlockAchievement(id: string) {
   if (unlockedAchievements.has(id) || !ACHIEVEMENTS[id]) return;
   unlockedAchievements.add(id);
   try { localStorage.setItem(ACH_KEY, JSON.stringify([...unlockedAchievements])); } catch (e) {}
+  achievementDates[id] = new Date().toISOString();
+  try { localStorage.setItem(ACH_DATES_KEY, JSON.stringify(achievementDates)); } catch (e) {}
   toast(`🏆 Achievement unlocked: ${ACHIEVEMENTS[id].label}`);
   renderAchievements();
   window.dispatchEvent(new CustomEvent("singularity:achievement"));
