@@ -878,6 +878,7 @@ function buildCatalog() {
     else if (by === "distance") list = [...list].sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
     else if (by === "mass") list = [...list].sort((a, b) => parseSci(a.mass || a.period || "") - parseSci(b.mass || b.period || ""));
     else if (by === "discovered") list = [...list].sort((a, b) => parseYear(a.discovered) - parseYear(b.discovered));
+    else if (by === "favfirst") list = [...list].sort((a, b) => (favs.has(b.name) ? 1 : 0) - (favs.has(a.name) ? 1 : 0));
     else if (by === "shuffle" && shuffleSeed) {
       const order = new Map(shuffleSeed.map((n, i) => [n, i]));
       list = [...list].sort((a, b) => (order.get(a.name) ?? 0) - (order.get(b.name) ?? 0));
