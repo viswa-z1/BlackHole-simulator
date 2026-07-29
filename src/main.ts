@@ -1956,6 +1956,7 @@ function reveal() {                       // home scene becomes live + draggable
 let boot = 0;
 // returning visitors skip the slow boot theatre and get straight in
 const returning = (() => { try { return !!localStorage.getItem("singularity.seen"); } catch (e) { return false; } })();
+const VISIT_MILESTONES = new Set([10, 25, 50, 100, 250, 500, 1000]);
 // a simple visit counter, incremented once per page load
 const visitCount = (() => {
   try {
@@ -1993,6 +1994,9 @@ const bootTimer = setInterval(() => {
     const streakSuffix = visitStreak >= 2 ? ` · 🔥 ${visitStreak}-day streak` : "";
     loaderStatus.textContent = returning ? `Welcome back — visit #${visitCount}${streakSuffix}.` : "Drag to look around — then begin.";
     reveal();
+    if (VISIT_MILESTONES.has(visitCount)) {
+      setTimeout(() => toast(`🎉 Visit #${visitCount} — thanks for exploring SINGULARITY!`), 1200);
+    }
   }
 }, returning ? 90 : 420);
 

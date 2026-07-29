@@ -2369,6 +2369,7 @@ const returning = (() => { try {
 catch (e) {
     return false;
 } })();
+const VISIT_MILESTONES = new Set([10, 25, 50, 100, 250, 500, 1000]);
 // a simple visit counter, incremented once per page load
 const visitCount = (() => {
     try {
@@ -2413,6 +2414,9 @@ const bootTimer = setInterval(() => {
         const streakSuffix = visitStreak >= 2 ? ` · 🔥 ${visitStreak}-day streak` : "";
         loaderStatus.textContent = returning ? `Welcome back — visit #${visitCount}${streakSuffix}.` : "Drag to look around — then begin.";
         reveal();
+        if (VISIT_MILESTONES.has(visitCount)) {
+            setTimeout(() => toast(`🎉 Visit #${visitCount} — thanks for exploring SINGULARITY!`), 1200);
+        }
     }
 }, returning ? 90 : 420);
 // ---------- "did you know" fact rotator on the welcome screen ----------
