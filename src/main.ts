@@ -1359,6 +1359,12 @@ function renderPersonalBests() {
     longest !== null ? `<div><b>${formatStatsTime(longest)}</b><span>Longest session</span></div>` : "",
     furthestStage !== null ? `<div><b>${furthestStage}</b><span>Furthest stage reached</span></div>` : "",
   ].join("");
+  const liveEl = document.getElementById("help-pb-live");
+  if (liveEl) {
+    if (longest === null || longest <= 0) liveEl.textContent = "";
+    else if (currentSessionTime >= longest) liveEl.textContent = "🔥 You're setting a new personal best right now!";
+    else liveEl.textContent = `You're ${formatStatsTime(longest - currentSessionTime)} away from your best session (${formatStatsTime(longest)}).`;
+  }
 }
 // GitHub-style calendar heatmap of visited days, from the persisted visit-date history
 function renderVisitHeatmap() {
@@ -1431,10 +1437,18 @@ document.getElementById("help-recent-list")?.addEventListener("click", (e) => {
 
 // ---------- help / shortcuts overlay ----------
 const helpModal = document.getElementById("help-modal");
+let helpStatsInterval: number | null = null;
 function toggleHelp(force?: boolean) {
   const open = force !== undefined ? force : !helpModal.classList.contains("open");
   helpModal.classList.toggle("open", open);
-  if (open) updateStatsDisplay();
+  if (open) {
+    updateStatsDisplay();
+    if (helpStatsInterval) clearInterval(helpStatsInterval);
+    helpStatsInterval = window.setInterval(renderPersonalBests, 1000);
+  } else if (helpStatsInterval) {
+    clearInterval(helpStatsInterval);
+    helpStatsInterval = null;
+  }
 }
 document.getElementById("tool-help").addEventListener("click", () => toggleHelp());
 helpModal.querySelector("[data-help-close]").addEventListener("click", () => toggleHelp(false));
