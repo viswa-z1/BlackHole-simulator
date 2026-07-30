@@ -2176,6 +2176,23 @@ const bootTimer = setInterval(() => {
   });
 })();
 
+// ---------- "preset of the day" — a deterministic daily pick from the built-in simulator presets ----------
+(function presetOfTheDay() {
+  const btn = document.getElementById("hero-potd");
+  const nameEl = document.getElementById("hero-potd-name");
+  if (!btn || !nameEl) return;
+  const keys = Object.keys(PRESETS);
+  const now = new Date();
+  const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+  const key = keys[dayOfYear % keys.length];
+  nameEl.textContent = PRESET_NAMES[key];
+  btn.addEventListener("click", () => {
+    const select = document.getElementById("c-preset") as HTMLSelectElement | null;
+    if (select) { select.value = key; select.dispatchEvent(new Event("change")); }
+    toast(`Preset of the Day applied: ${PRESET_NAMES[key]}`);
+  });
+})();
+
 let journeyStartTime: number | null = null;
 function beginJourney() {                 // explicit Start → cinematic tracking shot
   if (started) return;
