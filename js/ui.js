@@ -753,6 +753,14 @@ function updateFavCount() {
 export function getCatalogFavorites() {
     return [...favs].map(name => REGISTRY.get(name)).filter(Boolean);
 }
+const RECENT_FAV_KEY = "singularity.recentFavs";
+let recentFavs = (() => { try {
+    return JSON.parse(localStorage.getItem(RECENT_FAV_KEY) || "[]");
+}
+catch (e) {
+    return [];
+} })();
+export function getRecentlyFavorited() { return recentFavs; }
 export function clearCatalogFavorites() {
     favs.clear();
     try {
@@ -762,11 +770,19 @@ export function clearCatalogFavorites() {
     updateFavCount();
 }
 function toggleFav(name) {
+    const adding = !favs.has(name);
     favs.has(name) ? favs.delete(name) : favs.add(name);
     try {
         localStorage.setItem(FAV_KEY, JSON.stringify([...favs]));
     }
     catch (e) { }
+    if (adding) {
+        recentFavs = [name, ...recentFavs.filter(n => n !== name)].slice(0, MAX_RECENT);
+        try {
+            localStorage.setItem(RECENT_FAV_KEY, JSON.stringify(recentFavs));
+        }
+        catch (e) { }
+    }
     updateFavCount();
     if (favs.size >= 5)
         unlockAchievement("collector");

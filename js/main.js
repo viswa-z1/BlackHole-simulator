@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -1770,6 +1770,13 @@ function updateStatsDisplay() {
             ? recent.map(name => `<button data-recent-name="${encodeURIComponent(name)}">${name}</button>`).join("")
             : `<span class="help-recent-empty">Nothing viewed yet — open an object from the Catalog or Cosmos.</span>`;
     }
+    const favList = document.getElementById("help-recent-fav-list");
+    if (favList) {
+        const recentFav = getRecentlyFavorited();
+        favList.innerHTML = recentFav.length
+            ? recentFav.map(name => `<button data-recent-fav-name="${encodeURIComponent(name)}">${name}</button>`).join("")
+            : `<span class="help-recent-empty">No favorites yet — star an object from the Catalog.</span>`;
+    }
     renderNotesSearch();
 }
 function escapeHtml(s) {
@@ -1804,6 +1811,13 @@ document.getElementById("help-recent-list")?.addEventListener("click", (e) => {
         return;
     toggleHelp(false);
     openRecentlyViewed(decodeURIComponent(btn.dataset.recentName));
+});
+document.getElementById("help-recent-fav-list")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-recent-fav-name]");
+    if (!btn)
+        return;
+    toggleHelp(false);
+    openObjectByName(decodeURIComponent(btn.dataset.recentFavName));
 });
 // ---------- help / shortcuts overlay ----------
 const helpModal = document.getElementById("help-modal");
@@ -2049,7 +2063,7 @@ const SETTINGS_KEYS = [
     "singularity.prefs.v1", "singularity.favs", "singularity.cosmosFavs",
     "singularity.seen", "singularity.uiaccent",
     "singularity.stats.viewed", "singularity.stats.session",
-    "singularity.notes", "singularity.recent", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
+    "singularity.notes", "singularity.recent", "singularity.recentFavs", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
     "singularity.customPresets", "singularity.compareHistory",
     "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
     "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
