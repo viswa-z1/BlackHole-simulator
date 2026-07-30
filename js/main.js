@@ -906,6 +906,77 @@ document.getElementById("cc-citation")?.addEventListener("click", () => {
         : `"${name}." SINGULARITY: A Real-Time Black Hole Simulator. Accessed ${accessed}.`;
     navigator.clipboard?.writeText(citation).then(() => toast("Citation copied to clipboard."), () => toast(citation));
 });
+document.getElementById("cc-download")?.addEventListener("click", () => {
+    const name = document.getElementById("cc-name").textContent || "Entity";
+    const kind = document.getElementById("cc-kind").textContent || "";
+    const dist = document.getElementById("cc-dist").textContent || "";
+    const blurb = (document.getElementById("cc-blurb").textContent || "").trim();
+    const imgSrc = document.getElementById("cc-img").src;
+    const W = 900, imgH = 460, H = 700;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx)
+        return;
+    const render = () => {
+        let y = imgH + 60;
+        ctx.fillStyle = "#ffd766";
+        ctx.font = "13px sans-serif";
+        ctx.fillText(kind.toUpperCase(), 40, y - 30);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 40px sans-serif";
+        ctx.fillText(name, 40, y);
+        y += 36;
+        ctx.font = "16px monospace";
+        ctx.fillStyle = "#7d8bb3";
+        ctx.fillText(dist, 40, y);
+        y += 46;
+        ctx.font = "17px sans-serif";
+        ctx.fillStyle = "#e8ecf7";
+        if (ctx.measureText(blurb).width <= W - 80) {
+            ctx.fillText(blurb, 40, y);
+        }
+        else {
+            // simple word-wrap fallback for the rare longer blurb
+            const words = blurb.split(" ");
+            let line = "";
+            words.forEach((w, i) => {
+                const test = line ? line + " " + w : w;
+                if (ctx.measureText(test).width > W - 80 && line) {
+                    ctx.fillText(line, 40, y);
+                    y += 24;
+                    line = w;
+                }
+                else
+                    line = test;
+                if (i === words.length - 1)
+                    ctx.fillText(line, 40, y);
+            });
+        }
+        ctx.font = "13px sans-serif";
+        ctx.fillStyle = "#4a5578";
+        ctx.fillText("SINGULARITY — a real-time black hole simulator", 40, H - 26);
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() + "-cosmos-card.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast("Card downloaded.");
+    };
+    ctx.fillStyle = "#070914";
+    ctx.fillRect(0, 0, W, H);
+    const img = new Image();
+    img.onload = () => {
+        const scale = Math.max(W / img.width, imgH / img.height);
+        const dw = img.width * scale, dh = img.height * scale;
+        ctx.drawImage(img, (W - dw) / 2, (imgH - dh) / 2, dw, dh);
+        render();
+    };
+    img.onerror = render;
+    img.src = imgSrc;
+});
 let cardIndex = 0;
 function showAnomaly(i) {
     const n = cosmos.anomalies.length;
