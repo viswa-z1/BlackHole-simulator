@@ -1207,6 +1207,14 @@ function buildCatalog() {
     });
     document.getElementById("cat-export-csv")?.addEventListener("click", exportCatalogCSV);
     document.getElementById("cat-export-fav-csv")?.addEventListener("click", exportFavoritesCSV);
+    document.getElementById("cat-random-fav")?.addEventListener("click", () => {
+        const favorites = getCatalogFavorites();
+        if (!favorites.length) {
+            toast("No catalog favorites yet — star an object first.");
+            return;
+        }
+        openDetail(favorites[Math.floor(Math.random() * favorites.length)]);
+    });
     document.getElementById("cat-next-unviewed")?.addEventListener("click", () => {
         if (!openNextUnviewed())
             toast("You've viewed every object in the catalog! 🎉");
