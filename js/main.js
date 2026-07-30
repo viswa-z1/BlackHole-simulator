@@ -2417,6 +2417,52 @@ document.getElementById("help-download-badge")?.addEventListener("click", () => 
     a2.remove();
     toast("Achievements badge downloaded.");
 });
+// click an unlocked achievement badge to download it as its own small shareable card
+document.getElementById("help-achievements-list")?.addEventListener("click", (e) => {
+    const badge = e.target.closest(".ach.unlocked");
+    if (!badge)
+        return;
+    const label = badge.querySelector(".ach-label")?.textContent || "Achievement";
+    const desc = badge.dataset.achDesc || "";
+    const dateStr = badge.dataset.achUnlockedDate || "";
+    const W = 520, H = 200;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx)
+        return;
+    ctx.fillStyle = "#070914";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,217,138,0.14)";
+    ctx.strokeStyle = "rgba(255,217,138,0.5)";
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, 16, 16, W - 32, H - 32, 18);
+    ctx.fill();
+    ctx.stroke();
+    ctx.font = "56px sans-serif";
+    ctx.fillStyle = "#ffd98a";
+    ctx.fillText("🏆", 36, 100);
+    ctx.font = "bold 26px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(label, 120, 62);
+    ctx.font = "14px sans-serif";
+    ctx.fillStyle = "#c9d2ef";
+    wrapCanvasText(ctx, desc, 120, 90, W - 150, 20);
+    ctx.font = "12px sans-serif";
+    ctx.fillStyle = "#7d8bb3";
+    ctx.fillText(dateStr ? `Unlocked ${dateStr}` : "Unlocked", 120, 138);
+    ctx.font = "11px sans-serif";
+    ctx.fillStyle = "#4a5578";
+    ctx.fillText("SINGULARITY — a real-time black hole simulator", 20, H - 24);
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = label.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() + "-badge.png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast(`"${label}" badge downloaded.`);
+});
 function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);

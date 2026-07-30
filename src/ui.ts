@@ -160,7 +160,7 @@ function renderAchievements() {
     const progress = badge.dataset.achProgress || "";
     tooltip.textContent = locked
       ? `🔒 ${desc}${progress ? ` (${progress})` : ""}`
-      : dateStr ? `${desc} — Unlocked ${dateStr}` : desc;
+      : (dateStr ? `${desc} — Unlocked ${dateStr}` : desc) + " · Click to download";
   });
   list.addEventListener("mousemove", (e) => {
     const badge = (e.target as HTMLElement).closest(".ach") as HTMLElement | null;

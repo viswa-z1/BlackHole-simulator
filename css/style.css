@@ -1537,7 +1537,8 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
   background: var(--glass); border: 1px solid var(--glass-brd); color: var(--muted);
   padding: 7px 12px; border-radius: 999px; cursor: default;
 }
-.ach.unlocked { color: var(--hot); border-color: rgba(255,217,138,0.4); }
+.ach.unlocked { color: var(--hot); border-color: rgba(255,217,138,0.4); cursor: pointer; transition: transform .15s var(--ease); }
+.ach.unlocked:hover { transform: translateY(-1px); background: rgba(255,217,138,0.12); }
 .ach-icon { font-size: 13px; }
 
 /* "My Notes" search section in the help overlay */
