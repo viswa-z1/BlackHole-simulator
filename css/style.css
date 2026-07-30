@@ -851,6 +851,14 @@ body.page-cosmos #cosmos-filter { opacity: 1; pointer-events: auto; }
 .cfilter:hover { color: var(--fg); }
 .cfilter.active { background: rgba(77,181,255,0.16); border-color: var(--accent2); color: #cfeaff; }
 @media (max-width: 720px) { #cosmos-filter { display: none; } }
+.cos-breakdown {
+  position: fixed; top: 128px; left: 50%; transform: translateX(-50%); z-index: 18;
+  max-width: 480px; width: 90vw;
+  opacity: 0; pointer-events: none; transition: opacity .4s ease;
+}
+body.page-cosmos .cos-breakdown { opacity: 1; }
+.cos-breakdown .cat-breakdown-legend { justify-content: center; }
+@media (max-width: 720px) { .cos-breakdown { display: none; } }
 
 /* cosmos star map */
 #cosmos-map {

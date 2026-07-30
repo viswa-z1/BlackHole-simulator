@@ -957,6 +957,22 @@ document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.
   });
   bar.addEventListener("mouseleave", () => kindTooltip?.classList.remove("show"));
 })();
+
+// kind-breakdown chart above the cosmos filter chips, mirroring the catalog's category breakdown
+(function renderCosmosBreakdown() {
+  const barEl = document.getElementById("cos-breakdown-bar");
+  const legendEl = document.getElementById("cos-breakdown-legend");
+  if (!barEl || !legendEl) return;
+  const kinds = cosmos.kinds();
+  const total = cosmos.anomalies.length || 1;
+  const entries = kinds.map((k: string) => {
+    const matching = cosmos.anomalies.filter((a: any) => a.data.kind === k);
+    const color = matching.length ? "#" + matching[0].data.color.toString(16).padStart(6, "0") : "#888";
+    return { kind: k, count: matching.length, color };
+  });
+  barEl.innerHTML = entries.map((e: any) => `<span style="width:${(e.count / total * 100).toFixed(2)}%; background:${e.color}"></span>`).join("");
+  legendEl.innerHTML = entries.map((e: any) => `<div><span class="dot" style="background:${e.color}"></span>${e.kind} <b>${e.count}</b></div>`).join("");
+})();
 function refreshCosmosFavCount() { const el = document.getElementById("cos-fav-count"); if (el) el.textContent = String(cosmosFavs.size); }
 updateFavTrail();
 document.getElementById("cos-fav-trail-toggle")?.addEventListener("click", (e) => {
