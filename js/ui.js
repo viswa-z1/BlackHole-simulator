@@ -125,6 +125,16 @@ catch (e) {
 function visibleAchievementEntries() {
     return Object.entries(ACHIEVEMENTS).filter(([id, a]) => !a.secret || unlockedAchievements.has(id));
 }
+// numeric progress toward the quantifiable, still-locked achievements
+function achievementProgress(id) {
+    if (id === "explorer")
+        return `${Math.min(viewedNames.size, 10)} / 10`;
+    if (id === "cataloger")
+        return `${Math.min(viewedNames.size, 40)} / 40`;
+    if (id === "collector")
+        return `${Math.min(favs.size, 5)} / 5`;
+    return null;
+}
 function renderAchievements() {
     const el = document.getElementById("help-achievements-list");
     if (!el)
@@ -135,7 +145,8 @@ function renderAchievements() {
         const dateStr = unlocked && achievementDates[id]
             ? new Date(achievementDates[id]).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
             : "";
-        return `<div class="ach${unlocked ? " unlocked" : ""}" data-ach-desc="${a.desc}" data-ach-unlocked-date="${dateStr}">
+        const progress = !unlocked ? achievementProgress(id) : null;
+        return `<div class="ach${unlocked ? " unlocked" : ""}" data-ach-desc="${a.desc}" data-ach-unlocked-date="${dateStr}" data-ach-progress="${progress || ""}">
       <span class="ach-icon">${unlocked ? "🏆" : "🔒"}</span><span class="ach-label">${a.label}</span>
     </div>`;
     }).join("");
@@ -160,7 +171,10 @@ function renderAchievements() {
         const desc = badge.dataset.achDesc || "";
         const locked = !badge.classList.contains("unlocked");
         const dateStr = badge.dataset.achUnlockedDate || "";
-        tooltip.textContent = locked ? `🔒 ${desc}` : dateStr ? `${desc} — Unlocked ${dateStr}` : desc;
+        const progress = badge.dataset.achProgress || "";
+        tooltip.textContent = locked
+            ? `🔒 ${desc}${progress ? ` (${progress})` : ""}`
+            : dateStr ? `${desc} — Unlocked ${dateStr}` : desc;
     });
     list.addEventListener("mousemove", (e) => {
         const badge = e.target.closest(".ach");
