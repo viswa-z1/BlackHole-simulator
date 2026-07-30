@@ -917,12 +917,14 @@ function buildCatalog() {
   const sort = document.getElementById("cat-sort") as HTMLSelectElement;
   let cat = "all";
   let distBucket = "all";
+  let constellationFilter = "all";
   let shuffleSeed: string[] | null = null;
   const render = () => {
     const q = (search?.value || "").trim().toLowerCase();
     currentQuery = q;
     let list = listFor(cat).filter(o => !q || o.name.toLowerCase().includes(q) || (o.alias || "").toLowerCase().includes(q));
     if (distBucket !== "all") list = list.filter(o => distBucketFor(parseSci(o.distance)) === distBucket);
+    if (constellationFilter !== "all") list = list.filter(o => o.constellation === constellationFilter);
     const by = sort?.value || "rank";
     if (by === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     else if (by === "distance") list = [...list].sort((a, b) => parseSci(a.distance) - parseSci(b.distance));
@@ -1007,6 +1009,16 @@ function buildCatalog() {
       render();
     });
   });
+  const constellationSelect = document.getElementById("cat-constellation") as HTMLSelectElement | null;
+  if (constellationSelect) {
+    const constellations = [...new Set(listFor("all").map(o => o.constellation).filter(Boolean))].sort();
+    constellationSelect.innerHTML = `<option value="all">All Constellations</option>` +
+      constellations.map(c => `<option value="${c}">${c}</option>`).join("");
+    constellationSelect.addEventListener("change", () => {
+      constellationFilter = constellationSelect.value;
+      render();
+    });
+  }
   search?.addEventListener("input", render);
   sort?.addEventListener("change", () => {
     if (sort.value === "shuffle") {
