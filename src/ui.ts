@@ -404,6 +404,8 @@ function openDetail(o) {
     favBtn.textContent = isFavorited(o.name) ? "★" : "☆";
     favBtn.classList.toggle("on", isFavorited(o.name));
   }
+  const favNav = document.querySelector(".detail-nav-fav") as HTMLElement | null;
+  if (favNav) favNav.style.display = favs.size ? "" : "none";
 
   const cosmosLink = document.getElementById("detail-cosmos-link") as HTMLButtonElement;
   const cosmosIdx = cosmosIndexFor(o.name);
@@ -447,6 +449,8 @@ function wireDetail() {
       favBtn.textContent = isFavorited(name) ? "★" : "☆";
       favBtn.classList.toggle("on", isFavorited(name));
     }
+    const favNav = document.querySelector(".detail-nav-fav") as HTMLElement | null;
+    if (favNav) favNav.style.display = favs.size ? "" : "none";
     toast(isFavorited(name) ? `${name} added to favorites` : `${name} removed from favorites`);
   };
   document.getElementById("detail-fav")?.addEventListener("click", toggleDetailFav);
@@ -512,6 +516,21 @@ function wireDetail() {
   };
   document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
   document.getElementById("dn-next")?.addEventListener("click", () => stepDetail(1));
+
+  // step through only favorited objects, wherever the currently open object falls in that list
+  const stepFavorite = (dir: number) => {
+    const favorites = getCatalogFavorites();
+    if (!favorites.length) return;
+    const name = document.getElementById("detail-name").textContent;
+    let i = favorites.findIndex(o => o.name === name);
+    i = i === -1 ? (dir > 0 ? 0 : favorites.length - 1) : ((i + dir) % favorites.length + favorites.length) % favorites.length;
+    window.speechSynthesis?.cancel();
+    const readBtn = document.getElementById("detail-read-aloud");
+    if (readBtn) readBtn.textContent = "🔊 Read aloud";
+    openDetail(favorites[i]);
+  };
+  document.getElementById("dn-fav-prev")?.addEventListener("click", () => stepFavorite(-1));
+  document.getElementById("dn-fav-next")?.addEventListener("click", () => stepFavorite(1));
 
   // personal notes: save as the user types
   document.getElementById("detail-notes")?.addEventListener("input", (e) => {
