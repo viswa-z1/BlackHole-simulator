@@ -368,6 +368,20 @@ function downloadCompareCard() {
   });
 }
 
+// the 2-3 other catalog objects in the same category with the closest mass (or spin period, for pulsars)
+function similarObjects(o: any): any[] {
+  const isPulsar = o.category === "pulsar";
+  const key = isPulsar ? "period" : "mass";
+  const val = parseSci(o[key] || "");
+  if (!val) return [];
+  const pool = listFor(o.category).filter((x: any) => x.name !== o.name && parseSci(x[key] || "") > 0);
+  return pool
+    .map((x: any) => ({ x, diff: Math.abs(parseSci(x[key] || "") - val) }))
+    .sort((a, b) => a.diff - b.diff)
+    .slice(0, 3)
+    .map(e => e.x);
+}
+
 function openDetail(o) {
   recordObjectView(o.name);
   const isPulsar = o.category === "pulsar";
@@ -409,6 +423,14 @@ function openDetail(o) {
 
   document.getElementById("detail-desc").innerHTML = `<b>${o.tag}</b> ${o.fact}`;
   (document.getElementById("detail-source") as HTMLAnchorElement).href = o.source;
+
+  const similarEl = document.getElementById("detail-similar");
+  const similarWrap = document.getElementById("detail-similar-wrap");
+  if (similarEl && similarWrap) {
+    const similar = similarObjects(o);
+    similarEl.innerHTML = similar.map(s => `<button class="detail-similar-item" data-similar-name="${encodeURIComponent(s.name)}">${s.name}</button>`).join("");
+    similarWrap.style.display = similar.length ? "" : "none";
+  }
 
   const favBtn = document.getElementById("detail-fav");
   if (favBtn) {
@@ -542,6 +564,13 @@ function wireDetail() {
   };
   document.getElementById("dn-fav-prev")?.addEventListener("click", () => stepFavorite(-1));
   document.getElementById("dn-fav-next")?.addEventListener("click", () => stepFavorite(1));
+
+  document.getElementById("detail-similar")?.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest("button[data-similar-name]") as HTMLElement | null;
+    if (!btn) return;
+    const o = REGISTRY.get(decodeURIComponent(btn.dataset.similarName));
+    if (o) openDetail(o);
+  });
 
   // personal notes: save as the user types
   document.getElementById("detail-notes")?.addEventListener("input", (e) => {
