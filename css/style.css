@@ -23,6 +23,18 @@
 }
 h1, h2, h3, .brand, .stage-name, .detail-name, .cosmos-card h3 { font-family: var(--display); }
 
+/* accessibility: brighter text/borders and near-opaque panels, plus a UI-wide text-scale bump */
+body.high-contrast {
+  --fg: #ffffff;
+  --muted: #d7dcf5;
+  --glass: rgba(6, 8, 20, 0.92);
+  --glass-strong: rgba(3, 4, 12, 0.97);
+  --glass-brd: rgba(200, 215, 255, 0.5);
+}
+body.high-contrast .panel, body.high-contrast .detail-modal, body.high-contrast .cosmos-hud,
+body.high-contrast #hud, body.high-contrast #dock, body.high-contrast #toolbar, body.high-contrast #topbar,
+body.high-contrast .cosmos-card { zoom: 1.16; }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 ::selection { background: rgba(255,157,60,0.3); color: #fff; }

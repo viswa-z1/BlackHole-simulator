@@ -29,6 +29,8 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;   // filmic HDR -> LDR
 renderer.toneMappingExposure = 1.0;
 
 let reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let highContrast = window.matchMedia("(prefers-contrast: more)").matches;
+document.body.classList.toggle("high-contrast", highContrast);
 
 // ---------- camera (drives the lensing ray-marcher + scene) ----------
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.01, 4000);
@@ -653,6 +655,12 @@ document.getElementById("c-reduce-motion")?.addEventListener("change", (e) => {
   reduceMotion = (e.target as HTMLInputElement).checked;
   controls.autoRotate = !reduceMotion && mode === "explore";
   toast(reduceMotion ? "Motion reduced — camera shake and auto-rotate off" : "Full motion restored");
+});
+(document.getElementById("c-high-contrast") as HTMLInputElement).checked = highContrast;
+document.getElementById("c-high-contrast")?.addEventListener("change", (e) => {
+  highContrast = (e.target as HTMLInputElement).checked;
+  document.body.classList.toggle("high-contrast", highContrast);
+  toast(highContrast ? "High contrast & larger text enabled" : "High contrast & larger text off");
 });
 document.getElementById("toggle-dock").addEventListener("click", () => {
   document.getElementById("dock").classList.toggle("collapsed");
@@ -1700,6 +1708,7 @@ function savePrefs() {
       vol: parseFloat((document.getElementById("c-vol") as HTMLInputElement)?.value || "1"),
       orbit: params.freeOrbit,
       reduceMotion,
+      highContrast,
     }));
   } catch (e) { /* storage unavailable */ }
 }
@@ -1715,11 +1724,12 @@ function loadPrefs() {
   setRange("c-ring", p.ring); setRange("c-bloom", p.bloom); setRange("c-vol", p.vol);
   setCheck("c-doppler", p.doppler); setCheck("c-jets", p.jets); setCheck("c-ergo", p.ergo);
   setCheck("c-orbit", p.orbit); setCheck("c-reduce-motion", p.reduceMotion);
+  setCheck("c-high-contrast", p.highContrast);
   if (p.palette != null) document.querySelector<HTMLElement>(`#c-spectrum .sw[data-pal="${p.palette}"]`)?.click();
 }
 ["c-mass", "c-spin", "c-bright", "c-steps", "c-time", "c-fov", "c-thick", "c-stars", "c-ring", "c-bloom", "c-vol"]
   .forEach(id => document.getElementById(id)?.addEventListener("input", savePrefs));
-["c-doppler", "c-jets", "c-ergo", "c-orbit", "c-reduce-motion"].forEach(id => document.getElementById(id)?.addEventListener("change", savePrefs));
+["c-doppler", "c-jets", "c-ergo", "c-orbit", "c-reduce-motion", "c-high-contrast"].forEach(id => document.getElementById(id)?.addEventListener("change", savePrefs));
 document.getElementById("c-spectrum")?.addEventListener("click", () => setTimeout(savePrefs, 0));
 
 // ---------- centralized list of every persisted-settings key ----------
