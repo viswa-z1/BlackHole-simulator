@@ -1576,6 +1576,25 @@ function toggleHelp(force?: boolean) {
 document.getElementById("tool-help").addEventListener("click", () => toggleHelp());
 helpModal.querySelector("[data-help-close]").addEventListener("click", () => toggleHelp(false));
 helpModal.addEventListener("click", (e) => { if (e.target === helpModal) toggleHelp(false); });
+
+// live-filter the keyboard-shortcuts cheat sheet as you type
+(function wireHelpShortcutsSearch() {
+  const input = document.getElementById("help-shortcuts-search") as HTMLInputElement | null;
+  const grid = document.getElementById("help-grid");
+  if (!input || !grid) return;
+  input.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    grid.querySelectorAll(".help-group").forEach((group) => {
+      let visibleCount = 0;
+      group.querySelectorAll("li").forEach((li) => {
+        const match = !q || (li.textContent || "").toLowerCase().includes(q);
+        (li as HTMLElement).style.display = match ? "" : "none";
+        if (match) visibleCount++;
+      });
+      (group as HTMLElement).style.display = visibleCount ? "" : "none";
+    });
+  });
+})();
 window.addEventListener("keydown", (e) => {
   if (e.key === "?") toggleHelp();
   else if (e.key === "Escape") toggleHelp(false);
