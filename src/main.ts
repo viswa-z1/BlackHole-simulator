@@ -1988,6 +1988,38 @@ document.getElementById("help-print-notes")?.addEventListener("click", () => {
     ${names.map(name => `<div class="nps-entry"><h3>${escapeHtml(name)}</h3><p>${escapeHtml(notes[name])}</p></div>`).join("")}`;
   const checklistSheet = document.getElementById("cat-print-sheet");
   if (checklistSheet) checklistSheet.innerHTML = "";
+  const statsSheet = document.getElementById("stats-print-sheet");
+  if (statsSheet) statsSheet.innerHTML = "";
+  document.body.classList.add("printing-catalog");
+  window.print();
+});
+document.getElementById("help-print-stats")?.addEventListener("click", () => {
+  const sheet = document.getElementById("stats-print-sheet");
+  if (!sheet) return;
+  const ach = getAchievementCounts();
+  const fastest = getPersonalBest("fastestHorizon");
+  const longest = getPersonalBest("longestSession");
+  const stageIdx = (() => { try { return parseInt(localStorage.getItem("singularity.furthestStage") || "", 10); } catch (e) { return NaN; } })();
+  const furthestStage = !isNaN(stageIdx) && STAGES[stageIdx] ? STAGES[stageIdx].label : "—";
+  const stats: Array<[string, string]> = [
+    [String(visitCount), "Total visits"],
+    [`${visitStreak}-day`, "Current streak"],
+    [`${getViewedCount()} / 40`, "Objects viewed"],
+    [`${ach.unlocked} / ${ach.total}`, "Achievements unlocked"],
+    [fastest !== null ? `${fastest.toFixed(1)}s` : "—", "Fastest to horizon"],
+    [longest !== null ? formatStatsTime(longest) : "—", "Longest session"],
+    [furthestStage, "Furthest stage reached"],
+  ];
+  sheet.innerHTML = `
+    <div class="cps-title">My SINGULARITY Stats</div>
+    <div class="cps-sub">printed ${new Date().toLocaleDateString()}</div>
+    <div class="sps-grid">
+      ${stats.map(([v, l]) => `<div class="sps-stat"><b>${escapeHtml(v)}</b><span>${escapeHtml(l)}</span></div>`).join("")}
+    </div>`;
+  const checklistSheet = document.getElementById("cat-print-sheet");
+  if (checklistSheet) checklistSheet.innerHTML = "";
+  const notesSheet = document.getElementById("notes-print-sheet");
+  if (notesSheet) notesSheet.innerHTML = "";
   document.body.classList.add("printing-catalog");
   window.print();
 });
