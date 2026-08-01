@@ -1118,6 +1118,21 @@ body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !impor
 .cmp-row b { font-family: var(--mono); font-weight: 500; text-align: right; }
 @media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
 
+/* radar/spider chart overlaying both objects' comparable magnitudes */
+.compare-radar-wrap { display: none; margin-top: 20px; text-align: center; }
+.compare-radar-wrap.show { display: block; }
+#compare-radar { width: 100%; max-width: 300px; height: auto; overflow: visible; }
+.radar-ring { fill: none; stroke: rgba(255,255,255,0.09); stroke-width: 1; }
+.radar-spoke { stroke: rgba(255,255,255,0.09); stroke-width: 1; }
+.radar-label { font-family: var(--font); font-size: 9.5px; fill: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.radar-poly { fill-opacity: 0.16; stroke-width: 1.6; }
+.radar-poly-a { fill: var(--accent2); stroke: var(--accent2); }
+.radar-poly-b { fill: var(--accent); stroke: var(--accent); }
+.compare-radar-legend { display: flex; justify-content: center; gap: 18px; margin-top: 4px; font-size: 12px; }
+.compare-radar-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.radar-legend-a { color: var(--accent2); }
+.radar-legend-b { color: var(--accent); }
+
 /* recent-comparisons shortcut list inside the compare modal */
 .compare-history { margin-top: 24px; display: none; }
 .compare-history h4 {

@@ -903,8 +903,55 @@ function openCompare(a, b) {
       ${CMP_ROWS.filter(([k]) => a[k] || b[k]).map(([k, lab]) => `<div class="cmp-row"><span>${lab}</span><b>${o[k] || "—"}</b></div>`).join("")}
     </div>`;
     grid.innerHTML = col(a) + col(b);
+    renderCompareRadar(a, b);
     document.getElementById("compare-modal").classList.add("open");
     recordCompareHistory(a.name, b.name);
+}
+// axes with clean, reliably-parseable magnitudes; "field" and "discovered" are excluded
+// since they use unicode-superscript exponents / years rather than plain numbers
+const RADAR_AXES = [
+    ["mass", "Mass"], ["distance", "Distance"], ["diameter", "Horizon Ø"], ["spin", "Spin"], ["period", "Spin Period"], ["age", "Age"],
+];
+function renderCompareRadar(a, b) {
+    const wrap = document.getElementById("compare-radar-wrap");
+    const svg = document.getElementById("compare-radar");
+    const legend = document.getElementById("compare-radar-legend");
+    if (!wrap || !svg || !legend)
+        return;
+    const axes = RADAR_AXES.filter(([k]) => parseSci(a[k]) > 0 && parseSci(b[k]) > 0).slice(0, 5);
+    if (axes.length < 3) {
+        wrap.classList.remove("show");
+        svg.innerHTML = "";
+        legend.innerHTML = "";
+        return;
+    }
+    wrap.classList.add("show");
+    const cx = 130, cy = 130, maxR = 96;
+    const angleFor = (i) => -Math.PI / 2 + i * (2 * Math.PI / axes.length);
+    const polygon = (o) => axes.map(([k], i) => {
+        const va = parseSci(a[k]), vb = parseSci(b[k]);
+        const la = Math.log10(va + 1), lb = Math.log10(vb + 1);
+        const total = la + lb || 1;
+        const share = 0.12 + 0.88 * (Math.log10(parseSci(o[k]) + 1) / total);
+        const ang = angleFor(i);
+        return [cx + Math.cos(ang) * maxR * share, cy + Math.sin(ang) * maxR * share];
+    });
+    const toPath = (pts) => pts.map(p => p.join(",")).join(" ");
+    const rings = [0.25, 0.5, 0.75, 1].map(f => `<polygon points="${toPath(axes.map((_, i) => { const ang = angleFor(i); return [cx + Math.cos(ang) * maxR * f, cy + Math.sin(ang) * maxR * f]; }))}" class="radar-ring" />`).join("");
+    const spokes = axes.map((_, i) => {
+        const ang = angleFor(i);
+        return `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(ang) * maxR}" y2="${cy + Math.sin(ang) * maxR}" class="radar-spoke" />`;
+    }).join("");
+    const labels = axes.map(([, lab], i) => {
+        const ang = angleFor(i);
+        const lx = cx + Math.cos(ang) * (maxR + 20), ly = cy + Math.sin(ang) * (maxR + 20);
+        return `<text x="${lx}" y="${ly}" class="radar-label" text-anchor="middle" dominant-baseline="middle">${lab}</text>`;
+    }).join("");
+    svg.innerHTML = `${rings}${spokes}
+    <polygon points="${toPath(polygon(a))}" class="radar-poly radar-poly-a" />
+    <polygon points="${toPath(polygon(b))}" class="radar-poly radar-poly-b" />
+    ${labels}`;
+    legend.innerHTML = `<span class="radar-legend-a">■ ${a.name}</span><span class="radar-legend-b">■ ${b.name}</span>`;
 }
 function wireCompare() {
     const modal = document.getElementById("compare-modal");
