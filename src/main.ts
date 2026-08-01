@@ -708,6 +708,9 @@ function formatLy(n: number): string {
 }
 function openCosmosCard(d) {
   recordObjectView(d.name);
+  window.speechSynthesis?.cancel();
+  const readBtn = document.getElementById("cc-read-aloud");
+  if (readBtn) { readBtn.textContent = "🔊"; readBtn.classList.remove("speaking"); }
   cosmosCard.style.setProperty("--cc-accent", "#" + d.color.toString(16).padStart(6, "0"));
   const img = document.getElementById("cc-img") as HTMLImageElement;
   if (img) { img.src = portraitDataURL({ name: d.name, kind: KIND_TO_PORTRAIT[d.kind] || "stellar" }, 760, 380); img.alt = `Rendered figure of ${d.name}`; }
@@ -862,6 +865,20 @@ document.getElementById("cc-download")?.addEventListener("click", () => {
   };
   img.onerror = render;
   img.src = imgSrc;
+});
+document.getElementById("cc-read-aloud")?.addEventListener("click", () => {
+  const btn = document.getElementById("cc-read-aloud");
+  if (!window.speechSynthesis) { toast("Speech isn't supported in this browser."); return; }
+  if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); btn.textContent = "🔊"; btn.classList.remove("speaking"); return; }
+  const name = document.getElementById("cc-name").textContent || "";
+  const kind = document.getElementById("cc-kind").textContent || "";
+  const blurb = (document.getElementById("cc-blurb").textContent || "").trim();
+  const utter = new SpeechSynthesisUtterance(`${name}. ${kind}. ${blurb}`);
+  utter.onend = () => { btn.textContent = "🔊"; btn.classList.remove("speaking"); };
+  utter.onerror = () => { btn.textContent = "🔊"; btn.classList.remove("speaking"); };
+  btn.textContent = "⏹";
+  btn.classList.add("speaking");
+  window.speechSynthesis.speak(utter);
 });
 let cardIndex = 0;
 function showAnomaly(i: number) {
