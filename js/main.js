@@ -1087,6 +1087,15 @@ document.getElementById("cos-next-unviewed")?.addEventListener("click", () => {
     else
         toast("You've explored every entity in the cosmos!");
 });
+document.getElementById("cos-random-unviewed")?.addEventListener("click", () => {
+    const unviewed = cosmos.anomalies
+        .map((a, i) => i)
+        .filter((i) => !hasViewedObject(cosmos.anomalies[i].data.name));
+    if (unviewed.length)
+        showAnomaly(unviewed[Math.floor(Math.random() * unviewed.length)]);
+    else
+        toast("You've explored every entity in the cosmos!");
+});
 document.getElementById("cos-zoom-in")?.addEventListener("click", () => cosmos.addZoom(0.08));
 document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.addZoom(-0.08));
 // cosmos entity search (datalist + Enter/pick jumps to the match)
