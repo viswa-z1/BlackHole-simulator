@@ -2169,6 +2169,7 @@ let boot = 0;
 // returning visitors skip the slow boot theatre and get straight in
 const returning = (() => { try { return !!localStorage.getItem("singularity.seen"); } catch (e) { return false; } })();
 const VISIT_MILESTONES = new Set([10, 25, 50, 100, 250, 500, 1000]);
+const STREAK_MILESTONES = new Set([3, 7, 14, 30, 60, 100, 365]);
 // a simple visit counter, incremented once per page load
 const visitCount = (() => {
   try {
@@ -2208,6 +2209,9 @@ const bootTimer = setInterval(() => {
     reveal();
     if (VISIT_MILESTONES.has(visitCount)) {
       setTimeout(() => toast(`🎉 Visit #${visitCount} — thanks for exploring SINGULARITY!`), 1200);
+    }
+    if (STREAK_MILESTONES.has(visitStreak)) {
+      setTimeout(() => toast(`🔥 ${visitStreak}-day streak — you've come back every day!`), VISIT_MILESTONES.has(visitCount) ? 3200 : 1200);
     }
   }
 }, returning ? 90 : 420);
