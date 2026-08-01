@@ -919,7 +919,48 @@ function recordCompareHistory(nameA, nameB) {
         localStorage.setItem(COMPARE_HISTORY_KEY, JSON.stringify(hist));
     }
     catch (e) { }
+    bumpCompareCount(nameA, nameB);
     renderCompareHistory();
+}
+// tallies how many times each unordered pair has been compared, to surface the most-compared pair
+const COMPARE_COUNTS_KEY = "singularity.compareCounts";
+function loadCompareCounts() {
+    try {
+        return JSON.parse(localStorage.getItem(COMPARE_COUNTS_KEY) || "{}") || {};
+    }
+    catch (e) {
+        return {};
+    }
+}
+function pairKey(a, b) { return [a, b].sort().join("␟"); }
+function bumpCompareCount(a, b) {
+    const counts = loadCompareCounts();
+    const key = pairKey(a, b);
+    counts[key] = (counts[key] || 0) + 1;
+    try {
+        localStorage.setItem(COMPARE_COUNTS_KEY, JSON.stringify(counts));
+    }
+    catch (e) { }
+    renderMostCompared();
+}
+function renderMostCompared() {
+    const el = document.getElementById("compare-most");
+    if (!el)
+        return;
+    const counts = loadCompareCounts();
+    let bestKey = "", bestN = 0;
+    for (const [k, n] of Object.entries(counts))
+        if (n > bestN) {
+            bestN = n;
+            bestKey = k;
+        }
+    if (bestN < 2) {
+        el.style.display = "none";
+        return;
+    }
+    const [a, b] = bestKey.split("␟");
+    el.innerHTML = `Most compared: <b>${a}</b> vs <b>${b}</b> — ${bestN}×`;
+    el.style.display = "block";
 }
 function openCompare(a, b) {
     if (!a || !b)
@@ -1000,6 +1041,7 @@ function wireCompare() {
             openCompare(a, b);
     });
     renderCompareHistory();
+    renderMostCompared();
 }
 // ---------- cosmic trivia mini-quiz ----------
 const TRIVIA = [

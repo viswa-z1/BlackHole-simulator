@@ -1151,6 +1151,12 @@ body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !impor
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
   color: var(--accent2); margin-bottom: 10px;
 }
+.compare-most {
+  display: none; font-size: 12px; color: var(--muted); margin-bottom: 12px;
+  padding: 8px 12px; background: rgba(255,157,60,0.08); border: 1px solid rgba(255,157,60,0.25);
+  border-radius: 10px;
+}
+.compare-most b { color: var(--hot); font-weight: 600; }
 .compare-history-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .compare-history-item {
   font-family: var(--font); font-size: 12px; cursor: pointer; color: var(--fg);
