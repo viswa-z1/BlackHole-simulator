@@ -471,6 +471,7 @@ function wireDetail() {
     window.speechSynthesis?.cancel();
     const readBtn = document.getElementById("detail-read-aloud");
     if (readBtn) readBtn.textContent = "🔊 Read aloud";
+    stopAutoplay();
   };
 
   // star icon (and S key) favorites the object currently open in the detail modal
@@ -548,8 +549,26 @@ function wireDetail() {
     if (readBtn) readBtn.textContent = "🔊 Read aloud";
     openDetail(currentList[i]);
   };
-  document.getElementById("dn-prev")?.addEventListener("click", () => stepDetail(-1));
-  document.getElementById("dn-next")?.addEventListener("click", () => stepDetail(1));
+  // auto-advance through the currently rendered list every few seconds, until paused
+  // or interrupted by any manual navigation
+  const AUTOPLAY_MS = 4000;
+  const autoplayBtn = document.getElementById("dn-autoplay");
+  let autoplayTimer: ReturnType<typeof setInterval> | null = null;
+  const stopAutoplay = () => {
+    if (!autoplayTimer) return;
+    clearInterval(autoplayTimer);
+    autoplayTimer = null;
+    if (autoplayBtn) { autoplayBtn.textContent = "▶ Slideshow"; autoplayBtn.classList.remove("active"); }
+  };
+  const startAutoplay = () => {
+    if (!currentList.length) return;
+    autoplayTimer = setInterval(() => stepDetail(1), AUTOPLAY_MS);
+    if (autoplayBtn) { autoplayBtn.textContent = "⏸ Slideshow"; autoplayBtn.classList.add("active"); }
+  };
+  autoplayBtn?.addEventListener("click", () => { autoplayTimer ? stopAutoplay() : startAutoplay(); });
+
+  document.getElementById("dn-prev")?.addEventListener("click", () => { stopAutoplay(); stepDetail(-1); });
+  document.getElementById("dn-next")?.addEventListener("click", () => { stopAutoplay(); stepDetail(1); });
 
   // step through only favorited objects, wherever the currently open object falls in that list
   const stepFavorite = (dir: number) => {
@@ -563,12 +582,13 @@ function wireDetail() {
     if (readBtn) readBtn.textContent = "🔊 Read aloud";
     openDetail(favorites[i]);
   };
-  document.getElementById("dn-fav-prev")?.addEventListener("click", () => stepFavorite(-1));
-  document.getElementById("dn-fav-next")?.addEventListener("click", () => stepFavorite(1));
+  document.getElementById("dn-fav-prev")?.addEventListener("click", () => { stopAutoplay(); stepFavorite(-1); });
+  document.getElementById("dn-fav-next")?.addEventListener("click", () => { stopAutoplay(); stepFavorite(1); });
 
   document.getElementById("detail-similar")?.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest("button[data-similar-name]") as HTMLElement | null;
     if (!btn) return;
+    stopAutoplay();
     const o = REGISTRY.get(decodeURIComponent(btn.dataset.similarName));
     if (o) openDetail(o);
   });
@@ -652,8 +672,8 @@ function wireDetail() {
   document.addEventListener("keydown", (e) => {
     if (!modal.classList.contains("open")) return;
     if ((e.target as HTMLElement)?.id === "detail-notes") return;   // let arrow keys move the cursor while typing a note
-    if (e.key === "ArrowLeft") { e.stopPropagation(); stepDetail(-1); }
-    else if (e.key === "ArrowRight") { e.stopPropagation(); stepDetail(1); }
+    if (e.key === "ArrowLeft") { e.stopPropagation(); stopAutoplay(); stepDetail(-1); }
+    else if (e.key === "ArrowRight") { e.stopPropagation(); stopAutoplay(); stepDetail(1); }
   }, true);   // capture: runs before the journey's arrow-key handler
 }
 
