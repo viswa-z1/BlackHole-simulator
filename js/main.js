@@ -1093,9 +1093,55 @@ document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.
 (function wireCosmosSearch() {
     const input = document.getElementById("cosmos-search");
     const list = document.getElementById("cosmos-entities");
+    const recentEl = document.getElementById("cosmos-search-recent");
     if (!input || !list)
         return;
     list.innerHTML = cosmos.anomalies.map((a) => `<option value="${a.data.name}"></option>`).join("");
+    const RECENT_KEY = "singularity.cosmosRecentSearches";
+    const MAX_RECENT = 5;
+    const loadRecent = () => { try {
+        return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+    }
+    catch (e) {
+        return [];
+    } };
+    const saveRecent = (name) => {
+        const recent = [name, ...loadRecent().filter(n => n !== name)].slice(0, MAX_RECENT);
+        try {
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+        }
+        catch (e) { }
+    };
+    const renderRecent = () => {
+        if (!recentEl)
+            return;
+        const recent = loadRecent();
+        if (!recent.length) {
+            recentEl.classList.remove("show");
+            return;
+        }
+        recentEl.innerHTML = recent.map(n => `<button data-name="${encodeURIComponent(n)}">🕐 ${n}</button>`).join("");
+        recentEl.classList.add("show");
+    };
+    recentEl?.addEventListener("mousedown", (e) => {
+        // mousedown (not click) fires before the input's blur hides this dropdown
+        const btn = e.target.closest("button[data-name]");
+        if (!btn)
+            return;
+        e.preventDefault();
+        const name = decodeURIComponent(btn.dataset.name || "");
+        const i = cosmos.anomalies.findIndex((a) => a.data.name === name);
+        if (i >= 0) {
+            showAnomaly(i);
+            saveRecent(name);
+            input.value = "";
+            recentEl.classList.remove("show");
+            input.blur();
+        }
+    });
+    input.addEventListener("focus", () => { if (!input.value.trim())
+        renderRecent(); });
+    input.addEventListener("blur", () => setTimeout(() => recentEl?.classList.remove("show"), 150));
     const jump = () => {
         const q = input.value.trim().toLowerCase();
         if (!q)
@@ -1103,6 +1149,7 @@ document.getElementById("cos-zoom-out")?.addEventListener("click", () => cosmos.
         const i = cosmos.anomalies.findIndex((a) => a.data.name.toLowerCase().includes(q));
         if (i >= 0) {
             showAnomaly(i);
+            saveRecent(cosmos.anomalies[i].data.name);
             input.blur();
         }
         else
@@ -2139,6 +2186,7 @@ const SETTINGS_KEYS = [
     "singularity.stats.viewed", "singularity.stats.session",
     "singularity.notes", "singularity.recent", "singularity.recentFavs", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
     "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts", "singularity.catalogView",
+    "singularity.cosmosRecentSearches",
     "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
     "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
