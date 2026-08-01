@@ -1395,6 +1395,23 @@ function buildCatalog() {
         if (list.length)
             openDetail(list[Math.floor(Math.random() * list.length)]);
     });
+    // compact list view: a denser row layout for scanning many objects at once, persisted locally
+    const CAT_VIEW_KEY = "singularity.catalogView";
+    const viewToggleBtn = document.getElementById("cat-view-toggle");
+    const applyCatView = (compact) => {
+        grid.classList.toggle("compact", compact);
+        if (viewToggleBtn)
+            viewToggleBtn.textContent = compact ? "▦ Card view" : "☰ List view";
+    };
+    applyCatView(localStorage.getItem(CAT_VIEW_KEY) === "compact");
+    viewToggleBtn?.addEventListener("click", () => {
+        const compact = !grid.classList.contains("compact");
+        applyCatView(compact);
+        try {
+            localStorage.setItem(CAT_VIEW_KEY, compact ? "compact" : "card");
+        }
+        catch (e) { }
+    });
     document.getElementById("cat-export-csv")?.addEventListener("click", exportCatalogCSV);
     document.getElementById("cat-export-fav-csv")?.addEventListener("click", exportFavoritesCSV);
     document.getElementById("cat-random-fav")?.addEventListener("click", () => {

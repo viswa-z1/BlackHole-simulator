@@ -1775,7 +1775,7 @@ const SETTINGS_KEYS = [
   "singularity.seen", "singularity.uiaccent",
   "singularity.stats.viewed", "singularity.stats.session",
   "singularity.notes", "singularity.recent", "singularity.recentFavs", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
-  "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts",
+  "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts", "singularity.catalogView",
   "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
   "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
