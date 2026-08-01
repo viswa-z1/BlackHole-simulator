@@ -106,6 +106,7 @@ const ACHIEVEMENTS = {
     "time-traveler": { label: "Time Traveler", desc: "Explored for 5 minutes total" },
     "deep-diver": { label: "Deep Diver", desc: "Dove 2 billion light-years into the cosmos" },
     "note-taker": { label: "Note Taker", desc: "Wrote your first personal note" },
+    "quiz-whiz": { label: "Quiz Whiz", desc: "Scored a perfect round in Cosmic Trivia" },
     "konami": { label: "Konami Cosmonaut", desc: "Entered the classic cheat code", secret: true },
 };
 const unlockedAchievements = new Set((() => { try {
@@ -932,6 +933,23 @@ const TRIVIA = [
     { q: "About how many times per second does the Crab Pulsar spin?", options: ["3", "30", "300"], correct: 1 },
     { q: "In what year did the Event Horizon Telescope image Sagittarius A*?", options: ["2019", "2022", "2025"], correct: 1 },
 ];
+// best trivia score + total games played, persisted locally
+const TRIVIA_KEY = "singularity.trivia";
+function loadTriviaStats() {
+    try {
+        const s = JSON.parse(localStorage.getItem(TRIVIA_KEY) || "null");
+        return s && typeof s === "object" ? { best: s.best || 0, plays: s.plays || 0 } : { best: 0, plays: 0 };
+    }
+    catch (e) {
+        return { best: 0, plays: 0 };
+    }
+}
+function saveTriviaStats(s) {
+    try {
+        localStorage.setItem(TRIVIA_KEY, JSON.stringify(s));
+    }
+    catch (e) { }
+}
 function wireTrivia() {
     const modal = document.getElementById("trivia-modal");
     if (!modal)
@@ -942,9 +960,13 @@ function wireTrivia() {
     const optsEl = document.getElementById("trivia-options");
     const resultEl = document.getElementById("trivia-result");
     const nextBtn = document.getElementById("trivia-next");
+    const bestSuffix = () => {
+        const { best, plays } = loadTriviaStats();
+        return plays ? ` · Best ${best} / ${TRIVIA.length} (${plays} play${plays === 1 ? "" : "s"})` : "";
+    };
     const showQuestion = () => {
         const t = TRIVIA[qi];
-        progressEl.textContent = `Question ${qi + 1} of ${TRIVIA.length} · Score ${score}`;
+        progressEl.textContent = `Question ${qi + 1} of ${TRIVIA.length} · Score ${score}${bestSuffix()}`;
         qEl.textContent = t.q;
         resultEl.textContent = "";
         nextBtn.classList.remove("show");
@@ -967,7 +989,7 @@ function wireTrivia() {
             optsEl.querySelector(`button[data-i="${t.correct}"]`)?.classList.add("correct");
             resultEl.textContent = `Not quite — it's "${t.options[t.correct]}".`;
         }
-        progressEl.textContent = `Question ${qi + 1} of ${TRIVIA.length} · Score ${score}`;
+        progressEl.textContent = `Question ${qi + 1} of ${TRIVIA.length} · Score ${score}${bestSuffix()}`;
         nextBtn.classList.add("show");
         nextBtn.textContent = qi < TRIVIA.length - 1 ? "Next ›" : "See result";
     });
@@ -979,10 +1001,18 @@ function wireTrivia() {
         qi++;
         if (qi >= TRIVIA.length) {
             finished = true;
+            const stats = loadTriviaStats();
+            stats.plays++;
+            const isNewBest = score > stats.best;
+            if (isNewBest)
+                stats.best = score;
+            saveTriviaStats(stats);
+            if (score === TRIVIA.length)
+                unlockAchievement("quiz-whiz");
             progressEl.textContent = "Finished!";
-            qEl.textContent = `You scored ${score} / ${TRIVIA.length}.`;
+            qEl.textContent = `You scored ${score} / ${TRIVIA.length}.` + (isNewBest && stats.plays > 1 ? " New best!" : "");
             optsEl.innerHTML = "";
-            resultEl.textContent = "";
+            resultEl.textContent = `Best: ${stats.best} / ${TRIVIA.length} across ${stats.plays} play${stats.plays === 1 ? "" : "s"}.`;
             nextBtn.textContent = "Play again";
             nextBtn.classList.add("show");
         }
