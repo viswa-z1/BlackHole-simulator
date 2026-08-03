@@ -229,6 +229,9 @@ export function recordObjectView(name: string) {
   bumpDailyChallenge(name);
 }
 export function getViewedCount(): number { return viewedNames.size; }
+// how many distinct objects have been viewed during just this page load (not lifetime)
+const SESSION_START_VIEWED = viewedNames.size;
+export function getSessionViewedCount(): number { return viewedNames.size - SESSION_START_VIEWED; }
 
 // daily mini-challenge: view a handful of objects in the same calendar day
 const DAILY_KEY = "singularity.dailyProgress";

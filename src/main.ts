@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -1552,8 +1552,19 @@ const sessionStats = (() => {
 let statsTime = sessionStats.time || 0;
 let statsDepth = sessionStats.depth || 0;
 let currentSessionTime = 0;   // this-visit-only elapsed time, unlike statsTime which is cumulative forever
+let sessionMaxDepth = 0;      // this-visit-only deepest dive, unlike statsDepth which is a lifetime max
+const LAST_SESSION_KEY = "singularity.lastSessionRecap";
+// snapshot of the *previous* visit, read once before this session overwrites it
+const lastSessionRecap = (() => {
+  try { return JSON.parse(localStorage.getItem(LAST_SESSION_KEY) || "null"); } catch (e) { return null; }
+})();
 function saveSessionStats() {
   try { localStorage.setItem(STATS_KEY, JSON.stringify({ time: statsTime, depth: statsDepth })); } catch (e) {}
+  try {
+    localStorage.setItem(LAST_SESSION_KEY, JSON.stringify({
+      time: currentSessionTime, viewed: getSessionViewedCount(), depth: sessionMaxDepth,
+    }));
+  } catch (e) { /* storage unavailable */ }
   recordPersonalBest("longestSession", currentSessionTime, { higherIsBetter: true });
 }
 // personal bests: smallest/largest recorded value per named metric, persisted locally
@@ -1901,7 +1912,7 @@ const SETTINGS_KEYS = [
   "singularity.stats.viewed", "singularity.stats.session",
   "singularity.notes", "singularity.recent", "singularity.recentFavs", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
   "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts", "singularity.catalogView",
-  "singularity.cosmosRecentSearches", "singularity.captureCount", "singularity.massConverterHistory", "singularity.dailyProgress",
+  "singularity.cosmosRecentSearches", "singularity.captureCount", "singularity.massConverterHistory", "singularity.dailyProgress", "singularity.lastSessionRecap",
   "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
   "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
@@ -2406,6 +2417,20 @@ renderHeroDaily();
 window.addEventListener("singularity:achievement", renderHeroDaily);
 document.getElementById("back-home")?.addEventListener("click", renderHeroDaily);
 
+// ---------- last-session recap on the welcome screen (returning visitors only) ----------
+(function renderHeroRecap() {
+  const el = document.getElementById("hero-recap");
+  const textEl = document.getElementById("hero-recap-text");
+  if (!el || !textEl || !lastSessionRecap) return;
+  const bits: string[] = [];
+  if (lastSessionRecap.time > 0) bits.push(`explored for ${formatStatsTime(lastSessionRecap.time)}`);
+  if (lastSessionRecap.viewed > 0) bits.push(`viewed ${lastSessionRecap.viewed} object${lastSessionRecap.viewed === 1 ? "" : "s"}`);
+  if (lastSessionRecap.depth > 0.01) bits.push(`dove ${lastSessionRecap.depth.toFixed(2)} Bly`);
+  if (!bits.length) return;
+  textEl.textContent = `Last time you ${bits.join(", ")}.`;
+  requestAnimationFrame(() => el.classList.add("show"));
+})();
+
 // ---------- catalog "by the numbers" — computed aggregate facts about the 40-object dataset ----------
 (function catalogFactBanner() {
   const el = document.getElementById("cat-fact-banner");
@@ -2638,7 +2663,7 @@ function tick() {
 
   // session stats: real wall-clock time explored + deepest cosmos dive, persisted periodically
   if (revealed) { statsTime += dt; currentSessionTime += dt; }
-  if (page === "cosmos") statsDepth = Math.max(statsDepth, cosmos.zoom * 4.2);
+  if (page === "cosmos") { statsDepth = Math.max(statsDepth, cosmos.zoom * 4.2); sessionMaxDepth = Math.max(sessionMaxDepth, cosmos.zoom * 4.2); }
   if (frame % 300 === 0) saveSessionStats();
   if (statsTime >= 300) unlockAchievement("time-traveler");
   if (statsDepth >= 2) unlockAchievement("deep-diver");
