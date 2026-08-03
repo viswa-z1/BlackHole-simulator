@@ -933,6 +933,17 @@ document.getElementById("cc-read-aloud")?.addEventListener("click", () => {
   btn.classList.add("speaking");
   window.speechSynthesis.speak(utter);
 });
+document.getElementById("cc-share-text")?.addEventListener("click", () => {
+  const name = document.getElementById("cc-name").textContent || "";
+  const kind = document.getElementById("cc-kind").textContent || "";
+  const dist = document.getElementById("cc-dist").textContent || "";
+  const blurb = (document.getElementById("cc-blurb").textContent || "").trim();
+  const text = `${name} — ${kind}\n${dist}\n\n${blurb}`;
+  navigator.clipboard?.writeText(text).then(
+    () => toast("Entity details copied to clipboard."),
+    () => toast(text),
+  );
+});
 let cardIndex = 0;
 function showAnomaly(i: number) {
   const n = cosmos.anomalies.length;
