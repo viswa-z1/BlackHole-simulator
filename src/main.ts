@@ -561,6 +561,14 @@ document.getElementById("my-preset-save-btn")?.addEventListener("click", () => {
   toast(`Saved preset "${name}".`);
 });
 
+document.getElementById("c-preset-random")?.addEventListener("click", () => {
+  const keys = Object.keys(PRESETS);
+  const select = document.getElementById("c-preset") as HTMLSelectElement;
+  if (!select || !keys.length) return;
+  const key = keys[Math.floor(Math.random() * keys.length)];
+  select.value = key;
+  select.dispatchEvent(new Event("change"));
+});
 document.getElementById("c-preset")?.addEventListener("change", (e) => {
   const val = (e.target as HTMLSelectElement).value;
   const setR = (id: string, v: number) => { const el = document.getElementById(id) as HTMLInputElement; el.value = String(v); el.dispatchEvent(new Event("input")); };

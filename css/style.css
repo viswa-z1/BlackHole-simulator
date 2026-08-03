@@ -1021,6 +1021,14 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 }
 .dock-select:focus { border-color: var(--accent); }
 .dock-select option { background: #0c1020; color: var(--fg); }
+.preset-row { display: flex; gap: 6px; align-items: center; }
+.preset-row .dock-select { width: auto; flex: 1; }
+.preset-random-btn {
+  margin-top: 6px; flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  font-size: 15px; cursor: pointer; transition: all .2s var(--ease);
+}
+.preset-random-btn:hover { border-color: var(--accent); transform: scale(1.08); }
 .closest-match { margin: 8px 0 0; font-size: 11.5px; color: var(--muted); }
 .closest-match b { color: var(--hot); font-weight: 600; }
 .my-preset-save { display: flex; gap: 6px; margin-top: 10px; }

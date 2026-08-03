@@ -145,15 +145,18 @@
   <h3>Simulation Controls</h3>
   <div class="ctrl">
     <label>Object preset</label>
-    <select id="c-preset" class="dock-select">
-      <option value="">— custom —</option>
-      <option value="sgra">Sagittarius A*</option>
-      <option value="m87">M87*</option>
-      <option value="cyg">Cygnus X-1</option>
-      <option value="ton">TON 618 (quasar)</option>
-      <option value="gw">GW150914 merger</option>
-      <optgroup label="My Presets" id="my-presets-group"></optgroup>
-    </select>
+    <div class="preset-row">
+      <select id="c-preset" class="dock-select">
+        <option value="">— custom —</option>
+        <option value="sgra">Sagittarius A*</option>
+        <option value="m87">M87*</option>
+        <option value="cyg">Cygnus X-1</option>
+        <option value="ton">TON 618 (quasar)</option>
+        <option value="gw">GW150914 merger</option>
+        <optgroup label="My Presets" id="my-presets-group"></optgroup>
+      </select>
+      <button id="c-preset-random" class="preset-random-btn" title="Jump to a random real-object preset">🎲</button>
+    </div>
     <p class="closest-match" id="closest-match">Closest match: <b id="closest-match-name"></b></p>
     <div class="my-preset-save">
       <input type="text" id="my-preset-name" placeholder="Name this configuration…" maxlength="24" aria-label="Preset name" />
