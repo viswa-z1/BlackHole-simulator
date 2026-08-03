@@ -111,6 +111,7 @@ const ACHIEVEMENTS: Record<string, { label: string; desc: string; secret?: boole
   "deep-diver":      { label: "Deep Diver",        desc: "Dove 2 billion light-years into the cosmos" },
   "note-taker":      { label: "Note Taker",        desc: "Wrote your first personal note" },
   "quiz-whiz":       { label: "Quiz Whiz",          desc: "Scored a perfect round in Cosmic Trivia" },
+  "shutterbug":      { label: "Shutterbug",         desc: "Captured 5 frames of the simulation" },
   "konami":          { label: "Konami Cosmonaut",  desc: "Entered the classic cheat code", secret: true },
 };
 const unlockedAchievements = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(ACH_KEY) || "[]"); } catch (e) { return []; } })());

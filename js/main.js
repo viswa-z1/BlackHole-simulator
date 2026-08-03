@@ -1543,10 +1543,20 @@ document.getElementById("capture-preview")?.addEventListener("click", () => {
     if (img?.src)
         window.open(img.src, "_blank");
 });
+function bumpCaptureCount() {
+    try {
+        const n = parseInt(localStorage.getItem("singularity.captureCount") || "0", 10) + 1;
+        localStorage.setItem("singularity.captureCount", String(n));
+        if (n >= 5)
+            unlockAchievement("shutterbug");
+    }
+    catch (e) { /* storage unavailable */ }
+}
 function saveFrame(dest) {
     try {
         const previewUrl = renderer.domElement.toDataURL("image/png");
         showCapturePreview(previewUrl);
+        bumpCaptureCount();
         if (dest === "clipboard" && navigator.clipboard && window.ClipboardItem) {
             renderer.domElement.toBlob((blob) => {
                 if (!blob) {
@@ -2195,7 +2205,7 @@ const SETTINGS_KEYS = [
     "singularity.stats.viewed", "singularity.stats.session",
     "singularity.notes", "singularity.recent", "singularity.recentFavs", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
     "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts", "singularity.catalogView",
-    "singularity.cosmosRecentSearches",
+    "singularity.cosmosRecentSearches", "singularity.captureCount",
     "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
     "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
