@@ -271,8 +271,36 @@ export function recordObjectView(name) {
         localStorage.setItem(RECENT_KEY, JSON.stringify(recentViews));
     }
     catch (e) { }
+    bumpDailyChallenge(name);
 }
 export function getViewedCount() { return viewedNames.size; }
+// daily mini-challenge: view a handful of objects in the same calendar day
+const DAILY_KEY = "singularity.dailyProgress";
+export const DAILY_CHALLENGE_TARGET = 3;
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function loadDaily() {
+    try {
+        const d = JSON.parse(localStorage.getItem(DAILY_KEY) || "null");
+        if (d && d.date === todayStr() && Array.isArray(d.viewed))
+            return d;
+    }
+    catch (e) { /* fall through to a fresh day */ }
+    return { date: todayStr(), viewed: [] };
+}
+function bumpDailyChallenge(name) {
+    const daily = loadDaily();
+    if (daily.viewed.includes(name))
+        return;
+    daily.viewed.push(name);
+    try {
+        localStorage.setItem(DAILY_KEY, JSON.stringify(daily));
+    }
+    catch (e) { }
+    if (daily.viewed.length === DAILY_CHALLENGE_TARGET) {
+        toast(`🎯 Daily challenge complete — you viewed ${DAILY_CHALLENGE_TARGET} objects today!`);
+    }
+}
+export function getDailyProgress() { return loadDaily().viewed.length; }
 export function hasViewedObject(name) { return viewedNames.has(name); }
 export function getCatalogChecklist() {
     return [...BLACK_HOLES, ...PULSARS].map(o => ({

@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -2313,7 +2313,7 @@ const SETTINGS_KEYS = [
     "singularity.stats.viewed", "singularity.stats.session",
     "singularity.notes", "singularity.recent", "singularity.recentFavs", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
     "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts", "singularity.catalogView",
-    "singularity.cosmosRecentSearches", "singularity.captureCount", "singularity.massConverterHistory",
+    "singularity.cosmosRecentSearches", "singularity.captureCount", "singularity.massConverterHistory", "singularity.dailyProgress",
     "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
     "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
@@ -2912,6 +2912,23 @@ const bootTimer = setInterval(() => {
         }, 350);
     }, 5500);
 })();
+// ---------- daily mini-challenge on the welcome screen ----------
+function renderHeroDaily() {
+    const el = document.getElementById("hero-daily");
+    const textEl = document.getElementById("hero-daily-text");
+    if (!el || !textEl)
+        return;
+    const n = getDailyProgress();
+    const done = n >= DAILY_CHALLENGE_TARGET;
+    textEl.textContent = done
+        ? `Complete! You viewed ${n} objects today. 🎉`
+        : `View ${DAILY_CHALLENGE_TARGET} objects today (${n} / ${DAILY_CHALLENGE_TARGET} so far).`;
+    el.classList.toggle("complete", done);
+    el.classList.add("show");
+}
+renderHeroDaily();
+window.addEventListener("singularity:achievement", renderHeroDaily);
+document.getElementById("back-home")?.addEventListener("click", renderHeroDaily);
 // ---------- catalog "by the numbers" — computed aggregate facts about the 40-object dataset ----------
 (function catalogFactBanner() {
     const el = document.getElementById("cat-fact-banner");
