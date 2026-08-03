@@ -619,6 +619,24 @@ document.getElementById("my-preset-save-btn")?.addEventListener("click", () => {
     nameInput.value = "";
     toast(`Saved preset "${name}".`);
 });
+document.getElementById("my-preset-delete-btn")?.addEventListener("click", () => {
+    const select = document.getElementById("c-preset");
+    const val = select?.value || "";
+    if (!val.startsWith("custom:")) {
+        toast("Select one of your saved presets first.");
+        return;
+    }
+    const idx = parseInt(val.slice(7), 10);
+    const list = loadCustomPresets();
+    const name = list[idx]?.name;
+    if (!list[idx])
+        return;
+    list.splice(idx, 1);
+    saveCustomPresets(list);
+    renderCustomPresetOptions();
+    select.value = "";
+    toast(`Deleted preset "${name}".`);
+});
 document.getElementById("c-preset-random")?.addEventListener("click", () => {
     const keys = Object.keys(PRESETS);
     const select = document.getElementById("c-preset");

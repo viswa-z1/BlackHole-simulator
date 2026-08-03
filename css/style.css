@@ -1044,6 +1044,7 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
   padding: 7px 12px; border-radius: 10px; transition: all .2s;
 }
 .my-preset-save button:hover { border-color: var(--accent2); color: #cfeaff; }
+#my-preset-delete-btn:hover { border-color: #ff6b6b; color: #ffb3b3; }
 .mass-convert { display: flex; align-items: center; gap: 8px; }
 .mc-input {
   flex: 1; min-width: 0; background: var(--glass); color: var(--fg);
