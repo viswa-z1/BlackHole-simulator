@@ -1653,6 +1653,7 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 }
 .help-recent-list button:hover { border-color: var(--accent2); color: #cfeaff; }
 .help-recent-list .help-recent-empty { font-size: 12.5px; color: var(--muted); }
+#help-achievements-list .help-recent-empty { font-size: 12.5px; color: var(--muted); display: block; padding: 8px 0; }
 
 /* achievements shelf in the help overlay */
 .help-achievements { margin-top: 18px; }
@@ -1660,6 +1661,14 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
   color: var(--accent2); margin-bottom: 10px;
 }
+.ach-filter-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.ach-filter-tabs button {
+  font-family: var(--font); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  padding: 5px 12px; border-radius: 999px; transition: all .2s;
+}
+.ach-filter-tabs button:hover { color: var(--fg); }
+.ach-filter-tabs button.active { color: var(--bg); background: var(--accent2); border-color: var(--accent2); }
 .ach-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .ach-progress-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
 .ach-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--hot)); transition: width .3s var(--ease); }

@@ -48,6 +48,7 @@ export function buildUI(onStageJump) {
   wireCompare();
   wireFeatureFocus();
   updateFavCount();
+  wireAchievementFilterTabs();
   renderAchievements();
   renderCatBreakdown();
   wireTrivia();
@@ -128,11 +129,17 @@ function achievementProgress(id: string): string | null {
   if (id === "collector") return `${Math.min(favs.size, 5)} / 5`;
   return null;
 }
+// which achievements the Help modal list currently shows
+let achFilter: "all" | "unlocked" | "locked" = "all";
 function renderAchievements() {
   const el = document.getElementById("help-achievements-list");
   if (!el) return;
   const entries = visibleAchievementEntries();
-  el.innerHTML = entries.map(([id, a]) => {
+  const shown = entries.filter(([id]) => {
+    const unlocked = unlockedAchievements.has(id);
+    return achFilter === "unlocked" ? unlocked : achFilter === "locked" ? !unlocked : true;
+  });
+  el.innerHTML = shown.length ? shown.map(([id, a]) => {
     const unlocked = unlockedAchievements.has(id);
     const dateStr = unlocked && achievementDates[id]
       ? new Date(achievementDates[id]).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
@@ -141,12 +148,23 @@ function renderAchievements() {
     return `<div class="ach${unlocked ? " unlocked" : ""}" data-ach-desc="${a.desc}" data-ach-unlocked-date="${dateStr}" data-ach-progress="${progress || ""}">
       <span class="ach-icon">${unlocked ? "🏆" : "🔒"}</span><span class="ach-label">${a.label}</span>
     </div>`;
-  }).join("");
+  }).join("") : `<span class="help-recent-empty">${achFilter === "unlocked" ? "No achievements unlocked yet." : "Nothing locked — you've unlocked them all!"}</span>`;
   const total = entries.length;
   const fill = document.getElementById("ach-progress-fill") as HTMLElement | null;
   const label = document.getElementById("ach-progress-label");
   if (fill) fill.style.width = (unlockedAchievements.size / total * 100).toFixed(1) + "%";
   if (label) label.textContent = `${unlockedAchievements.size} / ${total}`;
+}
+function wireAchievementFilterTabs() {
+  const bar = document.getElementById("ach-filter-tabs");
+  if (!bar) return;
+  bar.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest("button[data-ach-filter]") as HTMLElement | null;
+    if (!btn) return;
+    achFilter = (btn.dataset.achFilter as "all" | "unlocked" | "locked") || "all";
+    bar.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+    renderAchievements();
+  });
 }
 // styled hover tooltip for achievement badges, replacing the plain native title
 (function wireAchievementTooltip() {
