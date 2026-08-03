@@ -793,6 +793,24 @@ function wireDetail() {
 }
 function buildFeatures() {
     buildAnatomy(document.getElementById("feature-grid"));
+    renderFeaturesExploredBadge();
+}
+// tracks which of the 10 Anatomy feature cards the user has opened for a full read
+const FEATURES_EXPLORED_KEY = "singularity.featuresExplored";
+function loadFeaturesExplored() {
+    try {
+        return new Set(JSON.parse(localStorage.getItem(FEATURES_EXPLORED_KEY) || "[]"));
+    }
+    catch (e) {
+        return new Set();
+    }
+}
+function renderFeaturesExploredBadge() {
+    const el = document.getElementById("features-explored-badge");
+    if (!el)
+        return;
+    const explored = loadFeaturesExplored();
+    el.textContent = `${explored.size} / ${FEATURES.length} explored`;
 }
 function chipLabel(o) {
     return o.category === "quasar" ? "Quasar" : o.category === "pulsar" ? "Pulsar" : "Black Hole";
@@ -1162,6 +1180,17 @@ function wireFeatureFocus() {
         document.getElementById("ff-text").textContent = f.text;
         modal.classList.add("open");
         setFeatureFocus(f.id, document.getElementById("feature-focus-canvas"));
+        const explored = loadFeaturesExplored();
+        if (!explored.has(f.id)) {
+            explored.add(f.id);
+            try {
+                localStorage.setItem(FEATURES_EXPLORED_KEY, JSON.stringify([...explored]));
+            }
+            catch (err) { }
+            renderFeaturesExploredBadge();
+            if (explored.size === FEATURES.length)
+                toast("🔭 You've explored every part of a black hole's anatomy!");
+        }
     });
     modal.querySelector("[data-feature-focus-close]")?.addEventListener("click", close);
     modal.addEventListener("click", (e) => { if (e.target === modal)
