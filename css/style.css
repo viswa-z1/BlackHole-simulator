@@ -1054,6 +1054,13 @@ body.page-cosmos #cosmos-map { opacity: 1; pointer-events: auto; }
 .mc-unit { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .mass-convert-out { margin-top: 8px; font-size: 11.5px; color: var(--muted); line-height: 1.7; }
 .mass-convert-out b { color: var(--hot); font-family: var(--mono); font-weight: 600; }
+.mc-history { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.mc-history button {
+  font-family: var(--mono); font-size: 11px; cursor: pointer; color: var(--muted);
+  background: var(--glass); border: 1px solid var(--glass-brd);
+  padding: 4px 10px; border-radius: 999px; transition: all .2s;
+}
+.mc-history button:hover { border-color: var(--accent2); color: #cfeaff; }
 
 /* catalog search */
 .cat-controls { display: flex; gap: 10px; margin: 0 0 24px; flex-wrap: wrap; align-items: center; }

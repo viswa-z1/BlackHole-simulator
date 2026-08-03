@@ -622,6 +622,37 @@ function updateMassConverter() {
 document.getElementById("mc-input")?.addEventListener("input", updateMassConverter);
 updateMassConverter();
 
+// remembers the last few mass-converter values committed (blur/Enter), for quick recall
+const MC_HISTORY_KEY = "singularity.massConverterHistory";
+const MC_HISTORY_MAX = 5;
+function loadMcHistory(): number[] {
+  try { return JSON.parse(localStorage.getItem(MC_HISTORY_KEY) || "[]"); } catch (e) { return []; }
+}
+function renderMcHistory() {
+  const el = document.getElementById("mc-history");
+  if (!el) return;
+  const hist = loadMcHistory();
+  el.innerHTML = hist.map(v => `<button data-v="${v}">${v} M☉</button>`).join("");
+}
+function recordMcHistory() {
+  const input = document.getElementById("mc-input") as HTMLInputElement;
+  const solar = parseFloat(input?.value || "");
+  if (!isFinite(solar) || solar <= 0) return;
+  let hist = loadMcHistory().filter(v => v !== solar);
+  hist = [solar, ...hist].slice(0, MC_HISTORY_MAX);
+  try { localStorage.setItem(MC_HISTORY_KEY, JSON.stringify(hist)); } catch (e) {}
+  renderMcHistory();
+}
+document.getElementById("mc-input")?.addEventListener("change", recordMcHistory);
+document.getElementById("mc-history")?.addEventListener("click", (e) => {
+  const btn = (e.target as HTMLElement).closest("button[data-v]") as HTMLElement | null;
+  if (!btn) return;
+  const input = document.getElementById("mc-input") as HTMLInputElement;
+  input.value = btn.dataset.v || "";
+  updateMassConverter();
+});
+renderMcHistory();
+
 // quality presets (manual override of the adaptive scaler)
 const QUALITY: Record<string, { pr: number; steps: number; bloom: number }> = {
   low: { pr: 1, steps: 90, bloom: 0.3 }, med: { pr: 1.25, steps: 140, bloom: 0.5 },
@@ -1826,7 +1857,7 @@ const SETTINGS_KEYS = [
   "singularity.stats.viewed", "singularity.stats.session",
   "singularity.notes", "singularity.recent", "singularity.recentFavs", "singularity.achievements", "singularity.achievementDates", "singularity.visits",
   "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts", "singularity.catalogView",
-  "singularity.cosmosRecentSearches", "singularity.captureCount",
+  "singularity.cosmosRecentSearches", "singularity.captureCount", "singularity.massConverterHistory",
   "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
   "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
 ];
