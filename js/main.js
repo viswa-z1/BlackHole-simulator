@@ -1578,11 +1578,13 @@ window.addEventListener("pointermove", (e) => {
 // ---------- frame capture (download the current view as a PNG) ----------
 let captureRequested = false;
 let capturePreviewTimer = null;
+let lastCaptureUrl = null;
 function showCapturePreview(dataUrl) {
     const wrap = document.getElementById("capture-preview");
     const img = document.getElementById("capture-preview-img");
     if (!wrap || !img)
         return;
+    lastCaptureUrl = dataUrl;
     img.src = dataUrl;
     wrap.classList.add("show");
     clearTimeout(capturePreviewTimer);
@@ -1592,6 +1594,44 @@ document.getElementById("capture-preview")?.addEventListener("click", () => {
     const img = document.getElementById("capture-preview-img");
     if (img?.src)
         window.open(img.src, "_blank");
+});
+document.getElementById("capture-caption-row")?.addEventListener("click", (e) => e.stopPropagation());
+document.getElementById("capture-caption-btn")?.addEventListener("click", () => {
+    const captionInput = document.getElementById("capture-caption");
+    const caption = (captionInput?.value || "").trim();
+    if (!caption) {
+        toast("Type a caption first.");
+        return;
+    }
+    if (!lastCaptureUrl) {
+        toast("Capture a frame first (P).");
+        return;
+    }
+    const img = new Image();
+    img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx)
+            return;
+        ctx.drawImage(img, 0, 0);
+        const barH = Math.max(48, Math.round(img.height * 0.06));
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(0, img.height - barH, img.width, barH);
+        ctx.fillStyle = "#fff";
+        ctx.font = `${Math.round(barH * 0.4)}px sans-serif`;
+        ctx.textBaseline = "middle";
+        ctx.fillText(caption, 24, img.height - barH / 2, img.width - 48);
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = `singularity-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}-captioned.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast("Captioned frame downloaded.");
+    };
+    img.src = lastCaptureUrl;
 });
 function bumpCaptureCount() {
     try {
