@@ -2290,6 +2290,34 @@ document.getElementById("help-achievements-list")?.addEventListener("click", (e)
   document.body.appendChild(a); a.click(); a.remove();
   toast(`"${label}" badge downloaded.`);
 });
+document.getElementById("ff-download")?.addEventListener("click", () => {
+  const icon = document.getElementById("ff-icon")?.textContent || "";
+  const name = document.getElementById("ff-name")?.textContent || "Feature";
+  const text = document.getElementById("ff-text")?.textContent || "";
+
+  const W = 560, H = 300;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.fillStyle = "#070914"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(255,157,60,0.1)"; ctx.strokeStyle = "rgba(255,157,60,0.4)"; ctx.lineWidth = 1.5;
+  roundRect(ctx, 16, 16, W - 32, H - 32, 18); ctx.fill(); ctx.stroke();
+  ctx.font = "44px sans-serif"; ctx.fillStyle = "#ff9d3c";
+  ctx.fillText(icon, 36, 90);
+  ctx.font = "bold 26px sans-serif"; ctx.fillStyle = "#ffffff";
+  ctx.fillText(name, 100, 76);
+  ctx.font = "14px sans-serif"; ctx.fillStyle = "#c9d2ef";
+  wrapCanvasText(ctx, text, 36, 130, W - 72, 22, 6);
+  ctx.font = "11px sans-serif"; ctx.fillStyle = "#4a5578";
+  ctx.fillText("SINGULARITY — Anatomy of a Black Hole", 20, H - 24);
+
+  const a2 = document.createElement("a");
+  a2.href = canvas.toDataURL("image/png");
+  a2.download = name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() + "-feature.png";
+  document.body.appendChild(a2); a2.click(); a2.remove();
+  toast(`"${name}" card downloaded.`);
+});
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);

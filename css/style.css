@@ -1756,6 +1756,12 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 .feature-focus-body .ic { font-size: 30px; color: var(--accent); margin-bottom: 14px; }
 .feature-focus-body h3 { font-size: 24px; margin-bottom: 16px; }
 .feature-focus-body p { font-size: 14.5px; line-height: 1.75; color: var(--muted); }
+.ff-download {
+  display: block; margin-top: 20px; font-family: var(--font); font-size: 12.5px;
+  cursor: pointer; background: var(--glass); border: 1px solid var(--glass-brd);
+  color: var(--fg); padding: 9px 16px; border-radius: 999px; transition: all .2s var(--ease);
+}
+.ff-download:hover { border-color: var(--accent2); color: #cfeaff; }
 @media (max-width: 720px) {
   .feature-focus-inner { grid-template-columns: 1fr; max-height: 88vh; overflow-y: auto; }
   #feature-focus-canvas { min-height: 200px; }
