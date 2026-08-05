@@ -344,7 +344,7 @@ function loadNotes() {
     }
 }
 export function getAllNotes() { return loadNotes(); }
-function saveNote(name, text) {
+export function saveNote(name, text) {
     try {
         const notes = loadNotes();
         if (text.trim())

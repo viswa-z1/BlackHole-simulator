@@ -1629,6 +1629,19 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 }
 .detail-notes textarea:focus { outline: none; border-color: var(--accent2); }
 .detail-notes textarea::placeholder { color: var(--muted); }
+.cc-notes { margin-top: 14px; }
+.cc-notes label {
+  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.cc-notes textarea {
+  width: 100%; box-sizing: border-box; resize: vertical; min-height: 44px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--glass-brd); border-radius: 10px;
+  color: var(--fg); font-family: var(--font); font-size: 13px; padding: 10px 12px;
+  transition: border-color .2s;
+}
+.cc-notes textarea:focus { outline: none; border-color: var(--accent2); }
+.cc-notes textarea::placeholder { color: var(--muted); }
 
 /* captured-frame preview thumbnail (bottom-right, near the tools rail) */
 #capture-preview {

@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -903,6 +903,9 @@ function openCosmosCard(d) {
         scaleEl.style.display = ly > 0 ? "" : "none";
     }
     document.getElementById("cc-blurb").textContent = d.blurb;
+    const notesEl = document.getElementById("cc-notes");
+    if (notesEl)
+        notesEl.value = getAllNotes()[d.name] || "";
     const favBtn = document.getElementById("cc-fav");
     if (favBtn) {
         favBtn.textContent = cosmosFavs.has(d.name) ? "★" : "☆";
@@ -1099,6 +1102,11 @@ document.getElementById("cc-share-text")?.addEventListener("click", () => {
     const blurb = (document.getElementById("cc-blurb").textContent || "").trim();
     const text = `${name} — ${kind}\n${dist}\n\n${blurb}`;
     navigator.clipboard?.writeText(text).then(() => toast("Entity details copied to clipboard."), () => toast(text));
+});
+document.getElementById("cc-notes")?.addEventListener("input", (e) => {
+    const name = document.getElementById("cc-name").textContent;
+    if (name)
+        saveNote(name, e.target.value);
 });
 let cardIndex = 0;
 function showAnomaly(i) {

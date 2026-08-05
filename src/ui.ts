@@ -286,7 +286,7 @@ function loadNotes(): Record<string, string> {
   try { return JSON.parse(localStorage.getItem(NOTES_KEY) || "{}") || {}; } catch (e) { return {}; }
 }
 export function getAllNotes(): Record<string, string> { return loadNotes(); }
-function saveNote(name: string, text: string) {
+export function saveNote(name: string, text: string) {
   try {
     const notes = loadNotes();
     if (text.trim()) notes[name] = text; else delete notes[name];

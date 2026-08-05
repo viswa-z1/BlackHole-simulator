@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -783,6 +783,8 @@ function openCosmosCard(d) {
   const ly = parseSci(d.dist || "");
   if (scaleEl) { scaleEl.innerHTML = ly > 0 ? distancePerspective(ly) : ""; scaleEl.style.display = ly > 0 ? "" : "none"; }
   document.getElementById("cc-blurb").textContent = d.blurb;
+  const notesEl = document.getElementById("cc-notes") as HTMLTextAreaElement | null;
+  if (notesEl) notesEl.value = getAllNotes()[d.name] || "";
   const favBtn = document.getElementById("cc-fav");
   if (favBtn) { favBtn.textContent = cosmosFavs.has(d.name) ? "★" : "☆"; favBtn.classList.toggle("on", cosmosFavs.has(d.name)); }
   const compareBtn = document.getElementById("cc-compare") as HTMLElement;
@@ -953,6 +955,10 @@ document.getElementById("cc-share-text")?.addEventListener("click", () => {
     () => toast("Entity details copied to clipboard."),
     () => toast(text),
   );
+});
+document.getElementById("cc-notes")?.addEventListener("input", (e) => {
+  const name = document.getElementById("cc-name").textContent;
+  if (name) saveNote(name, (e.target as HTMLTextAreaElement).value);
 });
 let cardIndex = 0;
 function showAnomaly(i: number) {
