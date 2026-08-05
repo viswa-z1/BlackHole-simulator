@@ -830,7 +830,17 @@ function wireDetail() {
             return;
         if (e.target?.id === "detail-notes")
             return; // let arrow keys move the cursor while typing a note
-        if (e.key === "ArrowLeft") {
+        if (e.key === "ArrowLeft" && e.shiftKey) {
+            e.stopPropagation();
+            stopAutoplay();
+            stepFavorite(-1);
+        }
+        else if (e.key === "ArrowRight" && e.shiftKey) {
+            e.stopPropagation();
+            stopAutoplay();
+            stepFavorite(1);
+        }
+        else if (e.key === "ArrowLeft") {
             e.stopPropagation();
             stopAutoplay();
             stepDetail(-1);

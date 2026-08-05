@@ -717,7 +717,9 @@ function wireDetail() {
   document.addEventListener("keydown", (e) => {
     if (!modal.classList.contains("open")) return;
     if ((e.target as HTMLElement)?.id === "detail-notes") return;   // let arrow keys move the cursor while typing a note
-    if (e.key === "ArrowLeft") { e.stopPropagation(); stopAutoplay(); stepDetail(-1); }
+    if (e.key === "ArrowLeft" && e.shiftKey) { e.stopPropagation(); stopAutoplay(); stepFavorite(-1); }
+    else if (e.key === "ArrowRight" && e.shiftKey) { e.stopPropagation(); stopAutoplay(); stepFavorite(1); }
+    else if (e.key === "ArrowLeft") { e.stopPropagation(); stopAutoplay(); stepDetail(-1); }
     else if (e.key === "ArrowRight") { e.stopPropagation(); stopAutoplay(); stepDetail(1); }
   }, true);   // capture: runs before the journey's arrow-key handler
 }
