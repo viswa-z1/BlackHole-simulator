@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -869,8 +869,18 @@ function formatLy(n) {
         return (n / 1e6).toFixed(2) + " million ly";
     return Math.round(n).toLocaleString() + " ly";
 }
+// tracks how many distinct cosmos "kinds" (Black Hole, Quasar, Pulsar, ...) have been viewed
+function updateCartographerProgress() {
+    const kinds = cosmos.kinds();
+    const seenKinds = new Set(cosmos.anomalies.filter((a) => hasViewedObject(a.data.name)).map((a) => a.data.kind));
+    setCartographerProgress(seenKinds.size, kinds.length);
+    if (seenKinds.size >= kinds.length)
+        unlockAchievement("cartographer");
+}
+updateCartographerProgress();
 function openCosmosCard(d) {
     recordObjectView(d.name);
+    updateCartographerProgress();
     window.speechSynthesis?.cancel();
     const readBtn = document.getElementById("cc-read-aloud");
     if (readBtn) {
@@ -2078,6 +2088,7 @@ function toggleHelp(force) {
     helpModal.classList.toggle("open", open);
     if (open) {
         updateStatsDisplay();
+        renderAchievements();
         if (helpStatsInterval)
             clearInterval(helpStatsInterval);
         helpStatsInterval = window.setInterval(renderPersonalBests, 1000);

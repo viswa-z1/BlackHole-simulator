@@ -113,6 +113,7 @@ const ACHIEVEMENTS: Record<string, { label: string; desc: string; secret?: boole
   "note-taker":      { label: "Note Taker",        desc: "Wrote your first personal note" },
   "quiz-whiz":       { label: "Quiz Whiz",          desc: "Scored a perfect round in Cosmic Trivia" },
   "shutterbug":      { label: "Shutterbug",         desc: "Captured 5 frames of the simulation" },
+  "cartographer":    { label: "Cosmic Cartographer", desc: "Viewed one entity of every kind in the Cosmos" },
   "konami":          { label: "Konami Cosmonaut",  desc: "Entered the classic cheat code", secret: true },
 };
 const unlockedAchievements = new Set<string>((() => { try { return JSON.parse(localStorage.getItem(ACH_KEY) || "[]"); } catch (e) { return []; } })());
@@ -127,11 +128,16 @@ function achievementProgress(id: string): string | null {
   if (id === "explorer") return `${Math.min(viewedNames.size, 10)} / 10`;
   if (id === "cataloger") return `${Math.min(viewedNames.size, 40)} / 40`;
   if (id === "collector") return `${Math.min(favs.size, 5)} / 5`;
+  if (id === "cartographer") return cartographerProgress;
   return null;
 }
+// cosmos-kind coverage: main.ts (which owns the cosmos scene data) reports progress in here,
+// since ui.ts has no direct access to the cosmos anomalies/kind list
+let cartographerProgress = "0 / 0";
+export function setCartographerProgress(seen: number, total: number) { cartographerProgress = `${seen} / ${total}`; }
 // which achievements the Help modal list currently shows
 let achFilter: "all" | "unlocked" | "locked" = "all";
-function renderAchievements() {
+export function renderAchievements() {
   const el = document.getElementById("help-achievements-list");
   if (!el) return;
   const entries = visibleAchievementEntries();
