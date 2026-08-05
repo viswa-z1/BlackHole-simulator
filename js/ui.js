@@ -706,6 +706,16 @@ function wireDetail() {
             readBtn.textContent = "🔊 Read aloud";
         openDetail(currentList[i]);
     };
+    // Home/End: jump straight to the first or last object in the currently rendered list
+    const jumpToEdge = (edge) => {
+        if (!currentList.length)
+            return;
+        window.speechSynthesis?.cancel();
+        const readBtn = document.getElementById("detail-read-aloud");
+        if (readBtn)
+            readBtn.textContent = "🔊 Read aloud";
+        openDetail(edge === "first" ? currentList[0] : currentList[currentList.length - 1]);
+    };
     // auto-advance through the currently rendered list every few seconds, until paused
     // or interrupted by any manual navigation
     const AUTOPLAY_MS = 4000;
@@ -856,6 +866,18 @@ function wireDetail() {
             e.stopPropagation();
             stopAutoplay();
             stepDetail(1);
+        }
+        else if (e.key === "Home") {
+            e.stopPropagation();
+            e.preventDefault();
+            stopAutoplay();
+            jumpToEdge("first");
+        }
+        else if (e.key === "End") {
+            e.stopPropagation();
+            e.preventDefault();
+            stopAutoplay();
+            jumpToEdge("last");
         }
     }, true); // capture: runs before the journey's arrow-key handler
 }
