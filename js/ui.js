@@ -1071,9 +1071,12 @@ function renderMostCompared() {
     el.innerHTML = `Most compared: <b>${a}</b> vs <b>${b}</b> — ${bestN}×`;
     el.style.display = "block";
 }
+let currentCompareA = null, currentCompareB = null;
 function openCompare(a, b) {
     if (!a || !b)
         return;
+    currentCompareA = a;
+    currentCompareB = b;
     const grid = document.getElementById("compare-grid");
     const col = (o) => `
     <div class="cmp-col">
@@ -1140,6 +1143,10 @@ function wireCompare() {
     document.addEventListener("keydown", (e) => { if (e.key === "Escape")
         modal.classList.remove("open"); });
     document.getElementById("compare-download-btn")?.addEventListener("click", () => downloadCompareCard());
+    document.getElementById("compare-swap-btn")?.addEventListener("click", () => {
+        if (currentCompareA && currentCompareB)
+            openCompare(currentCompareB, currentCompareA);
+    });
     document.getElementById("compare-history-list")?.addEventListener("click", (e) => {
         const btn = e.target.closest("[data-a]");
         if (!btn)
