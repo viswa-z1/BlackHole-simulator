@@ -1250,6 +1250,13 @@ body.hud-hidden #cosmos-hud { opacity: 0 !important; pointer-events: none !impor
 }
 .trivia-next:hover { border-color: var(--accent2); color: #cfeaff; }
 .trivia-next.show { display: inline-block; }
+.trivia-share {
+  margin-top: 8px; margin-left: 8px; display: none; font-family: var(--font); font-size: 13px; cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-brd); color: var(--fg);
+  padding: 9px 18px; border-radius: 999px; transition: all .2s;
+}
+.trivia-share:hover { border-color: var(--accent2); color: #cfeaff; }
+.trivia-share.show { display: inline-block; }
 
 /* ---------- "My Collection" modal ---------- */
 .collection-inner {

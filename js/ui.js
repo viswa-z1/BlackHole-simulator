@@ -1204,6 +1204,7 @@ function wireTrivia() {
         qEl.textContent = t.q;
         resultEl.textContent = "";
         nextBtn.classList.remove("show");
+        shareBtn?.classList.remove("show");
         optsEl.innerHTML = t.options.map((o, i) => `<button data-i="${i}">${o}</button>`).join("");
     };
     const start = () => { qi = 0; score = 0; finished = false; showQuestion(); modal.classList.add("open"); };
@@ -1249,9 +1250,15 @@ function wireTrivia() {
             resultEl.textContent = `Best: ${stats.best} / ${TRIVIA.length} across ${stats.plays} play${stats.plays === 1 ? "" : "s"}.`;
             nextBtn.textContent = "Play again";
             nextBtn.classList.add("show");
+            shareBtn?.classList.add("show");
         }
         else
             showQuestion();
+    });
+    const shareBtn = document.getElementById("trivia-share");
+    shareBtn?.addEventListener("click", () => {
+        const text = `I scored ${score} / ${TRIVIA.length} on SINGULARITY's Cosmic Trivia! 🎯`;
+        navigator.clipboard?.writeText(text).then(() => toast("Score copied to clipboard."), () => toast(text));
     });
     document.getElementById("help-trivia")?.addEventListener("click", start);
     modal.querySelector("[data-trivia-close]")?.addEventListener("click", () => modal.classList.remove("open"));
