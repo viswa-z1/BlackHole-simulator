@@ -959,6 +959,7 @@ document.getElementById("cc-measure")?.addEventListener("click", () => {
     const diff = Math.abs(lyA - lyB);
     const farther = lyA > lyB ? a.name : b.name;
     toast(`${a.name}: ${formatLy(lyA)} · ${b.name}: ${formatLy(lyB)} · ${farther} is ${formatLy(diff)} farther from Earth`);
+    recordPersonalBest("farthestMeasured", diff, { higherIsBetter: true, announce: `📏 New personal best — ${formatLy(diff)} apart!` });
 });
 document.getElementById("cc-fav")?.addEventListener("click", () => {
     const name = document.getElementById("cc-name").textContent;
@@ -1968,7 +1969,8 @@ function renderPersonalBests() {
         return NaN;
     } })();
     const furthestStage = !isNaN(stageIdx) && STAGES[stageIdx] ? STAGES[stageIdx].label : null;
-    if (fastest === null && longest === null && furthestStage === null) {
+    const farthestMeasured = getPersonalBest("farthestMeasured");
+    if (fastest === null && longest === null && furthestStage === null && farthestMeasured === null) {
         list.innerHTML = `<span class="help-recent-empty">None yet — begin a journey or keep exploring to set your first record.</span>`;
         return;
     }
@@ -1976,6 +1978,7 @@ function renderPersonalBests() {
         fastest !== null ? `<div><b>${fastest.toFixed(1)}s</b><span>Fastest to horizon</span></div>` : "",
         longest !== null ? `<div><b>${formatStatsTime(longest)}</b><span>Longest session</span></div>` : "",
         furthestStage !== null ? `<div><b>${furthestStage}</b><span>Furthest stage reached</span></div>` : "",
+        farthestMeasured !== null ? `<div><b>${formatLy(farthestMeasured)}</b><span>Farthest distance measured</span></div>` : "",
     ].join("");
     const liveEl = document.getElementById("help-pb-live");
     if (liveEl) {
@@ -2351,7 +2354,7 @@ const SETTINGS_KEYS = [
     "singularity.customPresets", "singularity.compareHistory", "singularity.compareCounts", "singularity.catalogView",
     "singularity.cosmosRecentSearches", "singularity.captureCount", "singularity.massConverterHistory", "singularity.dailyProgress", "singularity.lastSessionRecap",
     "singularity.streak", "singularity.lastVisitDate", "singularity.visitDates", "singularity.cosmosBookmark",
-    "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.furthestStage",
+    "singularity.pb.fastestHorizon", "singularity.pb.longestSession", "singularity.pb.farthestMeasured", "singularity.furthestStage",
 ];
 // ---------- reset all saved settings ----------
 let resetArmed = false;
