@@ -3288,6 +3288,8 @@ function tick() {
     // ambient audio intensifies as the camera nears the horizon
     if (page !== "cosmos")
         audio.setIntensity(THREE.MathUtils.clamp((40 - camera.position.length()) / 38, 0, 1));
+    else
+        audio.setIntensity(cosmos.zoom * 0.85); // the drone opens up the deeper you dive into the cosmos
     // session stats: real wall-clock time explored + deepest cosmos dive, persisted periodically
     if (revealed) {
         statsTime += dt;
