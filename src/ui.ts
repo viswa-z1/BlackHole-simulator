@@ -943,6 +943,12 @@ function wireCompare() {
   document.getElementById("compare-swap-btn")?.addEventListener("click", () => {
     if (currentCompareA && currentCompareB) openCompare(currentCompareB, currentCompareA);
   });
+  document.getElementById("compare-history-clear")?.addEventListener("click", () => {
+    try { localStorage.removeItem(COMPARE_HISTORY_KEY); localStorage.removeItem(COMPARE_COUNTS_KEY); } catch (e) {}
+    renderCompareHistory();
+    renderMostCompared();
+    toast("Comparison history cleared.");
+  });
   document.getElementById("compare-history-list")?.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest("[data-a]") as HTMLElement | null;
     if (!btn) return;
