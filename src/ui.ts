@@ -893,19 +893,31 @@ function renderMostCompared() {
   el.innerHTML = `Most compared: <b>${a}</b> vs <b>${b}</b> — ${bestN}×`;
   el.style.display = "block";
 }
+// stats where a straight percentage difference is meaningful — excludes calendar years
+// ("discovered") and exponent-heavy fields that don't parse as clean magnitudes
+const CMP_DIFFABLE = new Set(["mass", "distance", "diameter", "spin", "period", "age"]);
+// how much this value differs from the other object's value for the same stat, as a percentage
+function cmpDiffBadge(key: string, val: string, otherVal: string): string {
+  if (!CMP_DIFFABLE.has(key)) return "";
+  const v = parseSci(val || ""), o = parseSci(otherVal || "");
+  if (!(v > 0) || !(o > 0) || v === o) return "";
+  const pct = ((v - o) / o) * 100;
+  const sign = pct > 0 ? "+" : "";
+  return ` <span class="cmp-diff ${pct >= 0 ? "pos" : "neg"}">${sign}${Math.round(pct)}%</span>`;
+}
 let currentCompareA: any = null, currentCompareB: any = null;
 function openCompare(a, b) {
   if (!a || !b) return;
   currentCompareA = a; currentCompareB = b;
   const grid = document.getElementById("compare-grid");
-  const col = (o) => `
+  const col = (o, other) => `
     <div class="cmp-col">
       <img src="${portraitDataURL(o, 460, 240)}" alt="Rendered portrait of ${o.name}">
       <h3>${o.name}</h3>
       ${CMP_ROWS.filter(([k]) => a[k] || b[k]).map(([k, lab]) =>
-        `<div class="cmp-row"><span>${lab}</span><b>${o[k] || "—"}</b></div>`).join("")}
+        `<div class="cmp-row"><span>${lab}</span><span class="cmp-row-val"><b>${o[k] || "—"}</b>${cmpDiffBadge(k, o[k], other[k])}</span></div>`).join("")}
     </div>`;
-  grid.innerHTML = col(a) + col(b);
+  grid.innerHTML = col(a, b) + col(b, a);
   renderCompareRadar(a, b);
   document.getElementById("compare-modal").classList.add("open");
   recordCompareHistory(a.name, b.name);
