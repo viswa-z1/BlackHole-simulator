@@ -1286,6 +1286,16 @@ function buildCatalog() {
     }
     render();
   });
+  document.getElementById("cat-reset-filters")?.addEventListener("click", () => {
+    cat = "all"; distBucket = "all"; constellationFilter = "all"; shuffleSeed = null;
+    if (search) search.value = "";
+    if (sort) sort.value = "rank";
+    if (constellationSelect) constellationSelect.value = "all";
+    document.querySelectorAll(".cat-tabs button").forEach(b => b.classList.toggle("active", (b as HTMLElement).dataset.cat === "all"));
+    document.querySelectorAll(".cat-dist-tabs button").forEach(b => b.classList.toggle("active", (b as HTMLElement).dataset.dist === "all"));
+    render();
+    toast("Filters reset.");
+  });
   // open a random object from the active tab
   document.getElementById("cat-random")?.addEventListener("click", () => {
     const list = listFor(cat === "fav" && !listFor("fav").length ? "all" : cat);
