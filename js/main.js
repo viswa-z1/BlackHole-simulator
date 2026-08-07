@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote, toggleFav } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote, toggleFav, setTimeTravelerProgress, setDeepDiverProgress } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -3328,6 +3328,8 @@ function tick() {
     }
     if (frame % 300 === 0)
         saveSessionStats();
+    setTimeTravelerProgress(statsTime);
+    setDeepDiverProgress(statsDepth);
     if (statsTime >= 300)
         unlockAchievement("time-traveler");
     if (statsDepth >= 2)

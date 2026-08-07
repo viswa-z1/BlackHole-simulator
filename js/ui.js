@@ -139,12 +139,29 @@ function achievementProgress(id) {
         return `${Math.min(favs.size, 5)} / 5`;
     if (id === "cartographer")
         return cartographerProgress;
+    if (id === "time-traveler")
+        return timeTravelerProgress;
+    if (id === "deep-diver")
+        return deepDiverProgress;
+    if (id === "shutterbug") {
+        const n = (() => { try {
+            return parseInt(localStorage.getItem("singularity.captureCount") || "0", 10);
+        }
+        catch (e) {
+            return 0;
+        } })();
+        return `${Math.min(n, 5)} / 5`;
+    }
     return null;
 }
-// cosmos-kind coverage: main.ts (which owns the cosmos scene data) reports progress in here,
-// since ui.ts has no direct access to the cosmos anomalies/kind list
+// main.ts owns the relevant live state for these — it reports progress in here as it ticks,
+// since ui.ts has no direct access to the cosmos scene or the session-time/depth counters
 let cartographerProgress = "0 / 0";
 export function setCartographerProgress(seen, total) { cartographerProgress = `${seen} / ${total}`; }
+let timeTravelerProgress = "0s / 5m";
+export function setTimeTravelerProgress(sec) { timeTravelerProgress = `${Math.min(Math.floor(sec), 300)}s / 5m`; }
+let deepDiverProgress = "0.00 / 2 Bly";
+export function setDeepDiverProgress(bly) { deepDiverProgress = `${Math.min(bly, 2).toFixed(2)} / 2 Bly`; }
 // which achievements the Help modal list currently shows
 let achFilter = "all";
 export function renderAchievements() {
