@@ -425,8 +425,8 @@
       <button class="detail-print" id="detail-native-share" title="Share using your device's share sheet">📤 Share</button>
       <button class="detail-print" id="detail-copy-citation" title="Copy a formatted reference citation">🔖 Copy citation</button>
       <div class="detail-notes">
-        <label for="detail-notes">Your notes</label>
-        <textarea id="detail-notes" rows="2" placeholder="Jot a personal note about this object…"></textarea>
+        <label for="detail-notes">Your notes <span class="notes-count" id="detail-notes-count">0 / 500</span></label>
+        <textarea id="detail-notes" rows="2" maxlength="500" placeholder="Jot a personal note about this object…"></textarea>
       </div>
     </div>
   </div>
@@ -660,8 +660,8 @@
   <p class="cc-scale" id="cc-scale"></p>
   <p id="cc-blurb"></p>
   <div class="cc-notes">
-    <label for="cc-notes">Your notes</label>
-    <textarea id="cc-notes" rows="2" placeholder="Jot a personal note about this entity…"></textarea>
+    <label for="cc-notes">Your notes <span class="notes-count" id="cc-notes-count">0 / 500</span></label>
+    <textarea id="cc-notes" rows="2" maxlength="500" placeholder="Jot a personal note about this entity…"></textarea>
   </div>
   <div class="cc-nearby-wrap" id="cc-nearby-wrap">
     <h4>Nearby</h4>

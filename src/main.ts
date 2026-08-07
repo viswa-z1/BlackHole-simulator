@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote, toggleFav, setTimeTravelerProgress, setDeepDiverProgress } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote, toggleFav, setTimeTravelerProgress, setDeepDiverProgress, updateNotesCount } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 
@@ -785,6 +785,7 @@ function openCosmosCard(d) {
   document.getElementById("cc-blurb").textContent = d.blurb;
   const notesEl = document.getElementById("cc-notes") as HTMLTextAreaElement | null;
   if (notesEl) notesEl.value = getAllNotes()[d.name] || "";
+  updateNotesCount("cc-notes-count", notesEl?.value.length || 0);
   const favBtn = document.getElementById("cc-fav");
   if (favBtn) { favBtn.textContent = cosmosFavs.has(d.name) ? "★" : "☆"; favBtn.classList.toggle("on", cosmosFavs.has(d.name)); }
   const compareBtn = document.getElementById("cc-compare") as HTMLElement;
@@ -957,8 +958,10 @@ document.getElementById("cc-share-text")?.addEventListener("click", () => {
   );
 });
 document.getElementById("cc-notes")?.addEventListener("input", (e) => {
+  const val = (e.target as HTMLTextAreaElement).value;
   const name = document.getElementById("cc-name").textContent;
-  if (name) saveNote(name, (e.target as HTMLTextAreaElement).value);
+  if (name) saveNote(name, val);
+  updateNotesCount("cc-notes-count", val.length);
 });
 let cardIndex = 0;
 function showAnomaly(i: number) {

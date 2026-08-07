@@ -374,6 +374,11 @@ export function saveNote(name, text) {
     }
     catch (e) { /* storage unavailable */ }
 }
+export function updateNotesCount(countElId, len) {
+    const el = document.getElementById(countElId);
+    if (el)
+        el.textContent = `${len} / 500`;
+}
 // word-wrap plain text onto a canvas, returning the y position after the last line
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     const words = text.split(/\s+/);
@@ -606,6 +611,7 @@ function openDetail(o) {
     const notesEl = document.getElementById("detail-notes");
     if (notesEl)
         notesEl.value = loadNotes()[o.name] || "";
+    updateNotesCount("detail-notes-count", notesEl?.value.length || 0);
     document.getElementById("detail-modal").classList.add("open");
     try {
         history.replaceState(null, "", "#object/" + encodeURIComponent(o.name));
@@ -787,9 +793,11 @@ function wireDetail() {
     });
     // personal notes: save as the user types
     document.getElementById("detail-notes")?.addEventListener("input", (e) => {
+        const val = e.target.value;
         const name = document.getElementById("detail-name").textContent;
         if (name)
-            saveNote(name, e.target.value);
+            saveNote(name, val);
+        updateNotesCount("detail-notes-count", val.length);
     });
     document.getElementById("detail-print")?.addEventListener("click", () => window.print());
     document.getElementById("detail-read-aloud")?.addEventListener("click", () => {

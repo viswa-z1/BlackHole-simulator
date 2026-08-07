@@ -304,6 +304,10 @@ export function saveNote(name: string, text: string) {
     if (text.trim()) unlockAchievement("note-taker");
   } catch (e) { /* storage unavailable */ }
 }
+export function updateNotesCount(countElId: string, len: number) {
+  const el = document.getElementById(countElId);
+  if (el) el.textContent = `${len} / 500`;
+}
 
 // word-wrap plain text onto a canvas, returning the y position after the last line
 function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number): number {
@@ -511,6 +515,7 @@ function openDetail(o) {
 
   const notesEl = document.getElementById("detail-notes") as HTMLTextAreaElement;
   if (notesEl) notesEl.value = loadNotes()[o.name] || "";
+  updateNotesCount("detail-notes-count", notesEl?.value.length || 0);
 
   document.getElementById("detail-modal").classList.add("open");
   try { history.replaceState(null, "", "#object/" + encodeURIComponent(o.name)); } catch (e) {}
@@ -664,8 +669,10 @@ function wireDetail() {
 
   // personal notes: save as the user types
   document.getElementById("detail-notes")?.addEventListener("input", (e) => {
+    const val = (e.target as HTMLTextAreaElement).value;
     const name = document.getElementById("detail-name").textContent;
-    if (name) saveNote(name, (e.target as HTMLTextAreaElement).value);
+    if (name) saveNote(name, val);
+    updateNotesCount("detail-notes-count", val.length);
   });
 
   document.getElementById("detail-print")?.addEventListener("click", () => window.print());

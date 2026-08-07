@@ -1622,7 +1622,7 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 /* personal notes on a catalog object, persisted locally */
 .detail-notes { margin-top: 14px; }
 .detail-notes label {
-  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
   color: var(--muted); margin-bottom: 6px;
 }
 .detail-notes textarea {
@@ -1635,9 +1635,10 @@ button:active, .sw:active, .tool-btn:active { transform: scale(0.96); }
 .detail-notes textarea::placeholder { color: var(--muted); }
 .cc-notes { margin-top: 14px; }
 .cc-notes label {
-  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
   color: var(--muted); margin-bottom: 6px;
 }
+.notes-count { font-size: 10px; letter-spacing: normal; text-transform: none; opacity: 0.7; }
 .cc-notes textarea {
   width: 100%; box-sizing: border-box; resize: vertical; min-height: 44px;
   background: rgba(255,255,255,0.04); border: 1px solid var(--glass-brd); border-radius: 10px;
