@@ -937,7 +937,7 @@ export function clearCatalogFavorites() {
     catch (e) { }
     updateFavCount();
 }
-function toggleFav(name) {
+export function toggleFav(name) {
     const adding = !favs.has(name);
     favs.has(name) ? favs.delete(name) : favs.add(name);
     try {

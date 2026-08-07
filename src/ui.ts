@@ -779,7 +779,7 @@ export function clearCatalogFavorites() {
   try { localStorage.setItem(FAV_KEY, JSON.stringify([])); } catch (e) {}
   updateFavCount();
 }
-function toggleFav(name: string) {
+export function toggleFav(name: string) {
   const adding = !favs.has(name);
   favs.has(name) ? favs.delete(name) : favs.add(name);
   try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch (e) {}

@@ -16,7 +16,7 @@ import { createShip } from "./ship.js";
 import { createAudio } from "./audio.js";
 import { portraitDataURL } from "./portraits.js";
 import { createCosmos } from "./cosmos.js";
-import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote } from "./ui.js";
+import { buildUI, STAGES, toast, openObjectByName, recordObjectView, getViewedCount, getRecentlyViewed, openRecentlyViewed, cosmosEntityHasCatalogMatch, compareCosmosEntity, unlockAchievement, getCatalogFavorites, getAchievementCounts, getAllNotes, clearCatalogFavorites, parseSci, distancePerspective, getAchievementsList, hasViewedObject, getCosmosEntitySource, getRecentlyFavorited, getDailyProgress, DAILY_CHALLENGE_TARGET, getSessionViewedCount, setCartographerProgress, renderAchievements, saveNote, toggleFav } from "./ui.js";
 import { ALL_OBJECTS } from "./data.js";
 import { ANOMALIES } from "./cosmos-data.js";
 // ---------- renderer ----------
@@ -1744,7 +1744,7 @@ function renderCollection() {
     const catFavs = getCatalogFavorites();
     if (catGrid) {
         catGrid.innerHTML = catFavs.length
-            ? catFavs.map(o => `<button class="collection-card" data-cat-name="${encodeURIComponent(o.name)}">${o.name}</button>`).join("")
+            ? catFavs.map(o => `<button class="collection-card" data-cat-name="${encodeURIComponent(o.name)}">${o.name}<span class="collection-remove" data-remove-cat="${encodeURIComponent(o.name)}" title="Remove from collection">✕</span></button>`).join("")
             : `<span class="collection-empty">No catalog favorites yet — tap ☆ on any object.</span>`;
     }
     if (cosGrid) {
@@ -1753,7 +1753,7 @@ function renderCollection() {
             return idx >= 0 ? { name, idx, color: ANOMALIES[idx].color } : null;
         }).filter(Boolean);
         cosGrid.innerHTML = cosFavList.length
-            ? cosFavList.map(f => `<button class="collection-card" data-cos-idx="${f.idx}"><span class="cc-swatch" style="background:#${f.color.toString(16).padStart(6, "0")}"></span>${f.name}</button>`).join("")
+            ? cosFavList.map(f => `<button class="collection-card" data-cos-idx="${f.idx}"><span class="cc-swatch" style="background:#${f.color.toString(16).padStart(6, "0")}"></span>${f.name}<span class="collection-remove" data-remove-cos="${encodeURIComponent(f.name)}" title="Remove from collection">✕</span></button>`).join("")
             : `<span class="collection-empty">No cosmos favorites yet — tap ☆ on any figure card.</span>`;
     }
 }
@@ -1768,6 +1768,13 @@ collectionModal?.querySelector("[data-collection-close]")?.addEventListener("cli
 collectionModal?.addEventListener("click", (e) => { if (e.target === collectionModal)
     toggleCollection(false); });
 document.getElementById("collection-catalog-grid")?.addEventListener("click", (e) => {
+    const removeBtn = e.target.closest("[data-remove-cat]");
+    if (removeBtn) {
+        e.stopPropagation();
+        toggleFav(decodeURIComponent(removeBtn.dataset.removeCat));
+        renderCollection();
+        return;
+    }
     const btn = e.target.closest("[data-cat-name]");
     if (!btn)
         return;
@@ -1776,6 +1783,15 @@ document.getElementById("collection-catalog-grid")?.addEventListener("click", (e
     openObjectByName(decodeURIComponent(btn.dataset.catName));
 });
 document.getElementById("collection-cosmos-grid")?.addEventListener("click", (e) => {
+    const removeBtn = e.target.closest("[data-remove-cos]");
+    if (removeBtn) {
+        e.stopPropagation();
+        const name = decodeURIComponent(removeBtn.dataset.removeCos);
+        cosmosFavs.delete(name);
+        saveCosmosFavs();
+        renderCollection();
+        return;
+    }
     const btn = e.target.closest("[data-cos-idx]");
     if (!btn)
         return;
