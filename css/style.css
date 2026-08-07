@@ -728,6 +728,7 @@ body.mode-journey #back-home { display: inline-block; }
   display: flex; flex-direction: column; gap: 10px;
 }
 .tool-btn {
+  position: relative;
   width: 46px; height: 46px; border-radius: 50%;
   background: var(--glass); border: 1px solid var(--glass-brd);
   color: var(--fg); font-size: 19px; cursor: pointer; line-height: 1;
@@ -735,6 +736,13 @@ body.mode-journey #back-home { display: inline-block; }
   transition: transform .2s ease, border-color .2s ease, background .2s ease;
   display: flex; align-items: center; justify-content: center;
 }
+.tool-badge {
+  position: absolute; top: -4px; right: -4px; font-style: normal;
+  min-width: 16px; height: 16px; padding: 0 3px; border-radius: 8px;
+  background: var(--accent); color: #1a1006; font-family: var(--mono);
+  font-size: 9.5px; font-weight: 700; line-height: 16px; text-align: center;
+}
+.tool-badge:empty { display: none; }
 .tool-btn:hover { transform: translateY(-2px) scale(1.05); border-color: var(--accent); }
 .tool-btn.active { background: rgba(255,157,60,0.18); border-color: var(--accent); }
 @media (max-width: 720px) { #toolbar { bottom: 150px; right: 12px; } }

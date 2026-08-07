@@ -1758,6 +1758,14 @@ function toggleHelp(force?: boolean) {
     helpStatsInterval = null;
   }
 }
+function updateHelpBadge() {
+  const badge = document.getElementById("tool-help-badge");
+  if (!badge) return;
+  const { unlocked } = getAchievementCounts();
+  badge.textContent = unlocked > 0 ? String(unlocked) : "";
+}
+updateHelpBadge();
+window.addEventListener("singularity:achievement", updateHelpBadge);
 document.getElementById("tool-help").addEventListener("click", () => toggleHelp());
 helpModal.querySelector("[data-help-close]").addEventListener("click", () => toggleHelp(false));
 helpModal.addEventListener("click", (e) => { if (e.target === helpModal) toggleHelp(false); });
