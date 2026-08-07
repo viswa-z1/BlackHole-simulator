@@ -561,7 +561,7 @@ function openDetail(o) {
     document.getElementById("detail-alias").textContent = o.alias;
     document.getElementById("detail-stats").innerHTML = keys
         .filter(k => o[k])
-        .map(k => `<div class="dstat"><span class="lab" data-stat-key="${k}">${STAT_LABELS[k]}</span><span class="val">${o[k]}</span></div>`)
+        .map(k => `<div class="dstat"><span class="lab" data-stat-key="${k}">${STAT_LABELS[k]}</span><span class="val">${o[k]}${k === "discovered" ? discoveredAgoCaption(o[k]) : ""}</span></div>`)
         .join("");
     // mass scale bar (log₁₀ vs the Sun); hidden when the object has no mass
     const ms = document.getElementById("mass-scale");
@@ -1421,6 +1421,16 @@ export function distancePerspective(ly) {
 function parseYear(s) {
     const m = (s || "").match(/\d{4}/);
     return m ? parseInt(m[0], 10) : 9999;
+}
+// a small "(~N years ago)" caption next to a free-text discovery date
+function discoveredAgoCaption(discovered) {
+    const year = parseYear(discovered);
+    if (year >= 9999)
+        return "";
+    const ago = new Date().getFullYear() - year;
+    if (ago < 0)
+        return "";
+    return ` <span class="discovered-ago">(~${ago} year${ago === 1 ? "" : "s"} ago)</span>`;
 }
 function shuffledCopy(arr) {
     const a = [...arr];
