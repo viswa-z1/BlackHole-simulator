@@ -1456,6 +1456,10 @@ function buildCatalog() {
     let distBucket = "all";
     let constellationFilter = "all";
     let shuffleSeed = null;
+    const azIndex = document.getElementById("cat-az-index");
+    const AZ_LETTERS = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+    if (azIndex)
+        azIndex.innerHTML = AZ_LETTERS.map(l => `<button data-letter="${l}" disabled>${l}</button>`).join("");
     const render = () => {
         const q = (search?.value || "").trim().toLowerCase();
         currentQuery = q;
@@ -1483,8 +1487,29 @@ function buildCatalog() {
         grid.innerHTML = list.length
             ? list.map((o, i) => objCard(o, i + 1)).join("")
             : `<p class="cat-empty">${cat === "fav" && !q ? "No favorites yet — tap ☆ on any object to save it here." : q ? `No objects match “${q}”.` : "No objects in this range."}</p>`;
+        if (azIndex) {
+            const present = new Set(list.map(o => o.name[0]?.toUpperCase()));
+            azIndex.querySelectorAll("button[data-letter]").forEach(btn => {
+                btn.disabled = !present.has(btn.dataset.letter || "");
+            });
+        }
     };
     render();
+    // jump the grid to the first card whose name starts with the tapped letter
+    azIndex?.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-letter]");
+        if (!btn || btn.disabled)
+            return;
+        const idx = currentList.findIndex(o => o.name[0]?.toUpperCase() === btn.dataset.letter);
+        if (idx === -1)
+            return;
+        const card = grid.children[idx];
+        if (!card)
+            return;
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        card.classList.add("az-jump-flash");
+        setTimeout(() => card.classList.remove("az-jump-flash"), 900);
+    });
     window.addEventListener("singularity:favtoggle", render);
     // star toggles favorite (registered before the detail handler; stops it)
     grid.addEventListener("click", (e) => {

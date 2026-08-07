@@ -432,6 +432,19 @@ a { color: var(--accent2); text-decoration: none; }
 .feature-card h4 { font-size: 17px; margin-bottom: 9px; }
 .feature-card p { color: var(--muted); font-size: 13.5px; line-height: 1.62; }
 
+/* A-Z quick-jump index above the catalog grid */
+.cat-az-index { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 18px; }
+.cat-az-index button {
+  width: 24px; height: 24px; border-radius: 6px; padding: 0;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--glass-brd);
+  color: var(--fg); font-family: var(--mono); font-size: 11px; cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.cat-az-index button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.cat-az-index button:disabled { color: var(--muted); opacity: 0.3; cursor: default; }
+@keyframes azJumpFlash { 0%, 100% { box-shadow: none; } 30% { box-shadow: 0 0 0 3px var(--accent); } }
+.az-jump-flash { animation: azJumpFlash .9s ease; }
+
 /* catalog cards */
 .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; }
 .obj-card {
