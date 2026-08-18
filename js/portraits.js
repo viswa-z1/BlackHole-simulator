@@ -90,6 +90,7 @@ function softGlow(ctx, x, y, r, color, alpha) {
     ctx.fill();
     ctx.restore();
 }
+//color changes for disk
 function diskColor(t) {
     const stops = [
         [0.0, [255, 92, 26]], [0.4, [255, 150, 60]],
