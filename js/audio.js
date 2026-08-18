@@ -61,7 +61,7 @@ export function createAudio() {
         hi.start();
         built = true;
     }
-    function resume() { if (ctx && ctx.state === "suspended")
+    function resume() { if (ctx && ctx.state === "suspended") //resume function
         ctx.resume(); }
     let volume = 1;
     return {
